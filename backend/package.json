@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "routes": "^2.1.0",
+    "vercel": "^41.4.1"
+  }
+}
