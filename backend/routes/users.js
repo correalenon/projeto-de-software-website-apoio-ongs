@@ -1,4 +1,5 @@
 import express from "express";
+import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 
 const router = express.Router();
@@ -42,19 +43,34 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+    const { email, password, name, role } = req.body;
+
+    if (!email || !password || !name) {
+        return res.status(400).json({ error: "Todos os campos são obrigatórios" });
+    }
+
     try {
-        const { name, email, password, role } = req.body;
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ error: "E-mail já cadastrado" });
         }
+
+        // Criptografar a senha antes de salvar
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const newUser = await prisma.user.create({
-            data: { name, email, password, role },
+            data: {
+                email,
+                password: hashedPassword, // Salvar a senha criptografada
+                name,
+                role,
+            },
         });
+
         const { password: _, ...userWithoutPassword } = newUser;
-        res.status(201).json(userWithoutPassword);
+        return res.status(201).json(userWithoutPassword);
     } catch (error) {
-        res.status(500).json({ error: "Erro ao criar usuário" });
+        return res.status(500).json({ error: "Erro ao criar usuário" });
     }
 });
 
