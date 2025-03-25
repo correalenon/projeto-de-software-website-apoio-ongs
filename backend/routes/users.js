@@ -1,11 +1,12 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
+import { authenticateUser } from "../src/services/authentication.js";
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get("/", async (req, res) => {
+router.get("/", authenticateUser, async (req, res) => {
     try {
         const users = await prisma.user.findMany({
             select: {
@@ -21,7 +22,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticateUser, async (req, res) => {
     try {
         const { id } = req.params;
         const user = await prisma.user.findUnique({
@@ -42,7 +43,7 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", authenticateUser, async (req, res) => {
     const { email, password, name, role } = req.body;
 
     if (!email || !password || !name) {
@@ -55,13 +56,12 @@ router.post("/", async (req, res) => {
             return res.status(400).json({ error: "E-mail já cadastrado" });
         }
 
-        // Criptografar a senha antes de salvar
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = await prisma.user.create({
             data: {
                 email,
-                password: hashedPassword, // Salvar a senha criptografada
+                password: hashedPassword,
                 name,
                 role,
             },
@@ -74,7 +74,7 @@ router.post("/", async (req, res) => {
     }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authenticateUser, async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email, password, role } = req.body;
@@ -93,7 +93,7 @@ router.put("/:id", async (req, res) => {
     }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticateUser, async (req, res) => {
     try {
         const { id } = req.params;
         const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
