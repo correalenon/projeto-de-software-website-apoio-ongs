@@ -1,13 +1,20 @@
 import express from 'express';
 import routes from '../routes/index.js';
+import { PrismaClient } from '@prisma/client';
 
-conexao.on('error', (erro) => {
-    console.error("erro de conexão", erro);
-});
+const prisma = new PrismaClient();
 
-conexao.once('open', () => {
-    console.log('Conexao com o banco realizada com sucesso');
-});
+async function validateDatabaseConnection() {
+    try {
+        await prisma.$connect();
+        console.log('Conexão com o banco realizada com sucesso');
+    } catch (error) {
+        console.error('Erro de conexão com o banco:', error);
+        process.exit(1);
+    }
+}
+
+validateDatabaseConnection();
 
 const app = express();
 routes(app);

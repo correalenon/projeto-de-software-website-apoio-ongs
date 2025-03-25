@@ -1,8 +1,12 @@
 {
   "dependencies": {
+    "@prisma/client": "^6.5.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "routes": "^2.1.0",
     "vercel": "^41.4.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.5.0"
   }
 }
