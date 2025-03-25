@@ -12,5 +12,24 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend_container
+    environment:
+      DATABASE_URL: "postgresql://user:user@postgres:5432/projeto_software?schema=public"
+      JWT_SECRET: "37 bv6sWlL!%w*3eXejSINfzF)(F.{;s"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    command: >
+      sh -c "
+      npm run migrate &&
+      npm run seed &&
+      npm run start
+      "
+
 volumes:
   postgres_data:
