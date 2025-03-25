@@ -1,12 +1,10 @@
 import express from "express";
-// import livros from "./livrosRoutes.js";
-// import autores from "./autoresRoutes.js";
+import users from "./users.js";
 
 const routes = (app) => {
-    app.route('/').get((req, res) => res.status(200).send('API de livros Node.JS'));
-
-    // app.use(express.json(), livros);
-    // app.use(express.json(), autores);
+    app.use(express.json());
+    app.route('/').get((req, res) => res.status(200).send('API de apoio a ONGs'));
+    app.use("/api/v1/users", users);
 };
 
 export default routes;
