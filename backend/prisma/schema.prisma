@@ -18,5 +18,29 @@ model User {
   name      String 
   email     String    @unique
   password  String
-  type      String
+  role      Role      @default(ADMIN)
+  ongs      Ongs[]
+}
+
+model Images {
+  id        Int         @id @default(autoincrement())
+  url       String
+  ongs      Ongs?       @relation(fields: [ongsId], references: [id])
+  ongsId    Int?
+}
+
+model Ongs {
+  id            Int         @id @default(autoincrement())
+  name          String 
+  user          User        @relation(fields: [userId], references: [id])
+  userId        Int
+  images        Images[]
+  contact       String
+  description   String
+}
+
+enum Role {
+    ADMIN
+    VOLUNTARY
+    ADVERTISER
 }
