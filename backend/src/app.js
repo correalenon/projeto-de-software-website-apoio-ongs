@@ -4,9 +4,9 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function validateDatabaseConnection() {
+function validateDatabaseConnection() {
     try {
-        await prisma.$connect();
+        prisma.$connect();
         console.log('Conexão com o banco realizada com sucesso');
     } catch (error) {
         console.error('Erro de conexão com o banco:', error);
