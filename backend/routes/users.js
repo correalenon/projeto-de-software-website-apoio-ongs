@@ -1,5 +1,5 @@
 import express from "express";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs"; // Alterado para bcryptjs
 import { PrismaClient } from "@prisma/client";
 import { authenticateUser } from "../src/services/authentication.js";
 
@@ -56,7 +56,7 @@ router.post("/", authenticateUser, async (req, res) => {
             return res.status(400).json({ error: "E-mail já cadastrado" });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10); // bcryptjs funciona da mesma forma
 
         const newUser = await prisma.user.create({
             data: {

@@ -3,7 +3,24 @@ import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
 
+function generateCNPJ() {
+    const randomDigits = () => Math.floor(Math.random() * 9).toString();
+    let cnpj = "";
+    for (let i = 0; i < 12; i++) {
+        cnpj += randomDigits();
+    }
+    return cnpj + "00";
+}
+
 async function main() {
+    await prisma.user.create({
+        data: {
+            name: "Super Administrator",
+            email: "admin@acad.ufsm.br",
+            password: "admin",
+            role: "ADMIN",
+        },
+    });
     for (let i = 0; i < 10; i++) {
         await prisma.user.create({
             data: {
@@ -19,6 +36,7 @@ async function main() {
         await prisma.ongs.create({
             data: {
                 name: faker.company.name(),
+                cnpj: generateCNPJ(),
                 contact: faker.phone.number(),
                 description: faker.lorem.paragraph(),
                 userId: Math.floor(Math.random() * 10) + 1,
