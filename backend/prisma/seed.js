@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { faker } from "@faker-js/faker";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -13,16 +14,16 @@ function generateCNPJ() {
 }
 
 async function main() {
-    await prisma.user.create({
+    await prisma.users.create({
         data: {
             name: "Super Administrator",
             email: "admin@acad.ufsm.br",
-            password: "admin",
+            password: await bcrypt.hash("admin", 10),
             role: "ADMIN",
         },
     });
     for (let i = 0; i < 10; i++) {
-        await prisma.user.create({
+        await prisma.users.create({
             data: {
                 name: faker.person.fullName(),
                 email: faker.internet.email(),

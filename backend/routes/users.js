@@ -1,5 +1,5 @@
 import express from "express";
-import bcrypt from "bcryptjs"; // Alterado para bcryptjs
+import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { authenticateUser } from "../src/services/authentication.js";
 
@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 router.get("/", authenticateUser, async (req, res) => {
     try {
-        const users = await prisma.user.findMany({
+        const users = await prisma.users.findMany({
             select: {
                 id: true,
                 name: true,
@@ -25,7 +25,7 @@ router.get("/", authenticateUser, async (req, res) => {
 router.get("/:id", authenticateUser, async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
             where: { id: parseInt(id) },
             select: {
                 id: true,
@@ -51,14 +51,14 @@ router.post("/", authenticateUser, async (req, res) => {
     }
 
     try {
-        const existingUser = await prisma.user.findUnique({ where: { email } });
+        const existingUser = await prisma.users.findUnique({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ error: "E-mail já cadastrado" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10); // bcryptjs funciona da mesma forma
 
-        const newUser = await prisma.user.create({
+        const newUser = await prisma.users.create({
             data: {
                 email,
                 password: hashedPassword,
@@ -78,11 +78,11 @@ router.put("/:id", authenticateUser, async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email, password, role } = req.body;
-        const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+        const user = await prisma.users.findUnique({ where: { id: parseInt(id) } });
         if (!user) {
             return res.status(404).json({ error: "Usuário não encontrado" });
         }
-        const updatedUser = await prisma.user.update({
+        const updatedUser = await prisma.users.update({
             where: { id: parseInt(id) },
             data: { name, email, password, role },
         });
@@ -96,11 +96,11 @@ router.put("/:id", authenticateUser, async (req, res) => {
 router.delete("/:id", authenticateUser, async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+        const user = await prisma.users.findUnique({ where: { id: parseInt(id) } });
         if (!user) {
             return res.status(404).json({ error: "Usuário não encontrado" });
         }
-        await prisma.user.delete({ where: { id: parseInt(id) } });
+        await prisma.users.delete({ where: { id: parseInt(id) } });
         res.status(204).send();
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar usuário" });
