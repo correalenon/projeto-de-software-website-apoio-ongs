@@ -14,35 +14,62 @@ function generateCNPJ() {
 }
 
 async function main() {
-    await prisma.users.create({
-        data: {
-            name: "Super Administrator",
-            email: "admin@acad.ufsm.br",
-            password: await bcrypt.hash("admin", 10),
-            role: "ADMIN",
-        },
-    });
-    for (let i = 0; i < 10; i++) {
+    const adminEmail = "admin@acad.ufsm.br";
+    const existingAdmin = await prisma.users.findUnique({ where: { email: adminEmail } });
+    if (!existingAdmin) {
         await prisma.users.create({
             data: {
-                name: faker.person.fullName(),
-                email: faker.internet.email(),
-                password: faker.internet.password(),
-                role: "VOLUNTARY",
+                name: "Super Administrator",
+                email: adminEmail,
+                password: await bcrypt.hash("admin", 10),
+                role: "ADMIN",
             },
         });
     }
 
+    for (let i = 0; i < 10; i++) {
+        const email = faker.internet.email();
+        const existingUser = await prisma.users.findUnique({ where: { email } });
+        if (!existingUser) {
+            await prisma.users.create({
+                data: {
+                    name: faker.person.fullName(),
+                    email,
+                    password: await bcrypt.hash(faker.internet.password(), 10),
+                    role: "VOLUNTARY",
+                },
+            });
+        }
+    }
+
     for (let i = 0; i < 5; i++) {
-        await prisma.ongs.create({
-            data: {
-                name: faker.company.name(),
-                cnpj: generateCNPJ(),
-                contact: faker.phone.number(),
-                description: faker.lorem.paragraph(),
-                userId: Math.floor(Math.random() * 10) + 1,
-            },
-        });
+        const cnpj = generateCNPJ();
+        const existingOng = await prisma.ongs.findUnique({ where: { cnpj } });
+        if (!existingOng) {
+            await prisma.ongs.create({
+                data: {
+                    name: faker.company.name(),
+                    cnpj,
+                    contact: faker.phone.number(),
+                    description: faker.lorem.paragraph(),
+                    userId: Math.floor(Math.random() * 10) + 1,
+                },
+            });
+        }
+    }
+
+    for (let i = 0; i < 5; i++) {
+        const name = faker.commerce.productName();
+        const existingProject = await prisma.projects.findFirst({ where: { name } });
+        if (!existingProject) {
+            await prisma.projects.create({
+                data: {
+                    name,
+                    description: faker.lorem.paragraph(),
+                    ongId: Math.floor(Math.random() * 5) + 1,
+                },
+            });
+        }
     }
 }
 
