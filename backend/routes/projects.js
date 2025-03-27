@@ -12,7 +12,20 @@ router.get("/", authenticateUser, async (req, res) => {
                 id: true,
                 name: true,
                 description: true,
-                ongId: true,
+                ong: {
+                    select: {
+                        id: true,
+                        name: true,
+                        contact: true,
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                            },
+                        }
+                    }
+                },
                 images: true,
             },
         });
@@ -31,7 +44,20 @@ router.get("/:id", authenticateUser, async (req, res) => {
                 id: true,
                 name: true,
                 description: true,
-                ongId: true,
+                ong: {
+                    select: {
+                        id: true,
+                        name: true,
+                        contact: true,
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                            },
+                        }
+                    }
+                },
                 images: true,
             },
         });
