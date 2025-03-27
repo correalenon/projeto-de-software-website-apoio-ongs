@@ -12,7 +12,7 @@ router.post("/", async (req, res) => {
         return res.status(400).json({ error: "Email e senha são obrigatórios" });
     }
     try {
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.users.findUnique({ where: { email } });
         if (!user) {
             return res.status(401).json({ error: "Credenciais inválidas" });
         }

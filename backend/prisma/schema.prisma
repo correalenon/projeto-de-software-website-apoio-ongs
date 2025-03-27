@@ -13,7 +13,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
+enum Role {
+    ADMIN
+    VOLUNTARY
+    ADVERTISER
+}
+
+model Users {
   id        Int       @id @default(autoincrement())
   name      String 
   email     String    @unique
@@ -27,21 +33,27 @@ model Images {
   url       String
   ongs      Ongs?       @relation(fields: [ongsId], references: [id])
   ongsId    Int?
+  projects  Projects?   @relation(fields: [projectsId], references: [id])
+  projectsId Int?
 }
 
 model Ongs {
   id            Int         @id @default(autoincrement())
   name          String 
   cnpj          String      @unique
-  user          User        @relation(fields: [userId], references: [id])
-  userId        Int
-  images        Images[]
   contact       String
   description   String
+  user          Users        @relation(fields: [userId], references: [id])
+  userId        Int
+  projects      Projects[]
+  images        Images[]
 }
 
-enum Role {
-    ADMIN
-    VOLUNTARY
-    ADVERTISER
+model Projects {
+  id            Int         @id @default(autoincrement())
+  name          String 
+  description   String
+  ong           Ongs        @relation(fields: [ongId], references: [id])
+  ongId         Int
+  images        Images[]
 }
