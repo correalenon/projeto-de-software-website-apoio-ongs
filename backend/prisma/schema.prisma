@@ -19,16 +19,6 @@ enum Role {
     ADVERTISER
 }
 
-model Users {
-  id        Int       @id @default(autoincrement())
-  name      String 
-  email     String    @unique
-  password  String
-  role      Role      @default(ADMIN)
-  ongs      Ongs[]
-  images    Images[]
-}
-
 model Images {
   id        Int         @id @default(autoincrement())
   url       String
@@ -40,13 +30,27 @@ model Images {
   usersId   Int?
 }
 
+model Users {
+  id        Int       @id @default(autoincrement())
+  name      String 
+  email     String    @unique
+  password  String
+  role      Role      @default(ADMIN)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  ongs      Ongs[]
+  images    Images[]
+}
+
 model Ongs {
   id            Int         @id @default(autoincrement())
   name          String 
   cnpj          String      @unique
   contact       String
   description   String
-  user          Users        @relation(fields: [userId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  user          Users       @relation(fields: [userId], references: [id])
   userId        Int
   projects      Projects[]
   images        Images[]
@@ -56,6 +60,8 @@ model Projects {
   id            Int         @id @default(autoincrement())
   name          String 
   description   String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   ong           Ongs        @relation(fields: [ongId], references: [id])
   ongId         Int
   images        Images[]
