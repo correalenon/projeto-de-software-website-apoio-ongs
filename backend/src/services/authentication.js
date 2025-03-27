@@ -10,7 +10,7 @@ const authenticateUser = async (req, res, next) => {
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+        const user = await prisma.users.findUnique({ where: { id: decoded.id } });
 
         if (!user) {
             return res.status(401).json({ error: "Usuário inválido" });

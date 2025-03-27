@@ -1,17 +1,24 @@
 import express from "express";
+import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+import { authenticateUser } from "../src/services/authentication.js";
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
-router.get("/", async (req, res) => {
+router.get("/", authenticateUser, async (req, res) => {
     try {
-        const users = await prisma.user.findMany({
+        const users = await prisma.users.findMany({
             select: {
                 id: true,
                 name: true,
                 email: true,
                 role: true,
+                images: {
+                    select: {
+                        url: true
+                    }
+                }
             },
         });
         res.status(200).json(users);
@@ -20,16 +27,21 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticateUser, async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await prisma.user.findUnique({
+        const user = await prisma.users.findUnique({
             where: { id: parseInt(id) },
             select: {
                 id: true,
                 name: true,
                 email: true,
                 role: true,
+                images: {
+                    select: {
+                        url: true
+                    }
+                }
             },
         });
         if (!user) {
@@ -41,32 +53,46 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", authenticateUser, async (req, res) => {
+    const { email, password, name, role } = req.body;
+
+    if (!email || !password || !name) {
+        return res.status(400).json({ error: "Todos os campos são obrigatórios" });
+    }
+
     try {
-        const { name, email, password, role } = req.body;
-        const existingUser = await prisma.user.findUnique({ where: { email } });
+        const existingUser = await prisma.users.findUnique({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ error: "E-mail já cadastrado" });
         }
-        const newUser = await prisma.user.create({
-            data: { name, email, password, role },
+
+        const hashedPassword = await bcrypt.hash(password, 10); // bcryptjs funciona da mesma forma
+
+        const newUser = await prisma.users.create({
+            data: {
+                email,
+                password: hashedPassword,
+                name,
+                role,
+            },
         });
+
         const { password: _, ...userWithoutPassword } = newUser;
-        res.status(201).json(userWithoutPassword);
+        return res.status(201).json(userWithoutPassword);
     } catch (error) {
-        res.status(500).json({ error: "Erro ao criar usuário" });
+        return res.status(500).json({ error: "Erro ao criar usuário" });
     }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authenticateUser, async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email, password, role } = req.body;
-        const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+        const user = await prisma.users.findUnique({ where: { id: parseInt(id) } });
         if (!user) {
             return res.status(404).json({ error: "Usuário não encontrado" });
         }
-        const updatedUser = await prisma.user.update({
+        const updatedUser = await prisma.users.update({
             where: { id: parseInt(id) },
             data: { name, email, password, role },
         });
@@ -77,14 +103,14 @@ router.put("/:id", async (req, res) => {
     }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticateUser, async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await prisma.user.findUnique({ where: { id: parseInt(id) } });
+        const user = await prisma.users.findUnique({ where: { id: parseInt(id) } });
         if (!user) {
             return res.status(404).json({ error: "Usuário não encontrado" });
         }
-        await prisma.user.delete({ where: { id: parseInt(id) } });
+        await prisma.users.delete({ where: { id: parseInt(id) } });
         res.status(204).send();
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar usuário" });
