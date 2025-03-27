@@ -23,6 +23,11 @@ async function main() {
                 email: adminEmail,
                 password: await bcrypt.hash("admin", 10),
                 role: "ADMIN",
+                images: {
+                    create: {
+                        url: faker.image.avatar(),
+                    }
+                }
             },
         });
     }
@@ -37,6 +42,11 @@ async function main() {
                     email,
                     password: await bcrypt.hash(faker.internet.password(), 10),
                     role: "VOLUNTARY",
+                    images: {
+                        create: {
+                            url: faker.image.avatar(),
+                        }
+                    }
                 },
             });
         }

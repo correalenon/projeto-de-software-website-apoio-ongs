@@ -14,6 +14,11 @@ router.get("/", authenticateUser, async (req, res) => {
                 name: true,
                 email: true,
                 role: true,
+                images: {
+                    select: {
+                        url: true
+                    }
+                }
             },
         });
         res.status(200).json(users);
@@ -32,6 +37,11 @@ router.get("/:id", authenticateUser, async (req, res) => {
                 name: true,
                 email: true,
                 role: true,
+                images: {
+                    select: {
+                        url: true
+                    }
+                }
             },
         });
         if (!user) {
