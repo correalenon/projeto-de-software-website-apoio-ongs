@@ -22,6 +22,11 @@ router.get("/", authenticateUser, async (req, res) => {
                                 id: true,
                                 name: true,
                                 email: true,
+                                images: {
+                                    select: {
+                                        url: true
+                                    }
+                                }
                             },
                         }
                     }
@@ -58,6 +63,11 @@ router.get("/:id", authenticateUser, async (req, res) => {
                                 id: true,
                                 name: true,
                                 email: true,
+                                images: {
+                                    select: {
+                                        url: true
+                                    }
+                                }
                             },
                         }
                     }
