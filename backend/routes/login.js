@@ -1,5 +1,5 @@
 import express from "express";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs"; // Alterado para bcryptjs
 import { PrismaClient } from "@prisma/client";
 import { generateToken } from "../src/services/authentication.js";
 
@@ -12,11 +12,11 @@ router.post("/", async (req, res) => {
         return res.status(400).json({ error: "Email e senha são obrigatórios" });
     }
     try {
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.users.findUnique({ where: { email } });
         if (!user) {
             return res.status(401).json({ error: "Credenciais inválidas" });
         }
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        const isPasswordValid = await bcrypt.compare(password, user.password); // bcryptjs funciona da mesma forma
         if (!isPasswordValid) {
             return res.status(401).json({ error: "Credenciais inválidas" });
         }
