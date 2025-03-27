@@ -26,6 +26,7 @@ model Users {
   password  String
   role      Role      @default(ADMIN)
   ongs      Ongs[]
+  images    Images[]
 }
 
 model Images {
@@ -35,6 +36,8 @@ model Images {
   ongsId    Int?
   projects  Projects?   @relation(fields: [projectsId], references: [id])
   projectsId Int?
+  users     Users?      @relation(fields: [usersId], references: [id])
+  usersId   Int?
 }
 
 model Ongs {
