@@ -54,30 +54,28 @@ router.get("/:id", authenticateUser, async (req, res) => {
 });
 
 router.post("/", authenticateUser, async (req, res) => {
-    const { email, password, name, role } = req.body;
-
-    if (!email || !password || !name) {
+    const { name, email, password, role, images } = req.body;
+    if (!name || !email || !password || !role) {
         return res.status(400).json({ error: "Todos os campos são obrigatórios" });
     }
-
     try {
         const existingUser = await prisma.users.findUnique({ where: { email } });
         if (existingUser) {
             return res.status(400).json({ error: "E-mail já cadastrado" });
         }
-
-        const hashedPassword = await bcrypt.hash(password, 10); // bcryptjs funciona da mesma forma
-
+        const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await prisma.users.create({
             data: {
+                name,
                 email,
                 password: hashedPassword,
-                name,
                 role,
-            },
+                images: {
+                    create: images && images.length > 0 ? images : [{ url: "https://avatars.githubusercontent.com/u/136519252?v=4" }]
+                }
+            }
         });
-
-        const { password: _, ...userWithoutPassword } = newUser;
+        const { password: _, createdAt, updatedAt, ...userWithoutPassword } = newUser;
         return res.status(201).json(userWithoutPassword);
     } catch (error) {
         return res.status(500).json({ error: "Erro ao criar usuário" });
@@ -87,18 +85,26 @@ router.post("/", authenticateUser, async (req, res) => {
 router.put("/:id", authenticateUser, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, password, role } = req.body;
-        const user = await prisma.users.findUnique({ where: { id: parseInt(id) } });
+        const { name, email, password, role, images } = req.body;
+        const user = await prisma.users.findUnique({ where: { id: parseInt(id) }, include: { images: true } });
         if (!user) {
             return res.status(404).json({ error: "Usuário não encontrado" });
         }
+        const updateData = { name, email, password, role };
+        if (images && images.length > 0) {
+            updateData.images = {
+                deleteMany: {},
+                create: { url: images[0].url }
+            };
+        }
         const updatedUser = await prisma.users.update({
             where: { id: parseInt(id) },
-            data: { name, email, password, role },
+            data: updateData,
         });
-        const { password: _, ...userWithoutPassword } = updatedUser;
+        const { password: _, createdAt, updatedAt, ...userWithoutPassword } = updatedUser;
         res.status(200).json(userWithoutPassword);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: "Erro ao atualizar usuário" });
     }
 });
