@@ -23,6 +23,11 @@ async function main() {
                 email: adminEmail,
                 password: await bcrypt.hash("admin", 10),
                 role: "ADMIN",
+                images: {
+                    create: {
+                        url: faker.image.avatar(),
+                    }
+                }
             },
         });
     }
@@ -37,6 +42,11 @@ async function main() {
                     email,
                     password: await bcrypt.hash(faker.internet.password(), 10),
                     role: "VOLUNTARY",
+                    images: {
+                        create: {
+                            url: faker.image.avatar(),
+                        }
+                    }
                 },
             });
         }
@@ -53,6 +63,13 @@ async function main() {
                     contact: faker.phone.number(),
                     description: faker.lorem.paragraph(),
                     userId: Math.floor(Math.random() * 10) + 1,
+                    images: {
+                        create: [
+                            {
+                                url: faker.image.urlLoremFlickr({ category: 'nature' }),
+                            }
+                        ]
+                    }
                 },
             });
         }
