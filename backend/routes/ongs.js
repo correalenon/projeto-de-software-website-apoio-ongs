@@ -12,11 +12,17 @@ router.get("/", authenticateUser, async (req, res) => {
                 id: true,
                 name: true,
                 cnpj: true,
-                userId: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    }
+                },
                 contact: true,
                 description: true,
                 images: true,
-            },
+            }
         });
         res.status(200).json(ongs);
     } catch (error) {
@@ -33,11 +39,17 @@ router.get("/:id", authenticateUser, async (req, res) => {
                 id: true,
                 name: true,
                 cnpj: true,
-                userId: true,
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                    }
+                },
                 contact: true,
                 description: true,
                 images: true,
-            },
+            }
         });
         if (!ong) {
             return res.status(404).json({ error: "ONG não encontrada" });
