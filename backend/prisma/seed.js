@@ -67,6 +67,13 @@ async function main() {
                     name,
                     description: faker.lorem.paragraph(),
                     ongId: Math.floor(Math.random() * 5) + 1,
+                    images: {
+                        create: [
+                            {
+                                url: faker.image.urlLoremFlickr({ category: 'nature' }),
+                            }
+                        ]
+                    }
                 },
             });
         }

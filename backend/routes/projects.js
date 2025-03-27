@@ -12,9 +12,26 @@ router.get("/", authenticateUser, async (req, res) => {
                 id: true,
                 name: true,
                 description: true,
-                ongId: true,
-                images: true,
-            },
+                ong: {
+                    select: {
+                        id: true,
+                        name: true,
+                        contact: true,
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                            },
+                        }
+                    }
+                },
+                images: {
+                    select: {
+                        url: true,
+                    }
+                }
+            }
         });
         res.status(200).json(projects);
     } catch (error) {
@@ -31,9 +48,26 @@ router.get("/:id", authenticateUser, async (req, res) => {
                 id: true,
                 name: true,
                 description: true,
-                ongId: true,
-                images: true,
-            },
+                ong: {
+                    select: {
+                        id: true,
+                        name: true,
+                        contact: true,
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                            },
+                        }
+                    }
+                },
+                images: {
+                    select: {
+                        url: true,
+                    }
+                }
+            }
         });
         if (!project) {
             return res.status(404).json({ error: "Projeto não encontrado" });
