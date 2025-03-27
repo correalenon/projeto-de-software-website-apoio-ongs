@@ -14,6 +14,7 @@ router.get("/", authenticateUser, async (req, res) => {
                 name: true,
                 email: true,
                 role: true,
+                createdAt: true,
                 images: {
                     select: {
                         url: true
@@ -23,6 +24,7 @@ router.get("/", authenticateUser, async (req, res) => {
         });
         res.status(200).json(users);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: "Erro ao buscar usuários" });
     }
 });
@@ -37,12 +39,13 @@ router.get("/:id", authenticateUser, async (req, res) => {
                 name: true,
                 email: true,
                 role: true,
+                createdAt: true,
                 images: {
                     select: {
                         url: true
                     }
                 }
-            },
+            }
         });
         if (!user) {
             return res.status(404).json({ error: "Usuário não encontrado" });
