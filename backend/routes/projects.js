@@ -26,8 +26,12 @@ router.get("/", authenticateUser, async (req, res) => {
                         }
                     }
                 },
-                images: true,
-            },
+                images: {
+                    select: {
+                        url: true,
+                    }
+                }
+            }
         });
         res.status(200).json(projects);
     } catch (error) {
@@ -58,8 +62,12 @@ router.get("/:id", authenticateUser, async (req, res) => {
                         }
                     }
                 },
-                images: true,
-            },
+                images: {
+                    select: {
+                        url: true,
+                    }
+                }
+            }
         });
         if (!project) {
             return res.status(404).json({ error: "Projeto não encontrado" });
