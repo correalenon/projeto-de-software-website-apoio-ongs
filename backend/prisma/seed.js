@@ -53,6 +53,13 @@ async function main() {
                     contact: faker.phone.number(),
                     description: faker.lorem.paragraph(),
                     userId: Math.floor(Math.random() * 10) + 1,
+                    images: {
+                        create: [
+                            {
+                                url: faker.image.urlLoremFlickr({ category: 'nature' }),
+                            }
+                        ]
+                    }
                 },
             });
         }

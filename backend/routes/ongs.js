@@ -21,7 +21,11 @@ router.get("/", authenticateUser, async (req, res) => {
                 },
                 contact: true,
                 description: true,
-                images: true,
+                images: {
+                    select: {
+                        url: true,
+                    }
+                }
             }
         });
         res.status(200).json(ongs);
@@ -48,7 +52,11 @@ router.get("/:id", authenticateUser, async (req, res) => {
                 },
                 contact: true,
                 description: true,
-                images: true,
+                images: {
+                    select: {
+                        url: true,
+                    }
+                }
             }
         });
         if (!ong) {
