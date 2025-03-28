@@ -30,11 +30,10 @@ model Images {
   usersId   Int?
 }
 
-model Activity {
+model Activities {
   id            Int         @id @default(autoincrement())
   description   String
   createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
   users         Users?      @relation(fields: [usersId], references: [id])
   usersId       Int?
 }
@@ -60,7 +59,7 @@ model Users {
   description   String
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  activity      Activity[]
+  activity      Activities[]
   tags          Tags[]
   images        Images[]
   ongs          Ongs[]

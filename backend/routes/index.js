@@ -3,6 +3,7 @@ import login from "./login.js";
 import users from "./users.js";
 import ongs from "./ongs.js";
 import projects from "./projects.js";
+import activities from "./activities.js";
 
 const routes = (app) => {
     app.use(express.json());
@@ -11,6 +12,7 @@ const routes = (app) => {
     app.use("/api/v1/users", users);
     app.use("/api/v1/ongs", ongs);
     app.use("/api/v1/projects", projects);
+    app.use("/api/v1/activities", activities);
 };
 
 export default routes;
