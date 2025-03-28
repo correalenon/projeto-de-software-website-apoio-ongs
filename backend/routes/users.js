@@ -6,6 +6,11 @@ import { authenticateUser } from "../src/services/authentication.js";
 const router = express.Router();
 const prisma = new PrismaClient();
 
+router.get("/me", authenticateUser, async (req, res) => { 
+    const { password, ...userWithoutPassword } = req.user;
+    return res.status(200).json(userWithoutPassword);
+});
+
 router.get("/", authenticateUser, async (req, res) => {
     try {
         const users = await prisma.users.findMany({
