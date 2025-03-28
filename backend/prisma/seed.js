@@ -22,13 +22,22 @@ async function main() {
                 name: "Super Administrator",
                 email: adminEmail,
                 password: await bcrypt.hash("admin", 10),
+                location: faker.location.streetAddress({ useFullAddress: true }),
                 role: "ADMIN",
+                description: faker.lorem.text(),
+                tags: {
+                    create: [
+                        { name: "ADMIN" },
+                        { name: "VOLUNTARY" },
+                        { name: "ADVERTISER" }
+                    ]
+                },
                 images: {
                     create: {
-                        url: faker.image.avatar(),
+                        url: faker.image.avatar()
                     }
                 }
-            },
+            }
         });
     }
 
@@ -41,7 +50,16 @@ async function main() {
                     name: faker.person.fullName(),
                     email,
                     password: await bcrypt.hash(faker.internet.password(), 10),
+                    location: faker.location.streetAddress({ useFullAddress: true }),
                     role: "VOLUNTARY",
+                    description: faker.lorem.text(),
+                    tags: {
+                        create: [
+                            { name: "ADMIN" },
+                            { name: "VOLUNTARY" },
+                            { name: "ADVERTISER" }
+                        ]
+                    },
                     images: {
                         create: {
                             url: faker.image.avatar(),
