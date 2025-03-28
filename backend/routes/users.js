@@ -13,14 +13,40 @@ router.get("/", authenticateUser, async (req, res) => {
                 id: true,
                 name: true,
                 email: true,
+                location: true,
+                views: true,
+                connections: true,
                 role: true,
+                description: true,
                 createdAt: true,
+                activity: {
+                    select: {
+                        description: true
+                    }
+                },
+                tags: {
+                    select: {
+                        name: true
+                    }
+                },
                 images: {
                     select: {
                         url: true
                     }
+                },
+                ongs: {
+                    select: {
+                        name: true,
+                        cnpj: true,
+                        contact: true,
+                        images: {
+                            select: {
+                                url: true
+                            }
+                        }
+                    }
                 }
-            },
+            }
         });
         res.status(200).json(users);
     } catch (error) {
@@ -38,11 +64,37 @@ router.get("/:id", authenticateUser, async (req, res) => {
                 id: true,
                 name: true,
                 email: true,
+                location: true,
+                views: true,
+                connections: true,
                 role: true,
+                description: true,
                 createdAt: true,
+                activity: {
+                    select: {
+                        description: true
+                    }
+                },
+                tags: {
+                    select: {
+                        name: true
+                    }
+                },
                 images: {
                     select: {
                         url: true
+                    }
+                },
+                ongs: {
+                    select: {
+                        name: true,
+                        cnpj: true,
+                        contact: true,
+                        images: {
+                            select: {
+                                url: true
+                            }
+                        }
                     }
                 }
             }
@@ -57,8 +109,17 @@ router.get("/:id", authenticateUser, async (req, res) => {
 });
 
 router.post("/", authenticateUser, async (req, res) => {
-    const { name, email, password, role, images } = req.body;
-    if (!name || !email || !password || !role) {
+    const { 
+        name, 
+        email, 
+        password, 
+        location,
+        role, 
+        description,
+        tags,
+        images
+    } = req.body;
+    if (!name || !email || !password || !location || !role || !description || !tags) {
         return res.status(400).json({ error: "Todos os campos são obrigatórios" });
     }
     try {
@@ -72,15 +133,21 @@ router.post("/", authenticateUser, async (req, res) => {
                 name,
                 email,
                 password: hashedPassword,
+                location,
                 role,
+                description,
+                tags: {
+                    create: tags
+                },
                 images: {
                     create: images && images.length > 0 ? images : [{ url: "https://avatars.githubusercontent.com/u/136519252?v=4" }]
                 }
             }
         });
-        const { password: _, createdAt, updatedAt, ...userWithoutPassword } = newUser;
+        const { password: _, updatedAt, ...userWithoutPassword } = newUser;
         return res.status(201).json(userWithoutPassword);
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: "Erro ao criar usuário" });
     }
 });
@@ -88,23 +155,29 @@ router.post("/", authenticateUser, async (req, res) => {
 router.put("/:id", authenticateUser, async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, email, password, role, images } = req.body;
+        const { name, email, password, location, role, description, tags, images } = req.body;
         const user = await prisma.users.findUnique({ where: { id: parseInt(id) }, include: { images: true } });
         if (!user) {
             return res.status(404).json({ error: "Usuário não encontrado" });
         }
-        const updateData = { name, email, password, role };
+        const updateData = { name, email, password, location, role, description};
         if (images && images.length > 0) {
             updateData.images = {
                 deleteMany: {},
                 create: { url: images[0].url }
             };
         }
+        if (tags && images.length > 0) {
+            updateData.tags = {
+                deleteMany: {},
+                create: tags
+            };
+        }
         const updatedUser = await prisma.users.update({
             where: { id: parseInt(id) },
             data: updateData,
         });
-        const { password: _, createdAt, updatedAt, ...userWithoutPassword } = updatedUser;
+        const { password: _, ...userWithoutPassword } = updatedUser;
         res.status(200).json(userWithoutPassword);
     } catch (error) {
         console.log(error);
