@@ -13,7 +13,7 @@ router.get("/", authenticateUser, async (req, res) => {
                 id: true,
                 description: true,
                 createdAt: true,
-                users: {
+                user: {
                     select: {
                         id: true,
                         name: true,
@@ -44,7 +44,7 @@ router.get("/:id", authenticateUser, async (req, res) => {
                 id: true,
                 description: true,
                 createdAt: true,
-                users: {
+                user: {
                     select: {
                         id: true,
                         name: true,
