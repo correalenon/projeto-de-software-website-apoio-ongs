@@ -4,6 +4,7 @@ import users from "./users.js";
 import ongs from "./ongs.js";
 import projects from "./projects.js";
 import activities from "./activities.js";
+import posts from "./posts.js";
 
 const routes = (app) => {
     app.use(express.json());
@@ -13,6 +14,7 @@ const routes = (app) => {
     app.use("/api/v1/ongs", ongs);
     app.use("/api/v1/projects", projects);
     app.use("/api/v1/activities", activities);
+    app.use("/api/v1/posts", posts);
 };
 
 export default routes;
