@@ -1,11 +1,7 @@
 import express from "express";
-import { PrismaClient } from "@prisma/client";
-import { authenticateUser } from "../src/services/authentication.js";
+import prisma from "../db/client.js";
 
-const router = express.Router();
-const prisma = new PrismaClient();
-
-router.get("/", authenticateUser, async (req, res) => {
+export const getPosts = async (req, res) => {
     try {
         const posts = await prisma.posts.findMany({
             select: {
@@ -76,9 +72,9 @@ router.get("/", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao buscar posts" });
     }
-});
+};
 
-router.get("/:id", authenticateUser, async (req, res) => {
+export const getPostByID = async (req, res) => {
     try {
         const { id } = req.params;
         const post = await prisma.posts.findUnique({
@@ -154,9 +150,9 @@ router.get("/:id", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao buscar post" });
     }
-});
+};
 
-router.post("/", authenticateUser, async (req, res) => {
+export const postPost = async (req, res) => {
     const { title, description, userId, projectId, images, tags } = req.body;
     if (!title || !description || !userId || !projectId) {
         return res.status(400).json({ error: "Todos os campos são obrigatórios" });
@@ -204,9 +200,9 @@ router.post("/", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao criar post" });
     }
-});
+};
 
-router.put("/:id", authenticateUser, async (req, res) => {
+export const putPostByID = async (req, res) => {
     try {
         const { id } = req.params;
         const { title, description, userId, projectId, images, likes, comments, activities, tags } = req.body;
@@ -304,9 +300,9 @@ router.put("/:id", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao atualizar post" });
     }
-});
+};
 
-router.delete("/:id", authenticateUser, async (req, res) => {
+export const deletePostByID = async (req, res) => {
     try {
         const { id } = req.params;
         const post = await prisma.posts.findUnique({ where: { id: parseInt(id) } });
@@ -318,6 +314,4 @@ router.delete("/:id", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar Post" });
     }
-});
-
-export default router;
+};

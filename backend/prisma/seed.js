@@ -1,8 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "../src/db/client.js";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 function generateCNPJ() {
     const randomDigits = () => Math.floor(Math.random() * 9).toString();
