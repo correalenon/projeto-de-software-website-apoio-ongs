@@ -1,12 +1,7 @@
 import express from "express";
-import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
-import { authenticateUser } from "../src/services/authentication.js";
+import prisma from "../db/client.js";
 
-const router = express.Router();
-const prisma = new PrismaClient();
-
-router.get("/", authenticateUser, async (req, res) => {
+export const getActivities = async (req, res) => {
     try {
         const activities = await prisma.activities.findMany({
             select: {
@@ -33,9 +28,9 @@ router.get("/", authenticateUser, async (req, res) => {
         console.log(error);
         res.status(500).json({ error: "Erro ao buscar atividades" });
     }
-});
+};
 
-router.get("/:id", authenticateUser, async (req, res) => {
+export const getActivitiesByID = async (req, res) => {
     try {
         const { id } = req.params;
         const activity = await prisma.activities.findUnique({
@@ -66,6 +61,4 @@ router.get("/:id", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao buscar atividade" });
     }
-});
-
-export default router;
+};

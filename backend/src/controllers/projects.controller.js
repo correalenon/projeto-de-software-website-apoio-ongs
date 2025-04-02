@@ -1,11 +1,7 @@
 import express from "express";
-import { PrismaClient } from "@prisma/client";
-import { authenticateUser } from "../src/services/authentication.js";
+import prisma from "../db/client.js";
 
-const router = express.Router();
-const prisma = new PrismaClient();
-
-router.get("/", authenticateUser, async (req, res) => {
+export const getProjects = async (req , res) => {
     try {
         const projects = await prisma.projects.findMany({
             select: {
@@ -42,9 +38,9 @@ router.get("/", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao buscar projetos" });
     }
-});
+};
 
-router.get("/:id", authenticateUser, async (req, res) => {
+export const getProjectsByID = async (req, res) => {
     try {
         const { id } = req.params;
         const project = await prisma.projects.findUnique({
@@ -86,9 +82,9 @@ router.get("/:id", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao buscar projeto" });
     }
-});
+};
 
-router.post("/", authenticateUser, async (req, res) => {
+export const postProject =  async (req, res) => {
     const { name, description, ongId, images } = req.body;
     if (!name || !description || !ongId) {
         return res.status(400).json({ error: "Todos os campos são obrigatórios" });
@@ -118,9 +114,9 @@ router.post("/", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao criar projeto" });
     }
-});
+};
 
-router.put("/:id", authenticateUser, async (req, res) => {
+export const putProjectByID = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, description, ongId, images } = req.body;
@@ -169,9 +165,9 @@ router.put("/:id", authenticateUser, async (req, res) => {
         console.log(error);
         res.status(500).json({ error: "Erro ao atualizar projeto" });
     }
-});
+};
 
-router.delete("/:id", authenticateUser, async (req, res) => {
+export const deleteProjectByID =  async (req, res) => {
     try {
         const { id } = req.params;
         const project = await prisma.projects.findUnique({ where: { id: parseInt(id) } });
@@ -183,6 +179,5 @@ router.delete("/:id", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar projeto" });
     }
-});
+};
 
-export default router;
