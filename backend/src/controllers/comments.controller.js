@@ -16,6 +16,21 @@ export const getComments = async (req, res) => {
     }
 };
 
+export const getCommentsByPostID = async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const comments = await prisma.comments.findMany({
+            where: { postId: parseInt(postId) },
+            include: {
+                user: true,
+            },
+        });
+        res.status(200).json(comments);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao buscar comentários" });
+    }
+}
+
 export const getCommentByID = async (req, res) => {
     try {
         const { id } = req.params;
@@ -37,12 +52,12 @@ export const getCommentByID = async (req, res) => {
 
 export const postComment = async (req, res) => {
     try {
-        const { postId, userId, content } = req.body;
+        const { postId, userId, description } = req.body;
         const newComment = await prisma.comments.create({
             data: {
                 postId,
                 userId,
-                content,
+                description,
             },
             include: {
                 user: true,
@@ -75,10 +90,10 @@ export const deleteCommentByID = async (req, res) => {
 export const putCommentByID = async (req, res) => {
     try {
         const { id } = req.params;
-        const { content } = req.body;
+        const { description } = req.body;
         const updatedComment = await prisma.comments.update({
             where: { id: parseInt(id) },
-            data: { content },
+            data: { description },
             include: {
                 user: true,
                 post: true,
