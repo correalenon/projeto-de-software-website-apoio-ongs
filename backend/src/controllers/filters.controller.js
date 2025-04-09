@@ -154,9 +154,7 @@ export const getFilterPosts = async (req, res) => {
         res.status(200).json(posts);
     }
     catch (error) {
-        res.status(500).json({ error: "Erro ao realizar filtro de posts."});
-        console.log(error);
-        
+        res.status(500).json({ error: "Erro ao realizar filtro de posts."});        
     }
 };
 
