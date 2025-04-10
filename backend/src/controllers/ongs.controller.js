@@ -1,11 +1,7 @@
 import express from "express";
-import { PrismaClient } from "@prisma/client";
-import { authenticateUser } from "../src/services/authentication.js";
+import prisma from "../db/client.js";
 
-const router = express.Router();
-const prisma = new PrismaClient();
-
-router.get("/", authenticateUser, async (req, res) => {
+export const getOngs = async (req, res) => {
     try {
         const ongs = await prisma.ongs.findMany({
             select: {
@@ -32,9 +28,9 @@ router.get("/", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao buscar ONGs" });
     }
-});
+};
 
-router.get("/:id", authenticateUser, async (req, res) => {
+export const getOngByID = async (req, res) => {
     try {
         const { id } = req.params;
         const ong = await prisma.ongs.findUnique({
@@ -66,9 +62,9 @@ router.get("/:id", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao buscar ONG" });
     }
-});
+};
 
-router.post("/", authenticateUser, async (req, res) => {
+export const postOng = async (req, res) => {
     const { name, cnpj, userId, contact, description, images } = req.body;
     if (!name || !cnpj || !userId || !contact || !description) {
         return res.status(400).json({ error: "Todos os campos são obrigatórios" });
@@ -95,9 +91,9 @@ router.post("/", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao criar ONG" });
     }
-});
+};
 
-router.put("/:id", authenticateUser, async (req, res) => {
+export const putOngByID = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, cnpj, userId, contact, description, images } = req.body;
@@ -134,9 +130,9 @@ router.put("/:id", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao atualizar ONG" });
     }
-});
+};
 
-router.delete("/:id", authenticateUser, async (req, res) => {
+export const deleteOngByID = async (req, res) => {
     try {
         const { id } = req.params;
         const ong = await prisma.ongs.findUnique({ where: { id: parseInt(id) } });
@@ -148,6 +144,4 @@ router.delete("/:id", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar ONG" });
     }
-});
-
-export default router;
+};

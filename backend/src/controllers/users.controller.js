@@ -1,17 +1,13 @@
 import express from "express";
 import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
-import { authenticateUser } from "../src/services/authentication.js";
+import prisma from "../db/client.js";
 
-const router = express.Router();
-const prisma = new PrismaClient();
+// export const get("/me", authenticateUser, async (req, res) => { 
+//     const { password, ...userWithoutPassword } = req.user;
+//     return res.status(200).json(userWithoutPassword);
+// });
 
-router.get("/me", authenticateUser, async (req, res) => { 
-    const { password, ...userWithoutPassword } = req.user;
-    return res.status(200).json(userWithoutPassword);
-});
-
-router.get("/", authenticateUser, async (req, res) => {
+export const getUsers = async (req, res) => {
     try {
         const users = await prisma.users.findMany({
             select: {
@@ -58,9 +54,9 @@ router.get("/", authenticateUser, async (req, res) => {
         console.log(error);
         res.status(500).json({ error: "Erro ao buscar usuários" });
     }
-});
+};
 
-router.get("/:id", authenticateUser, async (req, res) => {
+export const getUserByID = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await prisma.users.findUnique({
@@ -111,9 +107,9 @@ router.get("/:id", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao buscar usuário" });
     }
-});
+};
 
-router.post("/", authenticateUser, async (req, res) => {
+export const postUser = async (req, res) => {
     const { 
         name, 
         email, 
@@ -155,9 +151,9 @@ router.post("/", authenticateUser, async (req, res) => {
         console.log(error);
         return res.status(500).json({ error: "Erro ao criar usuário" });
     }
-});
+};
 
-router.put("/:id", authenticateUser, async (req, res) => {
+export const putUserByID = async (req, res) => {
     try {
         const { id } = req.params;
         const { name, email, password, location, role, description, tags, images } = req.body;
@@ -188,9 +184,9 @@ router.put("/:id", authenticateUser, async (req, res) => {
         console.log(error);
         res.status(500).json({ error: "Erro ao atualizar usuário" });
     }
-});
+};
 
-router.delete("/:id", authenticateUser, async (req, res) => {
+export const deleteUserByID = async (req, res) => {
     try {
         const { id } = req.params;
         const user = await prisma.users.findUnique({ where: { id: parseInt(id) } });
@@ -202,6 +198,4 @@ router.delete("/:id", authenticateUser, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar usuário" });
     }
-});
-
-export default router;
+};
