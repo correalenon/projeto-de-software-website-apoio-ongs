@@ -1,6 +1,8 @@
+import { API_URL } from "../API/config.js";
+
 export async function GetOngs() {
     try {
-        const response = await fetch("http://localhost:3000/api/v1/ongs", {
+        const response = await fetch(API_URL + "ongs", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -19,7 +21,7 @@ export async function GetOngs() {
 
 export async function GetOng(id) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/ongs/${id}`, {
+        const response = await fetch(`${API_URL}ongs/${id}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

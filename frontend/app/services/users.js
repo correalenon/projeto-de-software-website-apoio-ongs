@@ -1,6 +1,8 @@
+import { API_URL } from "../API/config.js";
+
 export async function GetUser() {
     try {
-        const response = await fetch("http://localhost:3000/api/v1/users/me", {
+        const response = await fetch(`${API_URL}users/me`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
