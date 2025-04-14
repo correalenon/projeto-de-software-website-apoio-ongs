@@ -1,6 +1,8 @@
+import { API_URL } from "../API/config.js";
+
 export async function GetPosts() {
     try {
-        const response = await fetch("http://localhost:3000/api/v1/posts", {
+        const response = await fetch(API_URL + "posts", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -18,7 +20,7 @@ export async function GetPosts() {
 
 export async function GetPost(id) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/posts/${id}`, {
+        const response = await fetch(`${API_URL}posts/${id}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -36,7 +38,7 @@ export async function GetPost(id) {
 
 export async function PublishPost(data) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/posts`, {
+        const response = await fetch(API_URL + "posts", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
