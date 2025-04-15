@@ -1,12 +1,9 @@
-import express from "express";
 import bcrypt from "bcryptjs"; // Alterado para bcryptjs
-import { PrismaClient } from "@prisma/client";
-import { generateToken } from "../src/services/authentication.js";
+import prisma from "../db/client.js";
+import { generateToken } from "../services/authentication.js";
+import { request, response } from "express";
 
-const router = express.Router();
-const prisma = new PrismaClient();
-
-router.post("/", async (req, res) => {
+export const postLogin = async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
         return res.status(400).json({ error: "Email e senha são obrigatórios" });
@@ -25,6 +22,4 @@ router.post("/", async (req, res) => {
     } catch (error) {
         return res.status(500).json({ error: "Erro interno do servidor" });
     }
-});
-
-export default router;
+};
