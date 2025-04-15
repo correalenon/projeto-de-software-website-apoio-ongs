@@ -14,7 +14,10 @@ interface CreatePostModalProps {
 }
 
 export interface PostData {
-  text: string
+  title: string
+  description: string
+  userId?: number
+  projectId?: number
   hashtags: string[]
   images: {
     file: File | null
@@ -36,15 +39,19 @@ export default function CreatePostModal({
   userTitle,
   onPost,
 }: CreatePostModalProps) {
-  const [postText, setPostText] = useState("")
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
   const [images, setImages] = useState<ImageWithCaption[]>([])
   const [hashtags, setHashtags] = useState<string[]>([])
   const [newHashtag, setNewHashtag] = useState("")
   const [isHashtagInputVisible, setIsHashtagInputVisible] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [editingImageIndex, setEditingImageIndex] = useState<number | null>(null)
+  const [titleError, setTitleError] = useState(false)
+  const [textError, setTextError] = useState(false)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const titleInputRef = useRef<HTMLInputElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
   const hashtagInputRef = useRef<HTMLInputElement>(null)
   const captionInputRef = useRef<HTMLInputElement>(null)
@@ -68,10 +75,10 @@ export default function CreatePostModal({
     }
   }, [isOpen, onClose])
 
-  // Focar no textarea quando o modal abrir
+  // Focar no campo de título quando o modal abrir
   useEffect(() => {
-    if (isOpen && textareaRef.current) {
-      textareaRef.current.focus()
+    if (isOpen && titleInputRef.current) {
+      titleInputRef.current.focus()
     }
   }, [isOpen])
 
@@ -99,6 +106,27 @@ export default function CreatePostModal({
       })
     }
   }, [images])
+
+  // Resetar erros quando o usuário começa a digitar
+  useEffect(() => {
+    if (title.trim()) {
+      setTitleError(false)
+    }
+  }, [title])
+
+  useEffect(() => {
+    if (description.trim()) {
+      setTextError(false)
+    }
+  }, [description])
+
+  // Resetar o estado quando o modal é fechado
+  useEffect(() => {
+    if (!isOpen) {
+      setTitleError(false)
+      setTextError(false)
+    }
+  }, [isOpen])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -175,15 +203,35 @@ export default function CreatePostModal({
     setEditingImageIndex(null)
   }
 
+  const validateForm = (): boolean => {
+    let isValid = true
+
+    if (!title.trim()) {
+      setTitleError(true)
+      isValid = false
+    }
+
+    if (!description.trim()) {
+      setTextError(true)
+      isValid = false
+    }
+
+    return isValid
+  }
+
   const handleSubmit = async () => {
-    if (!postText.trim() && images.length === 0) return
+    // Validar formulário
+    if (!validateForm()) {
+      return
+    }
 
     setIsSubmitting(true)
 
     try {
       // Preparar dados para envio
       const postData: PostData = {
-        text: postText,
+        title: title,
+        description: description,
         hashtags,
         images: images.map((img) => ({
           file: img.file,
@@ -195,7 +243,8 @@ export default function CreatePostModal({
       await onPost(postData)
 
       // Limpar e fechar o modal após sucesso
-      setPostText("")
+      setTitle("")
+      setDescription("")
       setHashtags([])
       setImages([])
       onClose()
@@ -211,7 +260,7 @@ export default function CreatePostModal({
   const insertHashtagsInText = () => {
     if (hashtags.length > 0) {
       const hashtagsText = hashtags.join(" ") + " "
-      setPostText((prev) => {
+      setDescription((prev) => {
         if (prev.trim().endsWith(hashtagsText.trim())) {
           return prev
         }
@@ -227,7 +276,7 @@ export default function CreatePostModal({
       <div ref={modalRef} className="bg-white rounded-lg w-full max-w-xl shadow-xl">
         {/* Cabeçalho do modal */}
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-lg font-medium">Criar um novo post</h2>
+          <h2 className="text-lg font-medium">Novo post</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 rounded-full p-1 hover:bg-gray-100"
@@ -256,54 +305,48 @@ export default function CreatePostModal({
             <div className="h-12 w-12 rounded-full overflow-hidden">
               <img src={userImage || "/placeholder.svg"} alt={userName} className="h-full w-full object-cover" />
             </div>
-            {/* <div>
+            <div>
               <h3 className="font-medium">{userName}</h3>
-              <button className="flex items-center gap-1 text-sm border border-gray-300 rounded-full px-3 py-1 mt-1 hover:bg-gray-100">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <circle cx="12" cy="12" r="4"></circle>
-                  <line x1="21.17" y1="8" x2="12" y2="8"></line>
-                  <line x1="3.95" y1="6.06" x2="8.54" y2="14"></line>
-                  <line x1="10.88" y1="21.94" x2="15.46" y2="14"></line>
-                </svg>
-                Anyone{" "}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-              </button>
-            </div> */}
+              <p className="text-xs text-gray-500">{userTitle}</p>
+            </div>
           </div>
         </div>
 
-        {/* Área de texto do post */}
+        {/* Campos de título e texto com indicadores de obrigatório */}
         <div className="px-4 pb-3">
-          <textarea
-            ref={textareaRef}
-            value={postText}
-            onChange={(e) => setPostText(e.target.value)}
-            placeholder="What do you want to talk about?"
-            className="w-full min-h-[120px] text-base resize-none border-none focus:ring-0 focus:outline-none"
-          />
+          <div className="mb-3">
+            <label htmlFor="post-title" className="block text-sm font-medium text-gray-700 mb-1">
+              Título <span className="text-red-500">*</span>
+            </label>
+            <input
+              ref={titleInputRef}
+              id="post-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Adicione um título ao seu post"
+              className={`w-full text-lg font-semibold border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                titleError ? "border-red-500 bg-red-50" : "border-gray-300"
+              }`}
+            />
+            {titleError && <p className="text-red-500 text-xs mt-1">O título é obrigatório</p>}
+          </div>
+
+          <div className="mb-3">
+            <label htmlFor="post-text" className="block text-sm font-medium text-gray-700 mb-1">
+              Descrição <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="post-text"
+              ref={textareaRef}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Sobre o que você quer falar?"
+              className={`w-full min-h-[120px] text-base resize-none border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                textError ? "border-red-500 bg-red-50" : "border-gray-300"
+              }`}
+            />
+            {textError && <p className="text-red-500 text-xs mt-1">A descrição é obrigatória</p>}
+          </div>
 
           {/* Hashtags */}
           {hashtags.length > 0 && (
@@ -551,11 +594,9 @@ export default function CreatePostModal({
           {/* Botão de publicar */}
           <button
             onClick={handleSubmit}
-            disabled={(!postText.trim() && images.length === 0) || isSubmitting}
+            disabled={isSubmitting}
             className={`px-4 py-1.5 rounded-full font-medium flex items-center ${
-              (!postText.trim() && images.length === 0) || isSubmitting
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+              isSubmitting ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
           >
             {isSubmitting ? (
@@ -584,4 +625,3 @@ export default function CreatePostModal({
     </div>
   )
 }
-
