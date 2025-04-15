@@ -227,7 +227,7 @@ export default function CreatePostModal({
       <div ref={modalRef} className="bg-white rounded-lg w-full max-w-xl shadow-xl">
         {/* Cabeçalho do modal */}
         <div className="flex justify-between items-center p-4 border-b">
-          <h2 className="text-lg font-medium">Create a post</h2>
+          <h2 className="text-lg font-medium">Criar um novo post</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 rounded-full p-1 hover:bg-gray-100"
@@ -256,7 +256,7 @@ export default function CreatePostModal({
             <div className="h-12 w-12 rounded-full overflow-hidden">
               <img src={userImage || "/placeholder.svg"} alt={userName} className="h-full w-full object-cover" />
             </div>
-            <div>
+            {/* <div>
               <h3 className="font-medium">{userName}</h3>
               <button className="flex items-center gap-1 text-sm border border-gray-300 rounded-full px-3 py-1 mt-1 hover:bg-gray-100">
                 <svg
@@ -291,7 +291,7 @@ export default function CreatePostModal({
                   <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
 

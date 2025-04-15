@@ -14,7 +14,6 @@ export async function GetActivities() {
         }
         return await response.json();
     } catch (error) {
-        console.error(error);
         return null;
     }
 }
@@ -33,7 +32,6 @@ export async function GetActivity() {
         }
         return await response.json();
     } catch (error) {
-        console.error(error);
         return null;
     }
 }
