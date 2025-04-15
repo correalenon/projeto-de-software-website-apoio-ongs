@@ -2,6 +2,7 @@
 
 import type React from "react"
 import Link from "next/link"
+import Cookies from 'js-cookie';
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Login } from "../../services/login";
@@ -22,7 +23,7 @@ export default function LoginPage() {
     }
     try {
       const data = await Login(email, password);
-      document.cookie = `auth_token=${data.token}; path=/;`;
+      Cookies.set("auth_token", data.token, { expires: 1 }, { path: "/" });
       router.push("/");
     } catch (err) {
       setError("Erro no login");

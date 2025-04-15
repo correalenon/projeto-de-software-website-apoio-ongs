@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server"
 
 export function middleware(request: NextRequest) {
   // Obter o token do cookie
-  const token = request.cookies.get("auth_token")?.value
+  const token = request.cookies.get("auth_token")?.value;
 
   // Verificar se o usuário está acessando a página principal ou outras páginas protegidas
   const isProtectedRoute =
