@@ -1,11 +1,15 @@
-import express from "express";
 import bcrypt from "bcryptjs";
 import prisma from "../db/client.js";
 
-// export const get("/me", authenticateUser, async (req, res) => { 
-//     const { password, ...userWithoutPassword } = req.user;
-//     return res.status(200).json(userWithoutPassword);
-// });
+export const getMe = async (req, res) => {
+    try {
+        const { password, ...userWithoutPassword } = req.user;
+        return res.status(200).json(userWithoutPassword);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Erro ao buscar usuário /me" });
+    }
+};
 
 export const getUsers = async (req, res) => {
     try {
