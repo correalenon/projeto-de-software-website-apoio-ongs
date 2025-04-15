@@ -11,31 +11,19 @@ import { GetUser } from "../services/users"
 import { PublishPost } from "../services/posts"
 
 export default function HomePage() {
-  const router = useRouter()
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false)
-
-  // Verificar se o usuário está autenticado
-  // Isso é redundante com o middleware, mas serve como fallback
-  useEffect(() => {
-    const token = localStorage.getItem("auth_token")
-    if (!token) {
-      const token = document.cookie.split("; ").find((row) => row.startsWith("auth_token="))?.split("=")[1];
-      localStorage.setItem("auth_token", token ?? "")
-    }
-    if (!token) {
-      router.push("/login")
-    }
-  }, [router])
 
   useEffect(() => {
     async function loadUser() {
-      const userData = await GetUser()
-      console.log(userData)
-      setUser(userData)
+      setIsLoading(true);
+      const userData = await GetUser();
+      setUser(userData || []);
+      setIsLoading(false);
     }
-    loadUser()
-  }, [])
+    loadUser();
+  }, []);
 
   // Função para lidar com a publicação de posts
     const handlePost = async (postData: PostData) => {

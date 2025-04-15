@@ -1,1 +1,4 @@
-export const API_URL = "http://localhost:3002/api/v1/";
+import Cookies from 'js-cookie';
+
+export const API_URL = process.env.API_URL || "http://localhost:3002/api/v1";
+export const TOKEN = Cookies.get("auth_token") || null;
