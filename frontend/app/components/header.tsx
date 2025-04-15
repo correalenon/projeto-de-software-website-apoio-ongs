@@ -93,7 +93,7 @@ export default function Header() {
               <span className="text-xs mt-0.5 text-gray-500">Projetos</span>
             </Link>
 
-            <Link href="#" className="flex flex-col items-center px-1 py-1">
+            {/* <Link href="#" className="flex flex-col items-center px-1 py-1">
               <div className="flex items-center justify-center h-9 w-9 rounded-md text-gray-500">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +130,7 @@ export default function Header() {
                 </svg>
               </div>
               <span className="text-xs mt-0.5 text-gray-500">Notificações</span>
-            </Link>
+            </Link> */}
 
             <div className="relative group">
               <Link href="/profile" className="flex flex-col items-center">

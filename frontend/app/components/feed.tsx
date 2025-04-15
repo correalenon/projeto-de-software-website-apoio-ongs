@@ -20,7 +20,8 @@ export default function Feed() {
         async function loadPosts() {
             setIsLoading(true);
             const fetchedPosts = await GetPosts();
-            setPosts(fetchedPosts || []);
+            const sortedPosts = (fetchedPosts || []).sort((a, b) => b.id - a.id);
+            setPosts(sortedPosts);
             setIsLoading(false);
         }
         loadPosts();

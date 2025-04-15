@@ -15,7 +15,6 @@ export async function Login(email, password) {
         }
         return await response.json();
     } catch (error) {
-        console.error(error);
         throw error;
     }
 }
