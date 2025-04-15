@@ -1,12 +1,12 @@
-import {API_URL} from "../API/config.js";
+import { API_URL, TOKEN } from "../API/config.js";
 
 export async function GetActivities() {
     try {
-        const response = await fetch(`${API_URL}activities`, {
+        const response = await fetch(API_URL + "/activities", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("auth_token")}`
+                "Authorization": "Bearer " + TOKEN
             },
         });
         if (!response.ok) {
@@ -14,18 +14,17 @@ export async function GetActivities() {
         }
         return await response.json();
     } catch (error) {
-        console.error(error);
         return null;
     }
 }
 
 export async function GetActivity() {
     try {
-        const response = await fetch(API_URL + "activities", {
+        const response = await fetch(API_URL + "/activities", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("auth_token")}`
+                "Authorization": "Bearer " + TOKEN
             },
         });
         if (!response.ok) {
@@ -33,7 +32,6 @@ export async function GetActivity() {
         }
         return await response.json();
     } catch (error) {
-        console.error(error);
         return null;
     }
 }

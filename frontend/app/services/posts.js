@@ -1,12 +1,12 @@
-import { API_URL } from "../API/config.js";
+import { API_URL, TOKEN } from "../API/config.js";
 
 export async function GetPosts() {
     try {
-        const response = await fetch(API_URL + "posts", {
+        const response = await fetch(API_URL + "/posts", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("auth_token")}`
+                "Authorization": "Bearer " + TOKEN
             },
         });
         if (!response.ok) {
@@ -20,11 +20,11 @@ export async function GetPosts() {
 
 export async function GetPost(id) {
     try {
-        const response = await fetch(`${API_URL}posts/${id}`, {
+        const response = await fetch(API_URL + "/posts/" + id, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("auth_token")}`
+                "Authorization": "Bearer " + TOKEN
             },
         });
         if (!response.ok) {
@@ -38,11 +38,11 @@ export async function GetPost(id) {
 
 export async function PublishPost(data) {
     try {
-        const response = await fetch(API_URL + "posts", {
+        const response = await fetch(API_URL + "/posts", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${localStorage.getItem("auth_token")}`
+                "Authorization": "Bearer " + TOKEN
             },
             body: JSON.stringify(data)
         });
@@ -51,7 +51,24 @@ export async function PublishPost(data) {
         }
         return await response.json();
     } catch (error) {
-        console.log(error);
+        return null;
+    }
+}
+
+export async function DeletePost(id) {
+    try {
+        const response = await fetch(API_URL + "/posts/" + id, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + TOKEN
+            },
+        });
+        if (!response.ok) {
+            throw new Error("Erro ao deletar Post");
+        }
+        return await response.json();
+    } catch (error) {
         return null;
     }
 }

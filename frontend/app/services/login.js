@@ -2,7 +2,7 @@ import { API_URL } from "../API/config.js";
 
 export async function Login(email, password) {
     try {
-        const response = await fetch(API_URL + "login", {
+        const response = await fetch(API_URL + "/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -15,7 +15,6 @@ export async function Login(email, password) {
         }
         return await response.json();
     } catch (error) {
-        console.error(error);
         throw error;
     }
 }

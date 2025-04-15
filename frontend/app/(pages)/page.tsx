@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import Header from "../components/header"
 import CreatePostModal, { type PostData } from "../components/createPostModal"
 import Feed from "../components/feed"
@@ -11,73 +10,27 @@ import { GetUser } from "../services/users"
 import { PublishPost } from "../services/posts"
 
 export default function HomePage() {
-  const router = useRouter()
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false)
-
-  // Verificar se o usuário está autenticado
-  // Isso é redundante com o middleware, mas serve como fallback
-  useEffect(() => {
-    const token = localStorage.getItem("auth_token")
-    if (!token) {
-      const token = document.cookie.split("; ").find((row) => row.startsWith("auth_token="))?.split("=")[1];
-      localStorage.setItem("auth_token", token ?? "")
-    }
-    if (!token) {
-      router.push("/login")
-    }
-  }, [router])
 
   useEffect(() => {
     async function loadUser() {
-      const userData = await GetUser()
-      console.log(userData)
-      setUser(userData)
+      setIsLoading(true);
+      const userData = await GetUser();
+      setUser(userData || []);
+      setIsLoading(false);
     }
-    loadUser()
-  }, [])
+    loadUser();
+  }, []);
 
-  // Função para lidar com a publicação de posts
     const handlePost = async (postData: PostData) => {
       try {
-        console.log("Enviando post para o servidor:", postData)
-  
-        // Aqui você implementaria a chamada real à API
-        // Exemplo de como seria com fetch:
-        /*
-        const formData = new FormData()
-        formData.append('text', postData.text)
-        formData.append('hashtags', JSON.stringify(postData.hashtags))
-        
-        // Adicionar imagens ao FormData
-        postData.images.forEach((img, index) => {
-          if (img.file) {
-            formData.append(`image_${index}`, img.file)
-            formData.append(`caption_${index}`, img.caption)
-          }
-        })
-        
-        const response = await fetch('/api/posts', {
-          method: 'POST',
-          body: formData,
-        })
-        
-        if (!response.ok) {
-          throw new Error('Falha ao publicar o post')
-        }
-        
-        const result = await response.json()
-        */
+        postData.userId = user.id;
+        postData.projectId = 1;
        const response = PublishPost(postData);
-  
-        // Simulação de uma chamada de API
-        await new Promise((resolve) => setTimeout(resolve, 1500))
-  
-        // Mostrar mensagem de sucesso
-        alert("Post publicado com sucesso!")
       } catch (error) {
-        console.error("Erro ao publicar post:", error)
-        alert("Erro ao publicar o post. Por favor, tente novamente.")
+        throw new Error("Erro ao publicar o post");
       }
     }
 
@@ -155,93 +108,7 @@ export default function HomePage() {
                   onClick={() => setIsPostModalOpen(true)}
                   className="w-full justify-start text-gray-500 rounded-full border border-gray-300 px-4 py-2 text-left hover:bg-gray-50"
                 >
-                  Start a post
-                </button>
-              </div>
-              <div className="flex justify-between mt-3">
-                <button
-                  onClick={() => setIsPostModalOpen(true)}
-                  className="flex items-center text-gray-500 px-3 py-1 rounded hover:bg-gray-100"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 mr-2 text-blue-500"
-                  >
-                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                    <circle cx="9" cy="9" r="2" />
-                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                  </svg>
-                  Photo
-                </button>
-                <button
-                  onClick={() => setIsPostModalOpen(true)}
-                  className="flex items-center text-gray-500 px-3 py-1 rounded hover:bg-gray-100"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 mr-2 text-green-500"
-                  >
-                    <path d="M22 8a6 6 0 0 1-5.3 5.96l-.4.04H9.6a6.97 6.97 0 0 0-5.2 2.27l-.4.4.53-.53A7 7 0 0 1 9.6 14h6.7a8 8 0 0 0 0-16h-6.3a6 6 0 0 0 0 12h3" />
-                  </svg>
-                  Video
-                </button>
-                <button
-                  onClick={() => setIsPostModalOpen(true)}
-                  className="flex items-center text-gray-500 px-3 py-1 rounded hover:bg-gray-100"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 mr-2 text-orange-500"
-                  >
-                    <rect width="18" height="18" x="3" y="3" rx="2" />
-                    <path d="M3 9h18" />
-                    <path d="M9 21V9" />
-                  </svg>
-                  Event
-                </button>
-                <button
-                  onClick={() => setIsPostModalOpen(true)}
-                  className="flex items-center text-gray-500 px-3 py-1 rounded hover:bg-gray-100"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-5 w-5 mr-2 text-red-500"
-                  >
-                    <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
-                  </svg>
-                  Article
+                  O que você está pensando?
                 </button>
               </div>
             </div>
