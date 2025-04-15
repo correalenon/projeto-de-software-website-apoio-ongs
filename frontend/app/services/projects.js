@@ -1,6 +1,8 @@
+import { API_URL } from "../API/config.js";
+
 export async function GetProjects() {
     try {
-        const response = await fetch("http://localhost:3000/api/v1/projects", {
+        const response = await fetch(`${API_URL}projects`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -19,7 +21,7 @@ export async function GetProjects() {
 
 export async function GetProject(id) {
     try {
-        const response = await fetch(`http://localhost:3000/api/v1/projects/${id}`, {
+        const response = await fetch(`${API_URL}projects/${id}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

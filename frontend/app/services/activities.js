@@ -1,6 +1,8 @@
+import {API_URL} from "../API/config.js";
+
 export async function GetActivities() {
     try {
-        const response = await fetch("http://localhost:3000/api/v1/activities", {
+        const response = await fetch(`${API_URL}activities`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -19,7 +21,7 @@ export async function GetActivities() {
 
 export async function GetActivity() {
     try {
-        const response = await fetch("http://localhost:3000/api/v1/activities", {
+        const response = await fetch(API_URL + "activities", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
