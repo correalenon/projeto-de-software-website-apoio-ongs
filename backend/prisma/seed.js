@@ -1,8 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import prisma from "../src/db/client.js";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 function generateCNPJ() {
     const randomDigits = () => Math.floor(Math.random() * 9).toString();
@@ -22,8 +20,22 @@ async function main() {
                 name: "Super Administrator",
                 email: adminEmail,
                 password: await bcrypt.hash("admin", 10),
+                location: faker.location.streetAddress({ useFullAddress: true }),
                 role: "ADMIN",
-            },
+                description: faker.lorem.text(),
+                tags: {
+                    create: [
+                        { name: "ADMIN" },
+                        { name: "VOLUNTARY" },
+                        { name: "ADVERTISER" }
+                    ]
+                },
+                images: {
+                    create: {
+                        url: faker.image.avatar()
+                    }
+                }
+            }
         });
     }
 
@@ -36,7 +48,21 @@ async function main() {
                     name: faker.person.fullName(),
                     email,
                     password: await bcrypt.hash(faker.internet.password(), 10),
+                    location: faker.location.streetAddress({ useFullAddress: true }),
                     role: "VOLUNTARY",
+                    description: faker.lorem.text(),
+                    tags: {
+                        create: [
+                            { name: "ADMIN" },
+                            { name: "VOLUNTARY" },
+                            { name: "ADVERTISER" }
+                        ]
+                    },
+                    images: {
+                        create: {
+                            url: faker.image.avatar(),
+                        }
+                    }
                 },
             });
         }
@@ -53,6 +79,13 @@ async function main() {
                     contact: faker.phone.number(),
                     description: faker.lorem.paragraph(),
                     userId: Math.floor(Math.random() * 10) + 1,
+                    images: {
+                        create: [
+                            {
+                                url: faker.image.urlLoremFlickr({ category: 'nature' }),
+                            }
+                        ]
+                    }
                 },
             });
         }
@@ -67,9 +100,64 @@ async function main() {
                     name,
                     description: faker.lorem.paragraph(),
                     ongId: Math.floor(Math.random() * 5) + 1,
+                    images: {
+                        create: [
+                            {
+                                url: faker.image.urlLoremFlickr({ category: 'nature' }),
+                            }
+                        ]
+                    }
                 },
             });
         }
+    }
+
+    for (let i = 0; i < 5; i++) {
+        const title = faker.book.title();
+        const existingProject = await prisma.posts.findFirst({ where: { title } });
+        if (!existingProject) {
+            await prisma.posts.create({
+                data: {
+                    title,
+                    description: faker.lorem.paragraph(),
+                    userId: Math.floor(Math.random() * 5) + 1,
+                    projectId: Math.floor(Math.random() * 5) + 1,
+                    images: {
+                        create: [
+                            {
+                                url: faker.image.urlLoremFlickr({ category: 'nature' })
+                            }
+                        ]
+                    },
+                    tags: {
+                        create: [
+                            {
+                                name: faker.book.genre()
+                            }
+                        ]
+                    }
+                },
+            });
+        }
+    }
+
+    for (let i = 0; i < 5; i++) {
+        await prisma.likes.create({
+            data: {
+                userId: Math.floor(Math.random() * 5) + 1,
+                postId: Math.floor(Math.random() * 5) + 1,
+            }
+        });
+    }
+
+    for (let i = 0; i < 5; i++) {
+        await prisma.comments.create({
+            data: {
+                description: faker.lorem.paragraph(),
+                userId: Math.floor(Math.random() * 5) + 1,
+                postId: Math.floor(Math.random() * 5) + 1,
+            }
+        });
     }
 }
 

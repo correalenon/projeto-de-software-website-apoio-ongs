@@ -1,7 +1,5 @@
 import jwt from "jsonwebtoken";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "../db/client.js";
 
 const authenticateUser = async (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
@@ -10,7 +8,7 @@ const authenticateUser = async (req, res, next) => {
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await prisma.users.findUnique({ where: { id: decoded.id } });
+        const user = await prisma.users.findUnique({ where: { id: decoded.id }, include: { activity: true, tags: true, images: true, ongs: true } });
 
         if (!user) {
             return res.status(401).json({ error: "Usuário inválido" });

@@ -1,9 +1,7 @@
 import express from 'express';
-import routes from '../routes/index.js';
+import routes from './routes/index.routes.js';
 import cors from "cors";
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from './db/client.js';
 
 function validateDatabaseConnection() {
     try {
@@ -18,11 +16,13 @@ function validateDatabaseConnection() {
 validateDatabaseConnection();
 
 const app = express();
+app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3001",
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
 }));
-routes(app);
+app.use(routes);
+
 
 export default app;
