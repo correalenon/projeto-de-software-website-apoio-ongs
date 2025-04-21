@@ -6,8 +6,6 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: user
       POSTGRES_DB: projeto_software
-    ports:
-      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -17,7 +15,7 @@ services:
       dockerfile: Dockerfile
     container_name: backend_container
     environment:
-      DATABASE_URL: "postgresql://user:user@postgres:5433/projeto_software?schema=public"
+      DATABASE_URL: "postgresql://user:user@postgres:5432/projeto_software?schema=public"
       JWT_SECRET: "37 bv6sWlL!%w*3eXejSINfzF)(F.{;s"
     ports:
       - "3000:3000"
