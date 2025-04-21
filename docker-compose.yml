@@ -6,14 +6,12 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: user
       POSTGRES_DB: projeto_software
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   backend:
     build:
-      context: .
+      context: ./backend/
       dockerfile: Dockerfile
     container_name: backend_container
     environment:
@@ -25,10 +23,24 @@ services:
       - postgres
     command: >
       sh -c "
-      npm run migrate &&
+      npm run migrate-reset &&
+      npm run migrate-generate &&
+      npm run migrate-prod &&
       npm run seed &&
       npm run start
       "
+  
+  frontend:
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: "http://200.132.38.218:3000/api/v1"
+    container_name: frontend_container
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
