@@ -6,19 +6,24 @@ import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Footer from "../../components/footer"
+import { GetLocation, PostUser } from "../../services/users"
 
 export default function SignupPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [passwordConfirm, setPasswordConfirm] = useState("")
+  const [location, setLocation] = useState("")
+  const [description, setDescription] = useState("")
+  const [role, setRole] = useState("")
   const [error, setError] = useState("")
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     // Validação básica
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !passwordConfirm || !location || !role || !description) {
       setError("Por favor, preencha todos os campos")
       return
     }
@@ -28,14 +33,28 @@ export default function SignupPage() {
       return
     }
 
-    // Simulação de cadastro bem-sucedido
-    // Em uma aplicação real, você faria uma chamada à API aqui
+    if (password !== passwordConfirm) {
+      setError("As senhas não coincidem")
+      return
+    }
+
+    try {
+      const data = await PostUser(name, email, password, location, role, description);
+
+      alert("Cadastro realizado com sucesso!")
+      //Redireciona para a página de login após o cadastro para gerar o token por lá
+      router.push("/login");
+    }
+    catch (error) {
+      setError("Erro ao cadastrar usuário")
+      return
+    }
+
+    // Cookies.set("auth_token", data.token, { expires: 1 }, { path: "/"});
 
     // Definir o cookie de autenticação (em uma aplicação real, isso seria feito pelo servidor)
-    document.cookie = `auth_token=dummy_token; path=/; max-age=${60 * 60 * 24 * 7}` // 7 dias
+    // document.cookie = `auth_token=dummy_token; path=/; max-age=${60 * 60 * 24 * 7}` // 7 dias
 
-    // Redirecionar para a página inicial
-    router.push("/")
   }
 
   return (
@@ -90,7 +109,100 @@ export default function SignupPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="email"
+                    placeholder="Informe o email"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                  Localização
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="location"
+                    name="location"
+                    type="location"
+                    autoComplete="location"
+                    required
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Ex: São Paulo, SP"
+                  />
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    onClick={async () => {
+                      let cep = prompt("Digite o CEP da Cidade: ");
+
+                      if (cep) {
+                        // Remove caracteres não numéricos do CEP
+                        cep = cep.replace(/\D/g, "");
+                        //Verifica se o CEP tekm 8 dígitos
+                        if (cep.length !== 8) {
+                          alert("CEP inválido. O CEP deve conter 8 dígitos.");
+                          return;
+                        }
+                        try {
+                          const location = await GetLocation(cep);
+                          if (!location) {
+                            alert("Localização não encontrada. Verifique o CEP e tenten novamente.");
+                            return;
+                          }
+                          else {
+                            setLocation(location);
+                          }
+                        }
+                        catch (error) {
+                          alert("Erro ao buscar localização. Verifique o CEP e tente novamente.");
+                        }
+                      }
+                    }}
+                    >
+                      Buscar Localização pelo CEP
+                    </button>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                  Tipo de Usuário
+                </label>
+                <div className="mt-1">
+                  <select
+                    id="role"
+                    name="role"
+                    autoComplete="role"
+                    required
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="" disabled>
+                      Selecione o tipo de usuário
+                    </option>
+                    <option value="ADVERTISER">Empresa/ONG</option>
+                    <option value="VOLUNTARY">Voluntário</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                  Descrição
+                </label>
+                <div className="mt-1">
+                  <textarea
+                    id="description"
+                    name="description"
+                    autoComplete="description"
+                    required
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Breve descrição do usuário/ONG"
+                    rows={4}
                   />
                 </div>
               </div>
@@ -110,7 +222,27 @@ export default function SignupPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="email"
+                    placeholder="Informe a senha"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="passwordConfirm" className="block text-sm font-medium text-gray-700">
+                  Confirmação de Senha
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="passwordConfirm"
+                    name="passwordConfirm"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    minLength={6}
+                    value={passwordConfirm}
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Confirme a senha"
                   />
                 </div>
               </div>
