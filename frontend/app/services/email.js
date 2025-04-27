@@ -8,7 +8,7 @@ export async function envioEmail(email, codigo) {
     try {
         const response = await emailjs.send('service_e0vv17c', 'template_7jfrirb', {
             mensagem: `Olá, seu código de verificação é: ${codigo}.
-            Click no link para redefinir sua senha: http://localhost:3001/editpassword?email=${encodeURIComponent(email)}&codigo=${encodeURIComponent(codigo)}`,
+            Click no link para redefinir sua senha: http://200.132.38.218:3001/editpassword?email=${encodeURIComponent(email)}&codigo=${encodeURIComponent(codigo)}`,
             email: email,
         });
         return response;
