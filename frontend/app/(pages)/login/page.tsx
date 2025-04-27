@@ -24,7 +24,9 @@ export default function LoginPage() {
     try {
       const data = await Login(email, password);
       Cookies.set("auth_token", data.token, { expires: 1, path: "/" });
+      console.log("Login bem-sucedido, redirecionando para '/'");
       router.push("/");
+      console.log("Chamou router.push");
     } catch (err) {
       setError("Erro no login");
     }
