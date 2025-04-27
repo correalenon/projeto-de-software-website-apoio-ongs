@@ -124,8 +124,8 @@ export const postUser = async (req, res) => {
         tags,
         images
     } = req.body;
-    if (!name || !email || !password || !location || !role || !description || !tags) {
-        return res.status(400).json({ error: "Todos os campos são obrigatórios" });
+    if (!name || !email || !password || !location || !role) {
+        return res.status(400).json({ error: "Campos nome, email, senha, localização, tipo do usuário obrigatórios" });
     }
     try {
         const existingUser = await prisma.users.findUnique({ where: { email } });
@@ -142,7 +142,7 @@ export const postUser = async (req, res) => {
                 role,
                 description,
                 tags: {
-                    create: tags
+                    create: tags && tags.length > 0 ? tags : [{ name: "Sem tags" }]
                 },
                 images: {
                     create: images && images.length > 0 ? images : [{ url: "https://avatars.githubusercontent.com/u/136519252?v=4" }]
