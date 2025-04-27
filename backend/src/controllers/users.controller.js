@@ -203,3 +203,40 @@ export const deleteUserByID = async (req, res) => {
         res.status(500).json({ error: "Erro ao deletar usuário" });
     }
 };
+
+export const PostEmailUser = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const emailUser = await prisma.users.findUnique({ where: { email }});
+
+        if (!emailUser) {
+            return res.status(404).json({ error: "E-mail não encontrado" });
+        }
+
+        res.status(200).json(emailUser);
+    }
+    catch (error) {
+        res.status(500).json({ error: "Erro ao buscar e-mail"});
+    }
+}
+
+export const PutPasswordUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await prisma.users.update({
+            where: { email },
+            data: { password: hashedPassword }
+        })
+
+        if (!user) {
+            return res.status(404).json( { error: "Usuário não encontrado" });
+        }
+
+        res.status(200).json( { message: "Senha atualizada com sucesso"});
+    }
+    catch (error) {
+        res.status(500).json({ error: "Erro ao atualizar senha"});
+    }
+}

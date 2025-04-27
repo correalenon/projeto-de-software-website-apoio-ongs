@@ -2,23 +2,59 @@
 
 import type React from "react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Footer from "../../components/footer"
+import { envioEmail, geraCodigoEmail } from "../../services/email"
+import { PostEmail } from "../../services/users"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
   const [error, setError] = useState("")
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false)
+  const [countdown, setCountdown] = useState(0) //Contagem regressiva
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
+    
     if (!email) {
         setError("Por favor, preencha todos os campos")
         return
       }
+
+    const validaEmail = await PostEmail(email)
+    if (validaEmail.status === 404) {
+      setError("Email não encontrado")
+      return
+    }
+    else if (validaEmail.status === 500) {
+      setError("Erro ao validar o email")
+      return
+    }
+
+    setError("") // Limpo se não houver erro anterior
+
+    try {
+      envioEmail(email, geraCodigoEmail())
+      setIsButtonDisabled(true); //Desabilita o botão de envio
+      setCountdown(30); //Inicio a contagem regressiva de 30 segundos
+    }
+    catch (error) {
+      setError("Erro ao enviar o email de redefinição de senha")
+    }
+
 }
+
+useEffect(() => {
+  if (countdown > 0) {
+    const timer = setTimeout(() => setCountdown(countdown - 1), 1000)
+    return () => clearTimeout(timer); //Limpa o timer quando o componente é desmontado ou quando countdown muda
+  }
+  else {
+    setIsButtonDisabled(false); //Reativa o botão de envio quando a contagem regressiva chega a 0
+  }
+}, [countdown]);
 
 return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
@@ -59,14 +95,27 @@ return (
 
               <div>
                 <button
+                  id='submit'
                   type="submit"
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  disabled={isButtonDisabled} //Desabilita o botão se necessario
+                  className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    ${isButtonDisabled
+                       ? "bg-gray-400 cursor-not-allowed"
+                       : "bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    }`}
+                  
                 >
                   Enviar código de redefinição
                 </button>
               </div>
             </form>
           </div>
+
+          {isButtonDisabled && (
+            <div className="mt-4 text-center text-sm text-gray-600">
+              Email não chegou? Tente novamente em {countdown} segundos...
+              </div>
+          )}
 
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">

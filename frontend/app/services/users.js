@@ -54,3 +54,37 @@ export async function GetLocation(cep) {
         throw error;
     }
 }
+
+export async function PostEmail(email) {
+    try {
+        const response = await fetch(API_URL + "/users/email", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email }),
+        });
+
+        return response;
+    }
+    catch (error) {
+        throw error;
+    }
+}
+
+export async function PutPassword(email, password) {
+    try {
+        const response = await fetch(API_URL + "/users/editpassword", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify( { email, password }),
+        });
+        
+        return response;
+    }
+    catch (error) {
+        throw error;
+    }
+}
