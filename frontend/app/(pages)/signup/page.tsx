@@ -39,11 +39,22 @@ export default function SignupPage() {
     }
 
     try {
-      const data = await PostUser(name, email, password, location, role, description);
+      const {status, data} = await PostUser(name, email, password, location, role, description);
 
-      alert("Cadastro realizado com sucesso!")
-      //Redireciona para a página de login após o cadastro para gerar o token por lá
-      router.push("/login");
+      if (status === 400) {
+        setError("Email já cadastrado")
+        return
+      }
+      else 
+      if (status === 500) {
+        setError("Erro ao cadastrar usuário")
+        return
+      }
+      else {
+        alert("Cadastro realizado com sucesso!")
+        //Redireciona para a página de login após o cadastro para gerar o token por lá
+        router.push("/login");
+      }
     }
     catch (error) {
       setError("Erro ao cadastrar usuário")

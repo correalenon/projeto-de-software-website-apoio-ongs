@@ -27,11 +27,10 @@ export async function PostUser(name, email, password, location, role, descriptio
             },
             body: JSON.stringify({ name, email, password, location, role, description }),
         });
-        if (!response.status === 201) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Erro ao cadastrar usuário");
-        }
-        return await response.json();
+
+        const data = await response.json();
+
+        return { status: response.status, data}
     } catch (error) {
         throw error;
     }
