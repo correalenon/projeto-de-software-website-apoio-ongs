@@ -7,7 +7,7 @@ export async function Login(email, password) {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ email, password })
         });
         if (!response.ok) {
             const errorData = await response.json();
