@@ -8,6 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const { email, password } = req.body;
   try {
+    console.log(API_URL);
     const response = await fetch(API_URL + "/login", {
       method: "POST",
       headers: {
