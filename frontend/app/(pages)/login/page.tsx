@@ -4,8 +4,7 @@ import type React from "react"
 import Link from "next/link"
 import Cookies from 'js-cookie';
 import { useState } from "react"
-// import { useRouter } from "next/navigation"
-import { useRouter } from 'next/router';
+import { useRouter } from "next/navigation"
 import { Login } from "../../services/login";
 import Footer from "../../components/footer"
 
