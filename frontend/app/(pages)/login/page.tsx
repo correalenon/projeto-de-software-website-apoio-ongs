@@ -22,21 +22,9 @@ export default function LoginPage() {
       return
     }
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log("Login bem-sucedido, redirecionando para '/'");
-        router.push("/");
-      } else {
-        setError(data.message || "Erro no login");
-      }
-      // const data = await Login(email, password);
-      // Cookies.set("auth_token", data.token, { expires: 1, path: "/"});
-      // router.push("/");
+      const data = await Login(email, password);
+      Cookies.set("auth_token", data.token, { expires: 1, path: "/"});
+      router.push("/");
     } catch (err) {
       setError("Erro no login");
     }

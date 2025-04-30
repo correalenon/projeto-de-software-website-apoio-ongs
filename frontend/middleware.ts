@@ -7,9 +7,9 @@ export function middleware(request: NextRequest) {
 
   // Verificar se o usuário está acessando a página principal ou outras páginas protegidas
   const isProtectedRoute =
-    // request.nextUrl.pathname === "/" ||
-    request.nextUrl.pathname === "/profile" ||
-    request.nextUrl.pathname === "/network"
+    request.nextUrl.pathname === "/" ||
+    request.nextUrl.pathname === "/ongs" ||
+    request.nextUrl.pathname === "/projects"
 
   // Verificar se o usuário está acessando páginas de autenticação
   const isAuthRoute = request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/signup"
@@ -29,7 +29,6 @@ export function middleware(request: NextRequest) {
 
 // Configurar em quais caminhos o middleware será executado
 export const config = {
-  // matcher: ["/", "/profile", "/network", "/login", "/signup"],
-  matcher: ["/profile", "/network", "/login", "/signup"],
+  matcher: ["/", "/ongs", "/projects"],
 }
 
