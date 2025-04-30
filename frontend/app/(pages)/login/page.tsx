@@ -31,6 +31,7 @@ export default function LoginPage() {
       if (response.ok) {
         console.log("Login bem-sucedido, redirecionando para '/'");
         router.push("/");
+        return;
       }
       const { message } = await response.json();
       setError(message || "Erro no login");
