@@ -3,7 +3,6 @@ import { serialize } from "cookie";
 import { API_URL } from "../../../app/API/config"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  return res.status(200).json({ message: "Login API" });
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method Not Allowed" });
   }
@@ -16,6 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       body: JSON.stringify({ email, password })
     });
+    console.log(response);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -24,8 +24,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const data = await response.json();
     // Criar cookie
     const serialized = serialize('auth_token', data.token, {
-      httpOnly: true, // Melhor segurança, o JS do browser não lê
-      sameSite: "strict",
+      // httpOnly: true, // Melhor segurança, o JS do browser não lê
+      // sameSite: "strict",
       maxAge: 60 * 60 * 24, // 1 dia
       path: '/',
     });
