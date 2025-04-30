@@ -27,15 +27,13 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
       });
-  
+      const data = await response.json();
       if (response.ok) {
         console.log("Login bem-sucedido, redirecionando para '/'");
         router.push("/");
-        return;
+      } else {
+        setError(data.message || "Erro no login");
       }
-      const { message } = await response.json();
-      setError(message || "Erro no login");
-      return;
       // const data = await Login(email, password);
       // Cookies.set("auth_token", data.token, { expires: 1, path: "/"});
       // router.push("/");
