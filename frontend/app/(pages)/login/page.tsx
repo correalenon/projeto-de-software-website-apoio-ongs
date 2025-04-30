@@ -24,7 +24,8 @@ export default function LoginPage() {
     try {
       const data = await Login(email, password);
       Cookies.set("auth_token", data.token, { expires: 1, path: "/"});
-      router.push("/");
+      // router.push("/");
+      router.replace("/");
     } catch (err) {
       setError("Erro no login");
     }
