@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       body: JSON.stringify({ email, password })
     });
-    console.log(response);
+    console.log(await response.json());
 
     if (!response.ok) {
       const errorData = await response.json();
