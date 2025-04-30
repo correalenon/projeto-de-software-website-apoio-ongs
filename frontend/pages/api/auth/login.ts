@@ -8,7 +8,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
   const { email, password } = req.body;
   try {
-    console.log(API_URL);
     const response = await fetch(API_URL + "/login", {
       method: "POST",
       headers: {
@@ -16,7 +15,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       body: JSON.stringify({ email, password })
     });
-    console.log(await response.json());
 
     if (!response.ok) {
       const errorData = await response.json();
