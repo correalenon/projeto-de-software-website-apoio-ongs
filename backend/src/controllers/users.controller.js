@@ -157,15 +157,15 @@ export const postUser = async (req, res) => {
     }
 };
 
-export const putUserByID = async (req, res) => {
+export const putUser = async (req, res) => {
     try {
-        const { id } = req.params;
-        const { name, email, password, location, role, description, tags, images } = req.body;
+        const { id } = req.user;
+        const { name, email, password, location, role, description, headline, industry, tags, images } = req.body;
         const user = await prisma.users.findUnique({ where: { id: parseInt(id) }, include: { images: true } });
         if (!user) {
             return res.status(404).json({ error: "Usuário não encontrado" });
         }
-        const updateData = { name, email, password, location, role, description};
+        const updateData = { name, email, password, location, role, description, headline, industry};
         if (images && images.length > 0) {
             updateData.images = {
                 deleteMany: {},

@@ -1,52 +1,62 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { GetUser } from "../../services/users"
+import { GetUser, PutUser } from "../../services/users"
 import { useRouter } from "next/navigation"
 import EditProfileModal, { type ProfileData } from "./editProfileModal"
 
+
 export default function ProfileHeader() {
     const [user, setUser] = useState(null)
-
-    useEffect(() => {
-        async function loadUser() {
-          const userData = await GetUser()
-          setUser(userData)
-        }
-        loadUser()
-      }, [])
-    
-    const router = useRouter()
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [profileData, setProfileData] = useState<ProfileData>({
-        name: "John Doe",
-        headline: "Software Developer at Tech Company",
-        location: "San Francisco Bay Area",
-        industry: "Information Technology",
-        about:
-          "Passionate software developer with 5+ years of experience in full-stack development. Specialized in React, Node.js, and cloud technologies. Committed to creating efficient, scalable, and user-friendly applications that solve real-world problems.",
+        name: "",
+        headline: "",
+        location: "",
+        industry: "",
+        about: "",
         profileImage: null,
         profileImageUrl: "/placeholder.svg?height=128&width=128",
         coverImage: null,
         coverImageUrl: "/placeholder.svg?height=400&width=1200&text=Cover",
-    })
+    });
+    useEffect(() => {
+        async function loadUser() {
+            try {
+                const userData = await GetUser();
+
+                if (userData) {
+                    setProfileData({
+                        name: userData.name || "",
+                        headline: userData.headline || "",
+                        location: userData.location || "",
+                        industry: userData.industry || "",
+                        about: userData.about || "",
+                        profileImage: userData.progileImage || null,
+                        profileImageUrl: userData.profileImageUrl || null,
+                        coverImage: userData.coverImage || null,
+                        coverImageUrl: userData.coverImageUrl || null
+                    });
+                }
+            } catch (error) {
+                console.error("Erro ao carregar dados do usuário:", error);
+            }
+            
+        }
+        loadUser();
+    }, []);
+            
     
     const handleSaveProfile = async (updatedData: ProfileData) => {
         try {
           // Here you would typically send the data to your API
-          console.log("Saving profile data:", updatedData)
-    
-          // Simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-    
-          // Update local state with new data
-          setProfileData(updatedData)
-    
-          // Show success message
-          alert("Profile updated successfully!")
+          const updatedUser = await PutUser(updatedData);
+
+          setProfileData(updatedUser)
+          alert("Perfil atualizado com sucesso!")
+          
         } catch (error) {
-          console.error("Error updating profile:", error)
-          alert("Failed to update profile. Please try again.")
+          alert("Falha ao atualizar dados do perfil. Tente novamente.")
         }
     }
     return (

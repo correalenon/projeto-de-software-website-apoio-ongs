@@ -108,7 +108,9 @@ model Users {
   views         Int             @default(0)
   connections   Int             @default(0)
   role          Role            @default(ADMIN)
-  description   String
+  description   String?
+  headline      String?
+  industry      String?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   posts         Posts[]

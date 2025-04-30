@@ -16,7 +16,7 @@ export interface ProfileData {
   headline: string
   location: string
   industry: string
-  about: string
+  description: string
   profileImage: File | null
   profileImageUrl: string
   coverImage: File | null
@@ -103,7 +103,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
       await onSave(profileData)
       onClose()
     } catch (error) {
-      console.error("Error saving profile:", error)
+      console.error("Erro ao salvar dados do perfil:", error)
       // You could add error handling UI here
     } finally {
       setIsSubmitting(false)
@@ -117,7 +117,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
       <div ref={modalRef} className="bg-white rounded-lg w-full max-w-2xl shadow-xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10 rounded-t-lg">
-          <h2 className="text-lg font-medium">Edit profile</h2>
+          <h2 className="text-lg font-medium">Editar Perfil</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 rounded-full p-1 hover:bg-gray-100"
@@ -149,19 +149,19 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                 onClick={() => setActiveSection("intro")}
                 className={`px-3 py-2 rounded-md ${activeSection === "intro" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"}`}
               >
-                Intro
+                Introdução
               </button>
               <button
-                onClick={() => setActiveSection("about")}
-                className={`px-3 py-2 rounded-md ${activeSection === "about" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"}`}
+                onClick={() => setActiveSection("description")}
+                className={`px-3 py-2 rounded-md ${activeSection === "description" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"}`}
               >
-                About
+                Sobre
               </button>
               <button
                 onClick={() => setActiveSection("images")}
                 className={`px-3 py-2 rounded-md ${activeSection === "images" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"}`}
               >
-                Profile & Cover Images
+                Imagens
               </button>
             </div>
           </div>
@@ -171,7 +171,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
             <div className="p-4 space-y-4">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Name*
+                  Nome*
                 </label>
                 <input
                   id="name"
@@ -186,7 +186,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
 
               <div>
                 <label htmlFor="headline" className="block text-sm font-medium text-gray-700 mb-1">
-                  Headline*
+                  Título*
                 </label>
                 <input
                   id="headline"
@@ -194,7 +194,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                   type="text"
                   value={profileData.headline}
                   onChange={handleInputChange}
-                  placeholder="Ex: Software Developer at Tech Company"
+                  placeholder="Ex: Gerente de Marketing na Tchê Turbo"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   required
                 />
@@ -203,7 +203,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                    Location
+                    Localização
                   </label>
                   <input
                     id="location"
@@ -211,14 +211,14 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                     type="text"
                     value={profileData.location}
                     onChange={handleInputChange}
-                    placeholder="Ex: San Francisco Bay Area"
+                    placeholder="Ex: São Paulo, SP"
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
                   <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-1">
-                    Industry
+                    Empresa
                   </label>
                   <input
                     id="industry"
@@ -226,7 +226,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                     type="text"
                     value={profileData.industry}
                     onChange={handleInputChange}
-                    placeholder="Ex: Information Technology"
+                    placeholder="Ex: Tecnologia da Informação"
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -234,24 +234,23 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
             </div>
           )}
 
-          {/* About Section */}
-          {activeSection === "about" && (
+          {/* description Section */}
+          {activeSection === "description" && (
             <div className="p-4">
-              <label htmlFor="about" className="block text-sm font-medium text-gray-700 mb-1">
-                About
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                Sobre
               </label>
               <textarea
-                id="about"
-                name="about"
-                value={profileData.about}
+                id="description"
+                name="description"
+                value={profileData.description}
                 onChange={handleInputChange}
                 rows={6}
-                placeholder="Tell us about yourself"
+                placeholder="Nos conte sobre você"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
               <p className="text-xs text-gray-500 mt-2">
-                You can write about your years of experience, industry, or skills. People also talk about their
-                achievements or previous work experiences.
+                Você pode escrever suas experiências, seus interesses e habilidades.
               </p>
             </div>
           )}
@@ -261,7 +260,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
             <div className="p-4 space-y-6">
               {/* Profile Image */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Imagem de perfil</label>
                 <div className="flex items-center space-x-4">
                   <div className="h-24 w-24 rounded-full overflow-hidden border border-gray-300">
                     <img
@@ -282,7 +281,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                       onClick={() => profileImageInputRef.current?.click()}
                       className="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
                     >
-                      Change photo
+                      Mudar foto
                     </button>
                   </div>
                 </div>
@@ -290,7 +289,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
 
               {/* Cover Image */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Cover Image</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Imagem de fundo</label>
                 <div className="space-y-3">
                   <div className="h-32 w-full rounded-lg overflow-hidden border border-gray-300 bg-gray-100">
                     {profileData.coverImageUrl ? (
@@ -300,7 +299,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="h-full w-full flex items-center justify-center text-gray-400">No cover image</div>
+                      <div className="h-full w-full flex items-center justify-center text-gray-400">Sem imagem de fundo</div>
                     )}
                   </div>
                   <div>
@@ -315,7 +314,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                       onClick={() => coverImageInputRef.current?.click()}
                       className="bg-white border border-gray-300 rounded-md px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
                     >
-                      Change cover
+                      Mudar foto de fundo
                     </button>
                   </div>
                 </div>
@@ -331,7 +330,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
               onClick={onClose}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
-              Cancel
+              Cancelar
             </button>
             <button
               onClick={handleSubmit}
@@ -362,10 +361,10 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Saving...
+                  Salvando...
                 </div>
               ) : (
-                "Save"
+                "Salvar"
               )}
             </button>
           </div>
