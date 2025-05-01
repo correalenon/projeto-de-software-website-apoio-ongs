@@ -3,8 +3,58 @@ import prisma from "../db/client.js";
 
 export const getMe = async (req, res) => {
     try {
-        const { password, ...userWithoutPassword } = req.user;
-        return res.status(200).json(userWithoutPassword);
+        const { password, ...userWithoutPassword } = req.user; // Remove a senha do objeto req.user
+        const { id } = req.user;
+
+        const users = await prisma.users.findUnique({
+            where: { id: parseInt(id) },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                location: true,
+                views: true,
+                connections: true,
+                role: true,
+                description: true,
+                createdAt: true,
+                activity: {
+                    select: {
+                        description: true,
+                    },
+                },
+                tags: {
+                    select: {
+                        name: true,
+                    },
+                },
+                images: {
+                    select: {
+                        url: true,
+                    },
+                },
+                ongs: {
+                    select: {
+                        name: true,
+                        cnpj: true,
+                        contact: true,
+                        images: {
+                            select: {
+                                url: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        // Combina os dados de userWithoutPassword com os dados de users
+        const combinedUserData = {
+            ...userWithoutPassword,
+            ...users,
+        };
+
+        return res.status(200).json(combinedUserData);
     } catch (error) {
         console.log(error);
         res.status(500).json({ error: "Erro ao buscar usuário /me" });

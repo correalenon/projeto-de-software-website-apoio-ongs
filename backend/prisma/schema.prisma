@@ -108,6 +108,8 @@ model Users {
   views         Int             @default(0)
   connections   Int             @default(0)
   role          Role            @default(ADMIN)
+  profileImage  String?
+  coverImage    String?
   description   String?
   headline      String?
   industry      String?

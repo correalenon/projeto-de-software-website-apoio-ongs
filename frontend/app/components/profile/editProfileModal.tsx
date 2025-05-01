@@ -21,6 +21,10 @@ export interface ProfileData {
   profileImageUrl: string
   coverImage: File | null
   coverImageUrl: string
+  createdAt: Date
+  updatedAt: Date
+  views: Number
+  connections: Number
 }
 
 export default function EditProfileModal({ isOpen, onClose, onSave, initialData }: EditProfileModalProps) {

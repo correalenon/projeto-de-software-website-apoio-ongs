@@ -14,11 +14,15 @@ export default function ProfileHeader() {
         headline: "",
         location: "",
         industry: "",
-        about: "",
+        description: "",
         profileImage: null,
         profileImageUrl: "/placeholder.svg?height=128&width=128",
         coverImage: null,
         coverImageUrl: "/placeholder.svg?height=400&width=1200&text=Cover",
+        createdAt: new Date,
+        updatedAt: new Date,
+        views: 0,
+        connections: 0
     });
     useEffect(() => {
         async function loadUser() {
@@ -31,11 +35,15 @@ export default function ProfileHeader() {
                         headline: userData.headline || "",
                         location: userData.location || "",
                         industry: userData.industry || "",
-                        about: userData.about || "",
+                        description: userData.description || "",
                         profileImage: userData.progileImage || null,
                         profileImageUrl: userData.profileImageUrl || null,
                         coverImage: userData.coverImage || null,
-                        coverImageUrl: userData.coverImageUrl || null
+                        coverImageUrl: userData.coverImageUrl || null,
+                        createdAt: userData.createdAt || null,
+                        updatedAt: userData.updatedAt || null,
+                        views: userData.views || 0,
+                        connections: userData.connections || 0
                     });
                 }
             } catch (error) {
@@ -49,11 +57,10 @@ export default function ProfileHeader() {
     
     const handleSaveProfile = async (updatedData: ProfileData) => {
         try {
-          // Here you would typically send the data to your API
+          // Chamada da API
           const updatedUser = await PutUser(updatedData);
 
           setProfileData(updatedUser)
-          alert("Perfil atualizado com sucesso!")
           
         } catch (error) {
           alert("Falha ao atualizar dados do perfil. Tente novamente.")
@@ -81,24 +88,20 @@ export default function ProfileHeader() {
             <div className="relative pb-6 px-6">
             <div className="absolute -top-16 left-8">
                 <div className="h-32 w-32 rounded-full border-4 border-white overflow-hidden">
-                    {user?.images?.length > 0 ? (
-                        <img
-                            src={user.images[0].url || "Carregando..."}
-                            alt={user.name || "Carregando..."}
-                            className="h-full w-full object-cover"
-                        />
-                    ) : (
-                        "Carregando..."
-                    )}
+                    <img
+                        src={profileData.profileImageUrl || "Carregando..."}
+                        alt={profileData.name || "Carregando..."}
+                        className="h-full w-full object-cover"
+                    />
                 </div>
             </div>
             <div className="pt-20">
                 <div className="flex justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold">{user?.name || "Carregando..."}</h1>
-                    <p className="text-lg">{user?.location || "Carregando..."}</p>
+                    <h1 className="text-2xl font-bold">{profileData?.name || "Carregando..."}</h1>
+                    <p className="text-lg">{profileData?.location || "Carregando..."}</p>
                     <p className="text-sm text-gray-500 mt-1">
-                        {user?.createdAt ? new Date(user.createdAt).toLocaleDateString("pt-BR", { year: "numeric", month: "long" }).replace(/^\w/, c => c.toUpperCase()) : "Carregando..."}
+                        {profileData?.createdAt ? new Date(profileData.createdAt).toLocaleDateString("pt-BR", { year: "numeric", month: "long" }).replace(/^\w/, c => c.toUpperCase()) : "Carregando..."}
                     </p>
                     <div className="flex gap-2 mt-3">
                         <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded">Open to</button>
@@ -106,9 +109,9 @@ export default function ProfileHeader() {
                         onClick={() => setIsEditModalOpen(true)}
                         className="border border-gray-300 px-4 py-1 rounded hover:bg-gray-50"
                         >
-                        Edit profile
+                        Editar Perfil
                         </button>
-                        <button className="border border-gray-300 px-4 py-1 rounded hover:bg-gray-50">More</button>
+                        <button className="border border-gray-300 px-4 py-1 rounded hover:bg-gray-50">Mais Opções</button>
                         {/* Edit Profile Modal */}
                         <EditProfileModal
                             isOpen={isEditModalOpen}
@@ -125,7 +128,7 @@ export default function ProfileHeader() {
                         <img src="/placeholder.svg?height=40&width=40" alt="Tech Company" className="w-10 h-10" />
                         <div>
                             <h4 className="font-medium text-sm">Visualizações no Perfil</h4>
-                            <p className="text-xs text-gray-500 text-center">{user?.views !== undefined ? user.views : "Carregando..."}</p>
+                            <p className="text-xs text-gray-500 text-center">{profileData?.views !== undefined ? profileData.views : "Carregando..."}</p>
                         </div>
                         </div>
                     </div>
@@ -136,7 +139,7 @@ export default function ProfileHeader() {
                         <img src="/placeholder.svg?height=40&width=40" alt="University" className="w-10 h-10" />
                         <div>
                             <h4 className="font-medium text-sm">Conexões</h4>
-                            <p className="text-xs text-gray-500 text-center">{user?.connections !== undefined ? user.connections : "Carregando..."}</p>
+                            <p className="text-xs text-gray-500 text-center">{profileData?.connections !== undefined ? profileData.connections : "Carregando..."}</p>
                         </div>
                         </div>
                     </div>
