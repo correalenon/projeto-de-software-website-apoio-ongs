@@ -28,6 +28,7 @@ export const getMe = async (req, res) => {
                         name: true,
                     },
                 },
+                skills: true,
                 images: {
                     select: {
                         url: true,
@@ -210,24 +211,29 @@ export const postUser = async (req, res) => {
 export const putUser = async (req, res) => {
     try {
         const { id } = req.user;
-        const { name, email, password, location, role, description, headline, industry, tags, images } = req.body;
+        const { name, email, password, location, role, description, industry, tags, images, skills } = req.body;
         const user = await prisma.users.findUnique({ where: { id: parseInt(id) }, include: { images: true } });
         if (!user) {
             return res.status(404).json({ error: "Usuário não encontrado" });
         }
-        const updateData = { name, email, password, location, role, description, headline, industry};
+        const updateData = { name, email, password, location, role, description, industry};
         if (images && images.length > 0) {
             updateData.images = {
                 deleteMany: {},
                 create: { url: images[0].url }
             };
         }
-        if (tags && images.length > 0) {
+        if (tags && tags.length > 0) {
             updateData.tags = {
                 deleteMany: {},
                 create: tags
             };
         }
+
+        if (skills && Array.isArray(skills)) {
+            updateData.skills = skills;
+        }
+        
         const updatedUser = await prisma.users.update({
             where: { id: parseInt(id) },
             data: updateData,

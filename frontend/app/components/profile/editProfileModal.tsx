@@ -25,6 +25,7 @@ export interface ProfileData {
   updatedAt: Date
   views: Number
   connections: Number
+  skills: string[]
 }
 
 export default function EditProfileModal({ isOpen, onClose, onSave, initialData }: EditProfileModalProps) {
@@ -35,6 +36,27 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
   const modalRef = useRef<HTMLDivElement>(null)
   const profileImageInputRef = useRef<HTMLInputElement>(null)
   const coverImageInputRef = useRef<HTMLInputElement>(null)
+  const [skillInput, setSkillInput] = useState(""); // Para armazenar o texto digitado no campo de habilidades
+
+  // Adiciona uma habilidade ao pressionar Enter
+  const handleSkillKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && skillInput.trim() !== "") {
+      e.preventDefault(); // Evita o comportamento padrão do Enter
+      setProfileData((prev) => ({
+        ...prev,
+        skills: [...prev.skills, skillInput.trim()], // Adiciona a nova habilidade
+      }));
+      setSkillInput(""); // Limpa o campo de entrada
+    }
+  };
+  
+  // Remove uma habilidade pelo índice
+  const handleRemoveSkill = (index: number) => {
+    setProfileData((prev) => ({
+      ...prev,
+      skills: prev.skills.filter((_, i) => i !== index), // Remove a habilidade pelo índice
+    }));
+  };
 
   // Reset form data when modal opens with initial data
   useEffect(() => {
@@ -156,6 +178,12 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                 Introdução
               </button>
               <button
+                onClick={() => setActiveSection("skills")}
+                className={`px-3 py-2 rounded-md ${activeSection === "skills" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"}`}
+              >
+                Habilidades
+              </button>
+              <button
                 onClick={() => setActiveSection("description")}
                 className={`px-3 py-2 rounded-md ${activeSection === "description" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"}`}
               >
@@ -183,22 +211,6 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                   type="text"
                   value={profileData.name}
                   onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label htmlFor="headline" className="block text-sm font-medium text-gray-700 mb-1">
-                  Título*
-                </label>
-                <input
-                  id="headline"
-                  name="headline"
-                  type="text"
-                  value={profileData.headline}
-                  onChange={handleInputChange}
-                  placeholder="Ex: Gerente de Marketing na Tchê Turbo"
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   required
                 />
@@ -237,6 +249,45 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
               </div>
             </div>
           )}
+
+
+    {/* Skills Section */}
+    {activeSection === "skills" && (
+      <div className="p-4 space-y-4">
+        <div>
+          <label htmlFor="skills" className="block text-sm font-medium text-gray-700 mb-1">
+            Habilidades*
+          </label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {profileData.skills.map((skill, index) => (
+              <div
+                key={index}
+                className="flex items-center bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm"
+              >
+                <span>{skill}</span>
+                <button
+                  onClick={() => handleRemoveSkill(index)}
+                  className="ml-2 text-blue-600 hover:text-blue-800"
+                  aria-label={`Remover habilidade ${skill}`}
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+          <input
+            id="skills"
+            name="skills"
+            type="text"
+            value={skillInput}
+            onChange={(e) => setSkillInput(e.target.value)}
+            onKeyDown={handleSkillKeyDown}
+            placeholder="Digite uma habilidade e pressione Enter"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
+      </div>
+    )}
 
           {/* description Section */}
           {activeSection === "description" && (

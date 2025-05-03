@@ -43,7 +43,8 @@ export default function ProfileHeader() {
                         createdAt: userData.createdAt || null,
                         updatedAt: userData.updatedAt || null,
                         views: userData.views || 0,
-                        connections: userData.connections || 0
+                        connections: userData.connections || 0,
+                        skills: userData.skills || []
                     });
                 }
             } catch (error) {
