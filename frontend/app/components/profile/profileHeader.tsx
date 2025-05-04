@@ -1,52 +1,65 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { GetUser } from "../../services/users"
+import { GetUser, PutUser } from "../../services/users"
 import { useRouter } from "next/navigation"
 import EditProfileModal, { type ProfileData } from "./editProfileModal"
 
-export default function ProfileHeader() {
-    const [user, setUser] = useState(null)
 
-    useEffect(() => {
-        async function loadUser() {
-          const userData = await GetUser()
-          setUser(userData)
-        }
-        loadUser()
-      }, [])
-    
-    const router = useRouter()
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+export default function ProfileHeader() {
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [profileData, setProfileData] = useState<ProfileData>({
-        name: "John Doe",
-        headline: "Software Developer at Tech Company",
-        location: "San Francisco Bay Area",
-        industry: "Information Technology",
-        about:
-          "Passionate software developer with 5+ years of experience in full-stack development. Specialized in React, Node.js, and cloud technologies. Committed to creating efficient, scalable, and user-friendly applications that solve real-world problems.",
+        name: "",
+        headline: "",
+        location: "",
+        industry: "",
         profileImage: null,
         profileImageUrl: "/placeholder.svg?height=128&width=128",
         coverImage: null,
         coverImageUrl: "/placeholder.svg?height=400&width=1200&text=Cover",
-    })
+        createdAt: new Date,
+        updatedAt: new Date,
+        skills: []
+    });
+    
+    useEffect(() => {
+        loadUser();
+    }, []);
+
+    const loadUser = async () => {
+        try {
+            const userData = await GetUser();
+
+            if (userData) {
+                setProfileData({
+                    name: userData.name || "",
+                    headline: userData.headline || "",
+                    location: userData.location || "",
+                    industry: userData.industry || "",
+                    profileImage: userData.progileImage || null,
+                    profileImageUrl: userData.profileImageUrl || null,
+                    coverImage: userData.coverImage || null,
+                    coverImageUrl: userData.coverImageUrl || null,
+                    createdAt: userData.createdAt || null,
+                    updatedAt: userData.updatedAt || null,
+                    skills: userData.skills || []
+                });
+            }
+        } catch (error) {
+            console.error("Erro ao carregar dados do usuário:", error);
+        }
+    }
+            
     
     const handleSaveProfile = async (updatedData: ProfileData) => {
         try {
-          // Here you would typically send the data to your API
-          console.log("Saving profile data:", updatedData)
-    
-          // Simulate API call
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-    
-          // Update local state with new data
-          setProfileData(updatedData)
-    
-          // Show success message
-          alert("Profile updated successfully!")
+          // Chamada da API
+          const updatedUser = await PutUser(updatedData);
+
+          setProfileData(updatedUser);
+          
         } catch (error) {
-          console.error("Error updating profile:", error)
-          alert("Failed to update profile. Please try again.")
+          alert("Falha ao atualizar dados do perfil. Tente novamente.")
         }
     }
     return (
@@ -71,24 +84,20 @@ export default function ProfileHeader() {
             <div className="relative pb-6 px-6">
             <div className="absolute -top-16 left-8">
                 <div className="h-32 w-32 rounded-full border-4 border-white overflow-hidden">
-                    {user?.images?.length > 0 ? (
-                        <img
-                            src={user.images[0].url || "Carregando..."}
-                            alt={user.name || "Carregando..."}
-                            className="h-full w-full object-cover"
-                        />
-                    ) : (
-                        "Carregando..."
-                    )}
+                    <img
+                        src={profileData.profileImageUrl || "Carregando..."}
+                        alt={profileData.name || "Carregando..."}
+                        className="h-full w-full object-cover"
+                    />
                 </div>
             </div>
             <div className="pt-20">
                 <div className="flex justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold">{user?.name || "Carregando..."}</h1>
-                    <p className="text-lg">{user?.location || "Carregando..."}</p>
+                    <h1 className="text-2xl font-bold">{profileData?.name || "Carregando..."}</h1>
+                    <p className="text-lg">{profileData?.location || "Carregando..."}</p>
                     <p className="text-sm text-gray-500 mt-1">
-                        {user?.createdAt ? new Date(user.createdAt).toLocaleDateString("pt-BR", { year: "numeric", month: "long" }).replace(/^\w/, c => c.toUpperCase()) : "Carregando..."}
+                        {profileData?.createdAt ? new Date(profileData.createdAt).toLocaleDateString("pt-BR", { year: "numeric", month: "long" }).replace(/^\w/, c => c.toUpperCase()) : "Carregando..."}
                     </p>
                     <div className="flex gap-2 mt-3">
                         <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded">Open to</button>
@@ -96,9 +105,9 @@ export default function ProfileHeader() {
                         onClick={() => setIsEditModalOpen(true)}
                         className="border border-gray-300 px-4 py-1 rounded hover:bg-gray-50"
                         >
-                        Edit profile
+                        Editar Perfil
                         </button>
-                        <button className="border border-gray-300 px-4 py-1 rounded hover:bg-gray-50">More</button>
+                        <button className="border border-gray-300 px-4 py-1 rounded hover:bg-gray-50">Mais Opções</button>
                         {/* Edit Profile Modal */}
                         <EditProfileModal
                             isOpen={isEditModalOpen}
@@ -115,7 +124,7 @@ export default function ProfileHeader() {
                         <img src="/placeholder.svg?height=40&width=40" alt="Tech Company" className="w-10 h-10" />
                         <div>
                             <h4 className="font-medium text-sm">Visualizações no Perfil</h4>
-                            <p className="text-xs text-gray-500 text-center">{user?.views !== undefined ? user.views : "Carregando..."}</p>
+                            <p className="text-xs text-gray-500 text-center">{profileData?.views !== undefined ? profileData.views : "Carregando..."}</p>
                         </div>
                         </div>
                     </div>
@@ -126,7 +135,7 @@ export default function ProfileHeader() {
                         <img src="/placeholder.svg?height=40&width=40" alt="University" className="w-10 h-10" />
                         <div>
                             <h4 className="font-medium text-sm">Conexões</h4>
-                            <p className="text-xs text-gray-500 text-center">{user?.connections !== undefined ? user.connections : "Carregando..."}</p>
+                            <p className="text-xs text-gray-500 text-center">{profileData?.connections !== undefined ? profileData.connections : "Carregando..."}</p>
                         </div>
                         </div>
                     </div>

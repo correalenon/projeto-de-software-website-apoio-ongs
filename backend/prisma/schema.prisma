@@ -19,6 +19,14 @@ enum Role {
     ADVERTISER
 }
 
+enum ContributionType {
+  PRESENCIAL
+  REMOTO
+  DOACAO
+  SUPORTE_TECNICO
+  OUTRO
+}
+
 model Images {
   id            Int         @id @default(autoincrement())
   url           String
@@ -108,7 +116,11 @@ model Users {
   views         Int             @default(0)
   connections   Int             @default(0)
   role          Role            @default(ADMIN)
-  description   String
+  profileImage  String?
+  coverImage    String?
+  description   String?
+  skills        String[]
+  industry      String?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   posts         Posts[]
@@ -118,6 +130,7 @@ model Users {
   images        Images[]
   ongs          Ongs[]
   tags          Tags[]
+  contributions Contribution[]
 }
 
 model Ongs {
@@ -133,6 +146,7 @@ model Ongs {
   projects      Projects[]
   images        Images[]
   tags          Tags[]
+  contributions Contribution[]
 }
 
 model Projects {
@@ -148,3 +162,23 @@ model Projects {
   activities    Activities[]
   tags          Tags[]
 }
+
+model Contribution {
+  id             Int       @id @default(autoincrement())
+  user           Users     @relation(fields: [userId], references: [id])
+  userId         Int
+  name           String    // Nome da ação/projeto
+  ongName        String    // Nome da ONG (mesmo que não esteja cadastrada no sistema)
+  ong            Ongs?     @relation(fields: [ongId], references: [id])
+  ongId          Int?      // ID da ONG cadastrada (opcional)
+  date           DateTime
+  type           ContributionType
+  description    String
+  hours          Int
+  location       String
+  rating         Int?      // nota da ONG (1 a 5)
+  feedback       String?   // comentário da ONG
+
+  createdAt      DateTime  @default(now())
+}
+

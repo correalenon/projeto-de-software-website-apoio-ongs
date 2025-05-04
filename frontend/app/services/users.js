@@ -87,3 +87,27 @@ export async function PutPassword(email, password) {
         throw error;
     }
 }
+
+export async function PutUser(updateData) {
+    try {
+        const response = await fetch(API_URL + '/users', {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + TOKEN,
+            },
+
+            body: JSON.stringify(updateData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Erro ao atualizar usuário");
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        throw error;
+    }
+}
