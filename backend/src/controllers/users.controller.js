@@ -46,6 +46,7 @@ export const getMe = async (req, res) => {
                         },
                     },
                 },
+                contributions: true,
             },
         });
 

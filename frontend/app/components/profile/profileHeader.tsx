@@ -22,7 +22,8 @@ export default function ProfileHeader() {
         createdAt: new Date,
         updatedAt: new Date,
         views: 0,
-        connections: 0
+        connections: 0,
+        skills: []
     });
     useEffect(() => {
         async function loadUser() {

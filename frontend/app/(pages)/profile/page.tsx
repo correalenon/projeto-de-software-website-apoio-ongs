@@ -1,7 +1,7 @@
 import Header from "../../components/header";
 import ProfileHeader from "../../components/profile/profileHeader";
 import ProfileAbout from "../../components/profile/profileAbout";
-import ProfileActivity from "../../components/profile/profileActivity";
+import ProfileContribution from "../../components/profile/profileContribution";
 import Footer from "../../components/footer"
 
 export default function ProfilePage() {
@@ -9,7 +9,6 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <Header />
-
       <main className="container px-4 py-6 mx-auto">
         {/* Profile Header */}
         < ProfileHeader />
@@ -19,8 +18,8 @@ export default function ProfilePage() {
             {/* About Section */}
             < ProfileAbout />
 
-            {/* Activity Section */}
-            < ProfileActivity />
+            {/* Contribution Section */}
+            < ProfileContribution />
           </div>
 
           <div className="space-y-6">

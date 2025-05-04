@@ -192,3 +192,23 @@ export const getFilterUsers = async (req, res) => {
         
     }
 };
+
+export const getFilterOngs = async (req, res) => {
+    const { name } = req.query;
+
+    try {
+        const filters = {};
+
+        if (name) filters.name = { contains: name };
+
+        const ongs = await prisma.ongs.findMany({
+            where: filters
+        });
+
+        res.status(200).json(ongs);
+    }
+    catch (error) {
+        res.status(500).json({ error: "Erro ao realizar filtro de ONGs."});
+        console.error(error);
+    }
+}
