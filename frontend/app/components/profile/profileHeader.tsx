@@ -7,54 +7,48 @@ import EditProfileModal, { type ProfileData } from "./editProfileModal"
 
 
 export default function ProfileHeader() {
-    const [user, setUser] = useState(null)
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [profileData, setProfileData] = useState<ProfileData>({
         name: "",
         headline: "",
         location: "",
         industry: "",
-        description: "",
         profileImage: null,
         profileImageUrl: "/placeholder.svg?height=128&width=128",
         coverImage: null,
         coverImageUrl: "/placeholder.svg?height=400&width=1200&text=Cover",
         createdAt: new Date,
         updatedAt: new Date,
-        views: 0,
-        connections: 0,
         skills: []
     });
+    
     useEffect(() => {
-        async function loadUser() {
-            try {
-                const userData = await GetUser();
-
-                if (userData) {
-                    setProfileData({
-                        name: userData.name || "",
-                        headline: userData.headline || "",
-                        location: userData.location || "",
-                        industry: userData.industry || "",
-                        description: userData.description || "",
-                        profileImage: userData.progileImage || null,
-                        profileImageUrl: userData.profileImageUrl || null,
-                        coverImage: userData.coverImage || null,
-                        coverImageUrl: userData.coverImageUrl || null,
-                        createdAt: userData.createdAt || null,
-                        updatedAt: userData.updatedAt || null,
-                        views: userData.views || 0,
-                        connections: userData.connections || 0,
-                        skills: userData.skills || []
-                    });
-                }
-            } catch (error) {
-                console.error("Erro ao carregar dados do usuário:", error);
-            }
-            
-        }
         loadUser();
     }, []);
+
+    const loadUser = async () => {
+        try {
+            const userData = await GetUser();
+
+            if (userData) {
+                setProfileData({
+                    name: userData.name || "",
+                    headline: userData.headline || "",
+                    location: userData.location || "",
+                    industry: userData.industry || "",
+                    profileImage: userData.progileImage || null,
+                    profileImageUrl: userData.profileImageUrl || null,
+                    coverImage: userData.coverImage || null,
+                    coverImageUrl: userData.coverImageUrl || null,
+                    createdAt: userData.createdAt || null,
+                    updatedAt: userData.updatedAt || null,
+                    skills: userData.skills || []
+                });
+            }
+        } catch (error) {
+            console.error("Erro ao carregar dados do usuário:", error);
+        }
+    }
             
     
     const handleSaveProfile = async (updatedData: ProfileData) => {
@@ -62,7 +56,7 @@ export default function ProfileHeader() {
           // Chamada da API
           const updatedUser = await PutUser(updatedData);
 
-          setProfileData(updatedUser)
+          setProfileData(updatedUser);
           
         } catch (error) {
           alert("Falha ao atualizar dados do perfil. Tente novamente.")

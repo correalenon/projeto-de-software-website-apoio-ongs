@@ -16,15 +16,12 @@ export interface ProfileData {
   headline: string
   location: string
   industry: string
-  description: string
   profileImage: File | null
   profileImageUrl: string
   coverImage: File | null
   coverImageUrl: string
   createdAt: Date
   updatedAt: Date
-  views: Number
-  connections: Number
   skills: string[]
 }
 
@@ -184,12 +181,6 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                 Habilidades
               </button>
               <button
-                onClick={() => setActiveSection("description")}
-                className={`px-3 py-2 rounded-md ${activeSection === "description" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"}`}
-              >
-                Sobre
-              </button>
-              <button
                 onClick={() => setActiveSection("images")}
                 className={`px-3 py-2 rounded-md ${activeSection === "images" ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-100"}`}
               >
@@ -288,27 +279,6 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
         </div>
       </div>
     )}
-
-          {/* description Section */}
-          {activeSection === "description" && (
-            <div className="p-4">
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                Sobre
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={profileData.description}
-                onChange={handleInputChange}
-                rows={6}
-                placeholder="Nos conte sobre você"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-              <p className="text-xs text-gray-500 mt-2">
-                Você pode escrever suas experiências, seus interesses e habilidades.
-              </p>
-            </div>
-          )}
 
           {/* Images Section */}
           {activeSection === "images" && (

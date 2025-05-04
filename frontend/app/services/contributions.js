@@ -18,21 +18,26 @@ export async function getContributionsUser() {
     }
 }
 
-export async function postContributionUser(name, email, password, location, role, description) {
+export async function postContributionUser(newContribution) {
     try {
         const response = await fetch(API_URL + "/contributions", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + TOKEN,
             },
-            body: JSON.stringify({ name, email, password, location, role, description }),
+            body: JSON.stringify(newContribution),
         });
 
         const data = await response.json();
+        
+        if (response.status !== 201) {
+            throw new Error(data?.error);
+        }
 
-        return { status: response.status, data}
+        return data;
     } catch (error) {
-        throw error;
+        throw new Error(error.message || "Erro ao cadastrar nova contribuição");
     }
 }
 
@@ -64,26 +69,24 @@ export async function PutContributionUserByID(updateData, id) {
     }
 }
 
-export async function DeleteContributionUserByID(updateData) {
+export async function DeleteContributionUserByID(updateDataID) {
     try {
-        const response = await fetch(API_URL + '/users', {
+        const response = await fetch(`${API_URL}/contributions/${updateDataID}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + TOKEN,
             },
-
-            body: JSON.stringify(updateData),
         });
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || "Erro ao atualizar usuário");
+            throw new Error(data?.error);
         }
 
         return await response.json();
 
     } catch (error) {
-        throw error;
+        throw new Error(error.message || "Erro ao deletar contribuição");
     }
 }

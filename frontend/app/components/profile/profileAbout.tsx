@@ -14,7 +14,7 @@ export default function ProfileAbout() {
         loadUser()
     }, []);
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: any) => {
         setUser({ ...user, description: e.target.value });
     }
 

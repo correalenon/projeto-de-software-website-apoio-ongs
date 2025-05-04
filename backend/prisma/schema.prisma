@@ -19,6 +19,14 @@ enum Role {
     ADVERTISER
 }
 
+enum ContributionType {
+  PRESENCIAL
+  REMOTO
+  DOACAO
+  SUPORTE_TECNICO
+  OUTRO
+}
+
 model Images {
   id            Int         @id @default(autoincrement())
   url           String
@@ -164,7 +172,7 @@ model Contribution {
   ong            Ongs?     @relation(fields: [ongId], references: [id])
   ongId          Int?      // ID da ONG cadastrada (opcional)
   date           DateTime
-  type           String    // Voluntário, doação, remoto etc
+  type           ContributionType
   description    String
   hours          Int
   location       String

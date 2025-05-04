@@ -8,7 +8,10 @@ interface EditContributionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (contributionData: ContributionData) => Promise<void>;
+  onDelete: (contributionData: ContributionData) => Promise<void>;
   initialData: ContributionData;
+  type: String; //Label para mostrar se estou criando uma nova contribuição ou editando uma existente
+  canDelete: Boolean
 }
 
 export interface ContributionData {
@@ -27,7 +30,10 @@ export default function EditContributionModal({
   isOpen,
   onClose,
   onSave,
+  onDelete,
   initialData,
+  type,
+  canDelete
 }: EditContributionModalProps) {
   const [contributionData, setContributionData] = useState<ContributionData>(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,6 +41,7 @@ export default function EditContributionModal({
   const [suggestions, setSuggestions] = useState<{ id: number; name: string } []>([]);
   const [isSuggestionSelected, setIsSuggestionSelected] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
+  const [error, setError] = useState("");
 
   // Reset form data when modal opens with initial data
   useEffect(() => {
@@ -80,7 +87,7 @@ export default function EditContributionModal({
     };
   }, [isOpen, onClose]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setContributionData((prev) => ({
       ...prev,
@@ -117,13 +124,64 @@ export default function EditContributionModal({
             delete dataToSave.ongId;
         }
 
+        if (!fValidacoes(contributionData)) {
+          return
+        }
+
       await onSave(dataToSave);
       onClose();
     } catch (error) {
       console.error("Erro ao salvar dados da contribuição:", error);
-      // Adicione tratamento de erro aqui, se necessário
+      setError("Erro ao salvar dados da contribuição");
     } finally {
       setIsSubmitting(false);
+    }
+
+    function fValidacoes(contribuitonData: ContributionData) {
+      if (contribuitonData.name === "") {
+        setError("Título não informado");
+        return false;
+      }
+      else
+      if (contribuitonData.ongName === "") {
+        setError("Nome da ONG não informada");
+        return false;
+      }
+      else
+      if(contribuitonData.date === "") {
+        setError("Data não informada")
+        return false;
+      }
+      if (contribuitonData.hours === 0) {
+        setError("Número de horas não inforamada");
+        return false;
+      }
+      else
+      if (contribuitonData.location === "") {
+        setError("Localização não informada");
+        return false;
+      }
+      else
+      if (contribuitonData.type === "") {
+        setError("Tipo da contribuição não informada");
+        return false;
+      }
+      else
+      if(contribuitonData.description === "") {
+        setError("Descrição não informada");
+        return false;
+      }
+
+      return true;
+
+    }
+  };
+
+  const handleDeleteClick = () => {
+    const confirmDelete = confirm("Deseja realmente excluir esta contribuição?");
+    if (confirmDelete) {
+      onDelete(contributionData);
+      onClose();
     }
   };
 
@@ -134,7 +192,7 @@ export default function EditContributionModal({
       <div ref={modalRef} className="bg-white rounded-lg w-full max-w-2xl shadow-xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10 rounded-t-lg">
-          <h2 className="text-lg font-medium">Editar Contribuição</h2>
+          <h2 className="text-lg font-medium">{type}</h2> 
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 rounded-full p-1 hover:bg-gray-100"
@@ -156,6 +214,13 @@ export default function EditContributionModal({
             </svg>
           </button>
         </div>
+        {error && (
+        <div className="text-center">
+          <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+            {error}
+            </div>
+            </div>
+          )}
 
         {/* Content */}
         <div className="overflow-y-auto flex-grow p-4 space-y-4">
@@ -301,6 +366,29 @@ export default function EditContributionModal({
           </div>
 
           <div>
+            <div>
+              <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+                Tipo*
+              </label>
+              <select
+                id="type"
+                name="type"
+                value={contributionData.type}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                required
+              >
+                <option value="">Selecione um tipo</option>
+                <option value="PRESENCIAL">Presencial</option>
+                <option value="REMOTO">Remoto</option>
+                <option value="DOACAO">Doação</option>
+                <option value="SUPORTE_TECNICO">Suporte Técnico</option>
+                <option value="OUTRO">Outro</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
               Descrição*
             </label>
@@ -321,6 +409,15 @@ export default function EditContributionModal({
         {/* Footer */}
         <div className="p-4 border-t sticky bottom-0 bg-white z-10 rounded-b-lg">
           <div className="flex justify-end space-x-3">
+            {canDelete && (
+          <button
+              onClick={handleDeleteClick}
+              className="px-4 py-2 border border-red-500 text-red-600 rounded-md text-sm font-medium hover:bg-red-50"
+            >
+              Excluir
+            </button>
+            )}
+
             <button
               onClick={onClose}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { getContributionsUser, PutContributionUserByID } from "../../services/contributions";
+import { DeleteContributionUserByID, getContributionsUser, postContributionUser, PutContributionUserByID } from "../../services/contributions";
 import EditContributionModal, {ContributionData} from "./editContributionModal";
 
 export default function ProfileContribution() {
@@ -23,6 +23,14 @@ export default function ProfileContribution() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedContribution, setSelectedContribution] = useState<ContributionData | null>(null);
 
+    const typeLabels: Record<string, string> = {
+        PRESENCIAL: "Presencial",
+        REMOTO: "Remoto",
+        SUPORTE_TECNICO: "Suporte Técnico",
+        DOACAO: "Doação",
+        OUTRO: "Outro"
+    };
+
     useEffect(() => {
         async function loadContributions() {
             const contributionsData = await getContributionsUser();
@@ -39,29 +47,77 @@ export default function ProfileContribution() {
     }
 
     const handleSave = async (updatedContribution: ContributionData) => {
-        // Chamada da API para atualizar
         try {
-            const response = await PutContributionUserByID(updatedContribution, updatedContribution.id);
-            //Atualiza a contribuição no estado local
-            setContribution((prev) =>
-                prev.map((contribution) =>
-                    contribution.name === contribution.name ? updatedContribution : contribution
-                )   
-            );
-        } catch (error) {
-            console.error("Erro ao atualizar a contribuição: ", error);
-            alert("Erro ao atualizar a contribuição. Tente novamente mais tarde.");
-        }
+            let savedContribution: ContributionData;
 
-        setIsModalOpen(false);
+            if( updatedContribution.id === undefined) { //Inserir Contribuição nova
+                const response = await postContributionUser(updatedContribution);
+                savedContribution = response;
+
+                //Adiciono a nova contribuição na lista local
+                setContribution((prev) => [...prev, savedContribution]);
+            }
+            else {
+                const response = await PutContributionUserByID(updatedContribution, updatedContribution.id); //Atualizar uma já existente
+                savedContribution = response;
+
+                //Atualizo somente a contribuição com o mesmo ID
+                setContribution((prev) =>
+                    prev.map((contribution) =>
+                        contribution.id === savedContribution.id ? savedContribution : contribution
+                    )   
+                );
+            }
+            
+        } catch (error: any) {
+            alert(error.message || "Erro ao criar/atualizar contribuilçao");
+        }
+        finally {
+            setIsModalOpen(false);
+        }
     };
+
+    const handleDelete = async (contribution: ContributionData) => {
+        try {
+            if (contribution.id === undefined) return;
+
+            await DeleteContributionUserByID(contribution.id);
+
+            //Atualiza a lista local
+            setContribution((prev) => prev.filter((c) => c.id !== contribution.id));
+
+        } catch (error: any) {
+            alert(error.message || "Erro ao excluir contribuição")
+        }
+        finally {
+            setIsModalOpen(false);
+        }
+    }
+    
+
+    const handleAddClick = () => {
+        //Define valores padrão para uma nova contribuição
+        setSelectedContribution({
+            name: "",
+            description: "",
+            type: "",
+            location: "",
+            hours: 0,
+            date: new Date().toISOString().split("T")[0],
+            ongId: 0,
+            ongName: "",
+        });
+        setIsModalOpen(true)
+    }
 
     return (
         <div className="bg-white rounded-lg shadow">
             <div className="flex flex-row items-center justify-between p-4">
             <h3 className="text-lg font-medium">Minhas Contribuições</h3>
             <div className="flex gap-2">
-                <button className="p-2 rounded-full hover:bg-gray-100">
+                <button className="p-2 rounded-full hover:bg-gray-100"
+                aria-label="Adicionar Contribuição"
+                onClick={handleAddClick}>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -92,7 +148,7 @@ export default function ProfileContribution() {
                 <p className="text-sm text-gray-500">
                     Data: {new Date(contribution.date).toLocaleDateString()}
                 </p>
-                <p className="text-sm text-gray-500"> Tipo: {contribution.type}</p>
+                <p className="text-sm text-gray-500"> Tipo: {typeLabels[contribution.type] || "Tipo Desconhecido"}</p>
                 <p className="text-sm text-gray-800"> ONG: {contribution.ongName}</p>
                 <p className="text-sm text-gray-500"> Avaliação da ONG: {contribution.rating ? contribution.rating : "Sem avaliação"}</p>
                 <p className="text-sm text-gray-500"> Feedback: {contribution.feedback ? contribution.feedback : "Sem Feedback"}</p>
@@ -120,13 +176,16 @@ export default function ProfileContribution() {
         <p className="text-sm text-gray-500">Nenhuma contribuição encontrada.</p>
     )}
         </div>
-            {/* Modal de Edição */}
+            {/* Modal de Edição / Criação*/}
             {isModalOpen && selectedContribution && (
                 <EditContributionModal
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                     onSave={handleSave}
+                    onDelete={handleDelete}
                     initialData={selectedContribution}
+                    type={selectedContribution.id ? "Editar Contribuição" : "Nova Contribuição"}
+                    canDelete={selectedContribution.id ? true : false}
                 />
             )}
         </div>
