@@ -10,7 +10,7 @@ import { GetUser } from "../services/users"
 import { PublishPost } from "../services/posts"
 
 export default function HomePage() {
-  const [user, setUser] = useState([]);
+  const [user, setUser] = useState<{ id: number; profileImage?: string; coverImage?: string; name?: string; role?: string; views?: number; connections?: number; activity?: any[] } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false)
 
@@ -26,7 +26,7 @@ export default function HomePage() {
 
     const handlePost = async (postData: PostData) => {
       try {
-        postData.userId = user.id;
+        postData.userId = user?.id;
         postData.projectId = 1;
        const response = PublishPost(postData);
       } catch (error) {
@@ -50,20 +50,20 @@ export default function HomePage() {
               <div className="h-16 bg-blue-600 rounded-t-lg"></div>
               <div className="flex justify-center -mt-8">
                 <div className="h-16 w-16 rounded-full border-4 border-white overflow-hidden">
-                  {user?.images?.length > 0 ? (
+                  {user?.profileImage? (
                       <img
-                          src={user.images[0].url || "Carregando..."}
+                          src={user.profileImage || "Carregando..."}
                           alt={user.name || "Carregando..."}
                           className="h-full w-full object-cover"
                       />
                     ) : (
                       "Carregando..."
                   )}
-                  {user?.images?.length > 0 ? (
+                  {user?.profileImage? (
                     <CreatePostModal
                       isOpen={isPostModalOpen}
                       onClose={() => setIsPostModalOpen(false)}
-                      userImage={user.images[0].url || "Carregando..."}
+                      userImage={user.profileImage || "Carregando..."}
                       userName={user.name || "Carregando..."}
                       userTitle={user.role || "Carregando..."}
                       onPost={handlePost}

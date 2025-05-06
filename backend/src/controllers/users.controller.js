@@ -29,11 +29,6 @@ export const getMe = async (req, res) => {
                     },
                 },
                 skills: true,
-                images: {
-                    select: {
-                        url: true,
-                    },
-                },
                 ongs: {
                     select: {
                         name: true,
@@ -47,6 +42,8 @@ export const getMe = async (req, res) => {
                     },
                 },
                 contributions: true,
+                profileImage: true,
+                coverImage: true
             },
         });
 
@@ -84,11 +81,6 @@ export const getUsers = async (req, res) => {
                 tags: {
                     select: {
                         name: true
-                    }
-                },
-                images: {
-                    select: {
-                        url: true
                     }
                 },
                 ongs: {
@@ -137,11 +129,6 @@ export const getUserByID = async (req, res) => {
                         name: true
                     }
                 },
-                images: {
-                    select: {
-                        url: true
-                    }
-                },
                 ongs: {
                     select: {
                         name: true,
@@ -174,7 +161,6 @@ export const postUser = async (req, res) => {
         role, 
         description,
         tags,
-        images
     } = req.body;
     if (!name || !email || !password || !location || !role) {
         return res.status(400).json({ error: "Campos nome, email, senha, localização, tipo do usuário obrigatórios" });
@@ -195,9 +181,6 @@ export const postUser = async (req, res) => {
                 description,
                 tags: {
                     create: tags && tags.length > 0 ? tags : [{ name: "Sem tags" }]
-                },
-                images: {
-                    create: images && images.length > 0 ? images : [{ url: "https://avatars.githubusercontent.com/u/136519252?v=4" }]
                 }
             }
         });
@@ -212,18 +195,16 @@ export const postUser = async (req, res) => {
 export const putUser = async (req, res) => {
     try {
         const { id } = req.user;
-        const { name, email, password, location, role, description, industry, tags, images, skills } = req.body;
-        const user = await prisma.users.findUnique({ where: { id: parseInt(id) }, include: { images: true } });
+        const { name, email, password, location, role, description, industry, tags, skills, profileImage, coverImage } = req.body;
+        
+        const user = await prisma.users.findUnique({ where: { id: parseInt(id) }});
         if (!user) {
             return res.status(404).json({ error: "Usuário não encontrado" });
         }
         const updateData = { name, email, password, location, role, description, industry};
-        if (images && images.length > 0) {
-            updateData.images = {
-                deleteMany: {},
-                create: { url: images[0].url }
-            };
-        }
+        if (profileImage) updateData.profileImage = profileImage;
+        if (coverImage) updateData.coverImage = coverImage;
+
         if (tags && tags.length > 0) {
             updateData.tags = {
                 deleteMany: {},

@@ -17,12 +17,7 @@ export const getProjects = async (req , res) => {
                             select: {
                                 id: true,
                                 name: true,
-                                email: true,
-                                images: {
-                                    select: {
-                                        url: true
-                                    }
-                                }
+                                email: true
                             },
                         }
                     }
@@ -58,12 +53,7 @@ export const getProjectsByID = async (req, res) => {
                             select: {
                                 id: true,
                                 name: true,
-                                email: true,
-                                images: {
-                                    select: {
-                                        url: true
-                                    }
-                                }
+                                email: true
                             },
                         }
                     }

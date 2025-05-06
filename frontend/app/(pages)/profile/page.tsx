@@ -23,30 +23,10 @@ export default function ProfilePage() {
           </div>
 
           <div className="space-y-6">
-            {/* Profile Strength */}
+            {/* Sugestões de ONGs */}
             <div className="bg-white rounded-lg shadow">
               <div className="p-4">
-                <h3 className="text-base font-medium mb-4">Aqui, o que colocar?</h3>
-                <div className="space-y-4">
-                  <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-600 w-4/5"></div>
-                  </div>
-                  <p className="text-sm">
-                    Your profile is <strong>intermediate</strong>
-                  </p>
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-sm font-medium">Suggested for you</p>
-                    <p className="text-sm text-gray-500 mt-1">Add your certifications to stand out</p>
-                    <button className="text-blue-600 p-0 h-auto mt-1 text-sm bg-transparent">Add certification</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* People Also Viewed */}
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-4">
-                <h3 className="text-base font-medium mb-4">People also viewed</h3>
+                <h3 className="text-base font-medium mb-4">Sugestões de ONGs</h3>
                 <div className="space-y-4">
                   {[
                     {
@@ -77,7 +57,7 @@ export default function ProfilePage() {
                         <h4 className="font-medium text-sm">{person.name}</h4>
                         <p className="text-xs text-gray-500">{person.title}</p>
                         <button className="mt-2 h-8 border border-gray-300 rounded px-3 py-1 text-sm hover:bg-gray-50">
-                          Connect
+                          Seguir
                         </button>
                       </div>
                     </div>

@@ -43,13 +43,13 @@ export default function Feed() {
                         <div className="flex justify-between">
                             <div className="flex gap-3">
                             <div className="h-10 w-10 rounded-full overflow-hidden">
-                            {post.user.images.length > 0 && (
+                            {/* {post.user.images.length > 0 && (
                                 <img
                                     src={post.user.images[0].url}
                                     alt={post.user.name}
                                     className="h-full w-full object-cover"
                                 />
-                            )}
+                            )} */}
                             </div>
                             <div>
                                 <h3 className="text-base font-medium">{post.user.name}</h3>

@@ -16,10 +16,8 @@ export interface ProfileData {
   headline: string
   location: string
   industry: string
-  profileImage: File | null
-  profileImageUrl: string
-  coverImage: File | null
-  coverImageUrl: string
+  profileImage: string
+  coverImage: string
   createdAt: Date
   updatedAt: Date
   skills: string[]
@@ -89,20 +87,31 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
     }))
   }
 
-  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0]
-
-      // Create a preview URL for the image
-      const imageUrl = URL.createObjectURL(file)
-
-      setProfileData((prev) => ({
-        ...prev,
-        profileImage: file,
-        profileImageUrl: imageUrl,
-      }))
+      const file = e.target.files[0];
+  
+      try {
+        const base64Image = await convertToBase64(file);
+  
+        setProfileData((prev) => ({
+          ...prev,
+          profileImage: base64Image // string base64
+        }));
+      } catch (error) {
+        console.error("Erro ao converter imagem para base64:", error);
+      }
     }
-  }
+  };
+
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file); // Isso gera a string base64
+    });
+  };  
 
   const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -113,8 +122,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
 
       setProfileData((prev) => ({
         ...prev,
-        coverImage: file,
-        coverImageUrl: imageUrl,
+        coverImage: imageUrl,
       }))
     }
   }
@@ -289,7 +297,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                 <div className="flex items-center space-x-4">
                   <div className="h-24 w-24 rounded-full overflow-hidden border border-gray-300">
                     <img
-                      src={profileData.profileImageUrl || "/placeholder.svg?height=96&width=96"}
+                      src={profileData.profileImage || "/placeholder.svg?height=96&width=96"}
                       alt="Profile"
                       className="h-full w-full object-cover"
                     />
@@ -298,7 +306,7 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                     <input
                       ref={profileImageInputRef}
                       type="file"
-                      accept="image/*"
+                      accept="image/png, image/jpeg"
                       onChange={handleProfileImageChange}
                       className="hidden"
                     />
@@ -317,9 +325,9 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
                 <label className="block text-sm font-medium text-gray-700 mb-2">Imagem de fundo</label>
                 <div className="space-y-3">
                   <div className="h-32 w-full rounded-lg overflow-hidden border border-gray-300 bg-gray-100">
-                    {profileData.coverImageUrl ? (
+                    {profileData.coverImage ? (
                       <img
-                        src={profileData.coverImageUrl || "/placeholder.svg"}
+                        src={profileData.coverImage || "/placeholder.svg"}
                         alt="Cover"
                         className="h-full w-full object-cover"
                       />
