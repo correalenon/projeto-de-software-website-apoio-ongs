@@ -29,11 +29,6 @@ async function main() {
                         { name: "VOLUNTARY" },
                         { name: "ADVERTISER" }
                     ]
-                },
-                images: {
-                    create: {
-                        url: faker.image.avatar()
-                    }
                 }
             }
         });
@@ -57,11 +52,6 @@ async function main() {
                             { name: "VOLUNTARY" },
                             { name: "ADVERTISER" }
                         ]
-                    },
-                    images: {
-                        create: {
-                            url: faker.image.avatar(),
-                        }
                     }
                 },
             });
