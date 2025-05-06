@@ -75,12 +75,7 @@ export const getFilterActivities = async (req, res) => {
                         id: true,
                         name: true,
                         email: true,
-                        role: true,
-                        images: {
-                            select: {
-                                url: true
-                            }
-                        }
+                        role: true
                     }
                 },
                 project: {
@@ -129,12 +124,7 @@ export const getFilterPosts = async (req, res) => {
                         id: true,
                         name: true,
                         email: true,
-                        role: true,
-                        images: {
-                            select: {
-                                url: true
-                            }
-                        }
+                        role: true
                     }
                 },
                 project: {

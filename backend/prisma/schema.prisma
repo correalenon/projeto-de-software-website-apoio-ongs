@@ -32,8 +32,6 @@ model Images {
   url           String
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  user          Users?      @relation(fields: [userId], references: [id])
-  userId        Int?
   ong           Ongs?       @relation(fields: [ongId], references: [id])
   ongId         Int?
   project       Projects?   @relation(fields: [projectId], references: [id])
@@ -127,7 +125,6 @@ model Users {
   likes         Likes[]
   comments      Comments[]
   activity      Activities[]
-  images        Images[]
   ongs          Ongs[]
   tags          Tags[]
   contributions Contribution[]

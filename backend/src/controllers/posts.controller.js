@@ -15,12 +15,7 @@ export const getPosts = async (req, res) => {
                         id: true,
                         name: true,
                         email: true,
-                        location: true,
-                        images: {
-                            select: {
-                                url: true
-                            }
-                        }
+                        location: true
                     }
                 },
                 project: {
@@ -90,12 +85,7 @@ export const getPostByID = async (req, res) => {
                         id: true,
                         name: true,
                         email: true,
-                        location: true,
-                        images: {
-                            select: {
-                                url: true
-                            }
-                        }
+                        location: true
                     }
                 },
                 project: {
@@ -266,11 +256,6 @@ export const putPostByID = async (req, res) => {
                             select: {
                                 id: true,
                                 name: true,
-                                images: {
-                                    select: {
-                                        url: true
-                                    }
-                                }
                             }
                         }
                     }
@@ -284,12 +269,7 @@ export const putPostByID = async (req, res) => {
                         user: {
                             select: {
                                 id: true,
-                                name: true,
-                                images: {
-                                    select: {
-                                        url: true
-                                    }
-                                }
+                                name: true
                             }
                         }
                     }

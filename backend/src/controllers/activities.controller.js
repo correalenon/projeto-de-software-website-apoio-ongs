@@ -13,12 +13,7 @@ export const getActivities = async (req, res) => {
                         id: true,
                         name: true,
                         email: true,
-                        role: true,
-                        images: {
-                            select: {
-                                url: true
-                            }
-                        }
+                        role: true
                     }
                 }
             }
@@ -44,12 +39,7 @@ export const getActivitiesByID = async (req, res) => {
                         id: true,
                         name: true,
                         email: true,
-                        role: true,
-                        images: {
-                            select: {
-                                url: true
-                            }
-                        }
+                        role: true
                     }
                 }
             }
