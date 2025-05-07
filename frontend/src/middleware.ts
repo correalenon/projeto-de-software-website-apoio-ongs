@@ -46,5 +46,5 @@ export function middleware(request: NextRequest) {
 
 // Configurar em quais caminhos o middleware será executado
 export const config = {
-  matcher: ["/", "/ongs", "/projects"],
+  matcher: ["/", "/login", "/ongs", "/projects"],
 }
