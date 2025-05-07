@@ -1,6 +1,7 @@
 import type React from "react"
 import "./globals.css"
 import type { Metadata } from "next"
+import { UserProvider } from "@/context/userContext"
 
 export const metadata: Metadata = {
   title: "Colabora",
@@ -8,18 +9,14 @@ export const metadata: Metadata = {
     generator: ''
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
-      <body>{children}</body>
+      <body>
+        <UserProvider>
+          {children}
+        </UserProvider>
+      </body>
     </html>
   )
 }
-
-
-
-import './globals.css'

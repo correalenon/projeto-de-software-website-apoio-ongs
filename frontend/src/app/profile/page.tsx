@@ -1,8 +1,8 @@
-import Header from "../../components/header";
-import ProfileHeader from "../../components/profile/profileHeader";
-import ProfileAbout from "../../components/profile/profileAbout";
-import ProfileContribution from "../../components/profile/profileContribution";
-import Footer from "../../components/footer"
+import Header from "@/components/header"
+import ProfileHeader from "@/components/profile/profileHeader"
+import ProfileAbout from "@/components/profile/profileAbout"
+import ProfileContribution from "@/components/profile/profileContribution"
+import Footer from "@/components/footer"
 
 export default function ProfilePage() {
   return (

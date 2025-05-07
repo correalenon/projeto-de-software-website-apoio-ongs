@@ -1,7 +1,7 @@
-import Header from "../../components/header"
-import OngsInteresting from "../../components/ongs/ongsInteresting"
-import OngsProjectsSidebar from "../../components/ongsProjectsSidebar"
-import Footer from "../../components/footer"
+import Header from "@/components/header"
+import OngsInteresting from "@/components/ongs/ongsInteresting"
+import OngsProjectsSidebar from "@/components/ongsProjectsSidebar"
+import Footer from "@/components/footer"
 
 export default function OngsPage() {
   return (

@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { GetProjects } from "../../app/api/projects"
 
 export default function ProjectsInteresting() {
     const [projects, setProjects] = useState([]);
@@ -11,7 +10,10 @@ export default function ProjectsInteresting() {
     useEffect(() => {
         async function loadProjects() {
             setIsLoading(true);
-            const fetchedProjects = await GetProjects();
+            const response = await fetch('/api/ongs', {
+                method: 'GET'
+            });
+            const fetchedProjects = await response.json();
             setProjects(fetchedProjects || []);
             setIsLoading(false);
         }
@@ -67,7 +69,7 @@ export default function ProjectsInteresting() {
                                 <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                                 </svg>
-                                ONG: {project.ong.name}
+                                {/* ONG: {project.ong.name} */}
                             </span>
                             </p>
                             <Link href={`/projects/${project.id}`} className="w-full border border-gray-300 rounded py-1 px-3 hover:bg-gray-50">
