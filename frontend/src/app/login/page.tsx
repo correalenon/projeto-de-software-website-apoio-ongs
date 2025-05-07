@@ -27,9 +27,13 @@ export default function LoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-  
+
+      console.log("res.status:", res.status);
+      console.log("res.ok:", res.ok);
+
       if (res.ok) {
         router.push('/');
+        router.refresh();
       } else {
         alert('Login inválido');
       }
