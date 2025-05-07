@@ -8,7 +8,7 @@ export default function Header() {
       <header className="sticky top-0 z-10 bg-white border-b">
         <div className="container flex items-center justify-between h-14 px-4 mx-auto">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-2xl font-bold text-blue-600">
+            <Link href="/feed" className="text-2xl font-bold text-blue-600">
               <img src="/static/logo.webp" alt="Logo" className="w-14 h-14 rounded" />
             </Link>
             <div className="relative hidden md:block">
@@ -31,7 +31,7 @@ export default function Header() {
             </div>
           </div>
           <nav className="flex items-center space-x-1">
-            <Link href="/" className="flex flex-col items-center px-1 py-1">
+            <Link href="/feed" className="flex flex-col items-center px-1 py-1">
               <div className="flex items-center justify-center h-9 w-9 rounded-md text-black">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

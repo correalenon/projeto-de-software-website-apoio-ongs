@@ -4,9 +4,11 @@ import type React from "react"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import Footer from "../../components/footer"
+import Footer from "@/components/footer"
+import { useUser } from "@/context/userContext"
 
 export default function LoginPage() {
+  const { setUser } = useUser()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -22,19 +24,28 @@ export default function LoginPage() {
     try {
       const response = await fetch('/api/login', {
         method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
       });
-      if (response.ok) {
-        router.push('/');
+      if (response.ok && response.status === 200) {
+        const response = await fetch('/api/users/me', {
+          method: 'GET'
+        });
+        if (!response.ok) {
+          setError("Erro ao buscar usuário")
+          return
+        }
+        const userData = await response.json();
+        setUser(userData);
+        router.push('/feed');
         router.refresh();
-      } else {
+      }
+      if (!response.ok && response.status === 401) {
         setError("Email ou senha inválidos");
+        return
       }
     } catch (err) {
       setError("Erro no login");
+      return
     }
   }
 

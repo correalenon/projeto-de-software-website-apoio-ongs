@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { GetActivity } from "../app/api/activities"
 
 export default function RecentActivity() {
     const [activities, setActivities] = useState([]);
+    
     useEffect(() => {
         async function loadActivities() {
-            const activitiesData = await GetActivity();
+            const response = await fetch('/api/activities', {
+                method: 'GET'
+            });
+            const activitiesData = await response.json();
             setActivities(activitiesData || []);
         }
         loadActivities()

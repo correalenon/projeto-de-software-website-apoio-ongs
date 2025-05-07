@@ -22,7 +22,8 @@
     "paths": {
       "@/api/*": ["app/api/*"],
       "@/components/*": ["components/*"],
-      "@/styles/*": ["styles/*"],
+      "@/context/*": ["context/*"],
+      "@/styles/*": ["styles/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/services/posts.js"],

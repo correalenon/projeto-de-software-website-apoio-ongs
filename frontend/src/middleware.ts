@@ -11,12 +11,12 @@ export function middleware(request: NextRequest) {
   }
 
   if (isAuth && isLoginPage) {
-    return NextResponse.redirect(new URL('/', request.url));
+    return NextResponse.redirect(new URL('/feed', request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/", "/login", "/ongs", "/projects"],
+  matcher: ["/", "/feed", "/login", "/ongs", "/projects", "/profile"],
 }

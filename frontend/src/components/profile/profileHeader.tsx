@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { GetUser, PutUser } from "../../app/api/users"
-import { useRouter } from "next/navigation"
-import EditProfileModal, { type ProfileData } from "./editProfileModal"
+import EditProfileModal, { type ProfileData } from "@/components/profile/editProfileModal"
+import { useUser } from "@/context/userContext"
 
 
 export default function ProfileHeader() {
+    const { user, setUser } = useUser();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [profileData, setProfileData] = useState<ProfileData>({
         name: "",
         headline: "",
@@ -20,42 +21,38 @@ export default function ProfileHeader() {
         skills: []
     });
     
+
     useEffect(() => {
-        loadUser();
-    }, []);
-
-    const loadUser = async () => {
-        try {
-            const userData = await GetUser();
-
-            if (userData) {
-                setProfileData({
-                    name: userData.name || "",
-                    headline: userData.headline || "",
-                    location: userData.location || "",
-                    industry: userData.industry || "",
-                    profileImage: userData.profileImage || null,
-                    coverImage: userData.coverImage || null,
-                    createdAt: userData.createdAt || null,
-                    updatedAt: userData.updatedAt || null,
-                    skills: userData.skills || []
+        async function loadUser() {
+            setIsLoading(true);
+            setProfileData({
+                    name: user?.name || "",
+                    headline: user?.headline || "",
+                    location: user?.location || "",
+                    industry: user?.industry || "",
+                    profileImage: user?.profileImage || "",
+                    coverImage: user?.coverImage || "",
+                    createdAt: user?.createdAt || null,
+                    updatedAt: user?.updatedAt || null,
+                    skills: user?.skills || []
                 });
             }
-        } catch (error) {
-            console.error("Erro ao carregar dados do usuário:", error);
-        }
-    }
-            
-    
+            setIsLoading(false);
+        loadUser();
+    }, [user]);
+
     const handleSaveProfile = async (updatedData: ProfileData) => {
         try {
-          // Chamada da API
-          const updatedUser = await PutUser(updatedData);
+            const response = await fetch('/api/users', {
+                method: 'PUT',
+                body: JSON.stringify(updatedData)
+            });
 
-          setProfileData(updatedUser);
-          
+            const userData = await response.json();
+            setProfileData(userData);
+            setUser(userData);
         } catch (error) {
-          alert("Falha ao atualizar dados do perfil. Tente novamente.")
+            alert("Falha ao atualizar dados do perfil. Tente novamente.")
         }
     }
     return (

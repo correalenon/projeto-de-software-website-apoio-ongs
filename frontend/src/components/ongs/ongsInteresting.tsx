@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { GetOngs } from "../../app/api/ongs"
 
 export default function OngsInteresting() {
     const [ongs, setOngs] = useState([]);
@@ -11,7 +10,10 @@ export default function OngsInteresting() {
     useEffect(() => {
         async function loadOngs() {
             setIsLoading(true);
-            const fetchedOngs = await GetOngs();
+            const response = await fetch('/api/ongs', {
+                method: 'GET'
+            });
+            const fetchedOngs = await response.json();
             setOngs(fetchedOngs || []);
             setIsLoading(false);
         }

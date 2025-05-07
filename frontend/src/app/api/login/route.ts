@@ -11,8 +11,9 @@ export async function POST(request: NextRequest) {
             },
             body: JSON.stringify({ email, password }),
         });
+
         if (!response.ok) {
-          return NextResponse.json({ error: 'Credenciais inválidas' }, { status: 401 });
+            return NextResponse.json({ error: await response.json() }, { status: response.status });
         }
       
         const { token } = await response.json();
@@ -24,6 +25,7 @@ export async function POST(request: NextRequest) {
             path: '/',
             maxAge: 60 * 60
         });
+        
         return res;
     } catch (error) {
         throw error;

@@ -2,27 +2,26 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { GetOngs } from "../app/api/ongs"
-import { GetProjects } from "../app/api/projects";
 
 export default function OngsProjectsSidebar() {
     const [ongs, setOngs] = useState([]);
     const [projects, setProjects] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
     
     useEffect(() => {
         async function loadOngs() {
-            setIsLoading(true);
-            const fetchedOngs = await GetOngs();
+            const response = await fetch('/api/ongs', {
+                method: 'GET'
+            });
+            const fetchedOngs = await response.json();
             setOngs(fetchedOngs || []);
-            setIsLoading(false);
         }
         loadOngs();
         async function loadProjects() {
-            setIsLoading(true);
-            const fetchedProjects = await GetProjects();
+            const response = await fetch('/api/ongs', {
+                method: 'GET'
+            });
+            const fetchedProjects = await response.json();
             setProjects(fetchedProjects || []);
-            setIsLoading(false);
         }
         loadProjects();
     }, []);

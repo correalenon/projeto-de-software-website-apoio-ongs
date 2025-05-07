@@ -1,37 +1,40 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { GetUser, PutUser } from "../../app/api/users";
+import { useUser } from "@/context/userContext"
 
 export default function ProfileAbout() {
-    const [user, setUser] = useState<{ description: string }>({ description: "" });
+    const { user, setUser } = useUser();
+    // const [userData, setUser] = useState<{ description: string }>({ description: "" });
     const [isModalOpen, setIsModalOpen] = useState(false);
-    useEffect(() => {
-        async function loadUser() {
-            const userData = await GetUser();
-            setUser(userData || []);
-        }
-        loadUser()
-    }, []);
 
-    const handleInputChange = (e: any) => {
-        setUser({ ...user, description: e.target.value });
-    }
+    const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setUser((prev) => ({
+          ...prev,
+          [e.target.name]: e.target.value,
+        }));
+      };
 
     const handleSave = async () => {
         try {
-            const handleSaveResponse = await PutUser( {description: user.description});
-            if (handleSaveResponse) {
-                setUser({ ...user, description: user.description });
+            // const handleSaveResponse = await PutUser( {description: user.description});
+            const response = await fetch('/api/users', {
+                method: 'PUT',
+                body: JSON.stringify(user)
+            });
+
+            const userData = await response.json();
+
+            if (response.ok) {
+                setUser(userData);
                 setIsModalOpen(false);
             }
             else {
-                console.error("Erro ao salvar os dados do usuário: ", handleSaveResponse);
+                console.error("Erro ao salvar os dados do usuário: ");
             } 
         } catch (error) {
             console.error("Erro ao salvar os dados do usuário: ", error);            
         }
-
     }
 
     return (
