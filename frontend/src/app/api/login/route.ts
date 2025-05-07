@@ -17,13 +17,15 @@ export async function POST(req: NextRequest) {
         }
       
         const { token } = await response.json();
-      
-        cookies().set('token', token, {
-          httpOnly: true,
-          path: '/',
-          maxAge: 60 * 60, // 1h
+        const res = NextResponse.json({ message: 'Login bem-sucedido' });
+        res.cookies.set({
+            name: 'token',
+            value: token,
+            httpOnly: true,
+            path: '/',
+            maxAge: 60 * 60, // 1h
         });
-        return NextResponse.json({ message: 'Autenticado com sucesso' });
+        return res;
     } catch (error) {
         throw error;
     }
