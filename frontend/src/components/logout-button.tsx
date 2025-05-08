@@ -1,15 +1,21 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { useUser } from "@/context/userContext";
 
 export default function LogoutButton() {
   const router = useRouter()
+  const { logout } = useUser();
 
-  const handleLogout = () => {
-    // Remover o cookie de autenticação
-    document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;"
-
-    // Redirecionar para a página de login
+  const handleLogout = async () => {
+    logout();
+    
+    const response = await fetch('/api/logout', {
+      method: 'POST',
+    });
+    if (!response.ok) {
+      return
+    }
     router.push("/login")
   }
 
@@ -19,4 +25,3 @@ export default function LogoutButton() {
     </button>
   )
 }
-
