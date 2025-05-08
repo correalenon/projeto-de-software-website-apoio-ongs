@@ -1,8 +1,8 @@
-import Header from "../../../components/header";
-import ProjectHeader from "../../../components/projects/projectHeader";
-import AboutSection from "../../../components/ongs/aboutOngSection";
-import OngProjects from "../../../components/ongs/ongProjects";
-import Footer from "../../../components/footer"
+import Header from "@/components/header";
+import ProjectHeader from "@/components/projects/projectHeader";
+import AboutSection from "@/components/ongs/aboutOngSection";
+import OngProjects from "@/components/ongs/ongProjects"
+import Footer from "@/components/footer";
 
 export default async function RootLayout({children, params }: { children: React.ReactNode; params: Promise<{ slug: number }> }) {
     const { slug } = await params;

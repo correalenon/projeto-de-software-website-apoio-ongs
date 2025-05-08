@@ -1,8 +1,8 @@
 
-import Header from "../../components/header"
-import ProjectsInteresting from "../../components/projects/projectsInteresting"
-import OngsProjectsSidebar from "../../components/ongsProjectsSidebar"
-import Footer from "../../components/footer"
+import Header from "@/components/header"
+import ProjectsInteresting from "@/components/projects/projectsInteresting"
+import OngsProjectsSidebar from "@/components/ongsProjectsSidebar"
+import Footer from "@/components/footer"
 
 export default function ProjectsPage() {
   return (

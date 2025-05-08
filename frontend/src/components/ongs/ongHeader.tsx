@@ -1,18 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { GetOng } from "../../app/api/ongs";
 
 export default function OngHeader({ id }: { id: number }) {
     const [ong, setOng] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+
     useEffect(() => {
         async function loadOng() {
-            const ongData = await GetOng(id);
+            setIsLoading(true);
+            const response = await fetch('/api/ongs/' + id, {
+                method: 'GET'
+            });
+            const ongData = await response.json();
             setOng(ongData);
+            setIsLoading(false);
         }
         loadOng()
     }, []);
-    
+
+    if (isLoading) {
+        return (
+            <div className="bg-white rounded-lg shadow p-4">
+                <h3 className="text-base font-medium mb-4">Carregando Ong...</h3>
+            </div>
+        );
+    }
+   
     return (
         <div className="bg-white rounded-lg shadow mb-6">
             <div className="h-48 bg-gradient-to-r from-blue-500 to-blue-700 rounded-t-lg relative">

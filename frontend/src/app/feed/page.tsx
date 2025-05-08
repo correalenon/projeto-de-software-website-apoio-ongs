@@ -6,14 +6,11 @@ import Feed from "@/components/feed"
 import RecentActivity from "@/components/recentActivity"
 import Footer from "@/components/footer"
 import CreatePostModal, { type PostData } from "@/components/createPostModal"
-// import { PublishPost } from "./api/posts"
-import { useRouter } from "next/navigation"
 import { useUser } from "@/context/userContext"
 
 export default function HomePage() {
-  const [isLoading, setIsLoading] = useState(true);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
-  const router = useRouter()
+  const [reloadTrigger, setReloadTrigger] = useState(0);
 
   const { user } = useUser();
 
@@ -21,7 +18,11 @@ export default function HomePage() {
     try {
       postData.userId = user?.id;
       postData.projectId = 1;
-      const response = PublishPost(postData);
+      const response = await fetch('/api/posts', {
+          method: 'POST',
+          body: JSON.stringify(postData)
+      });
+      setReloadTrigger(prev => prev + 1);
     } catch (error) {
       throw new Error("Erro ao publicar o post");
     }
@@ -31,7 +32,6 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <Header />
-
 
       {/* Resto do conteúdo da página inicial permanece o mesmo */}
       {/* Conteúdo principal */}
@@ -107,7 +107,7 @@ export default function HomePage() {
             </div>
 
             {/* Feed */}
-            <Feed />
+            <Feed reloadTrigger={reloadTrigger} />
 
           </div>
 
