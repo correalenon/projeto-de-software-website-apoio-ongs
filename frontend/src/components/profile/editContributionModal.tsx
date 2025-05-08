@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { getFilterOngs } from "../../app/api/filters.js";
 import { GetLocation } from "../../app/api/users.js";
 
 interface EditContributionModalProps {
@@ -10,7 +9,7 @@ interface EditContributionModalProps {
   onSave: (contributionData: ContributionData) => Promise<void>;
   onDelete: (contributionData: ContributionData) => Promise<void>;
   initialData: ContributionData;
-  type: String; //Label para mostrar se estou criando uma nova contribuição ou editando uma existente
+  type: String;
   canDelete: Boolean
 }
 
@@ -43,13 +42,15 @@ export default function EditContributionModal({
   const modalRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState("");
 
-  // Reset form data when modal opens with initial data
   useEffect(() => {
     if (isOpen) {
         async function fetchAllOngs() {
             try {
-                const data = await getFilterOngs({});
-                setAllOngs(data.map((ong: { id: number; name: string }) => ({
+                const response = await fetch('/api/ongs', {
+                  method: 'GET'
+              });
+              const fetchedOngs = await response.json();
+                setAllOngs(fetchedOngs.map((ong: { id: number; name: string }) => ({
                     id: ong.id,
                     name: ong.name,
                 })));
@@ -59,7 +60,6 @@ export default function EditContributionModal({
             }
         }
         fetchAllOngs();
-        // Trato a data para o formato correto
         const dataFormatada = new Date(initialData.date).toISOString().split("T")[0];
         setContributionData((prev) => ({
             ...prev,
@@ -68,7 +68,6 @@ export default function EditContributionModal({
     }
   }, [isOpen, initialData]);
 
-  // Close modal when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {

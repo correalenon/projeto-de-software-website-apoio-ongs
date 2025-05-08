@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { DeleteContributionUserByID, getContributionsUser, postContributionUser, PutContributionUserByID } from "../../app/api/contributions";
-import EditContributionModal, {ContributionData} from "./editContributionModal";
+import EditContributionModal, {ContributionData} from "@/components/profile/editContributionModal";
 
 export default function ProfileContribution() {
     interface Contribution {
@@ -22,6 +21,7 @@ export default function ProfileContribution() {
     const [contributions, setContribution] = useState<Contribution[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedContribution, setSelectedContribution] = useState<ContributionData | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     const typeLabels: Record<string, string> = {
         PRESENCIAL: "Presencial",
@@ -33,8 +33,13 @@ export default function ProfileContribution() {
 
     useEffect(() => {
         async function loadContributions() {
-            const contributionsData = await getContributionsUser();
+            setIsLoading(true);
+            const response = await fetch('/api/contributions', {
+                method: 'GET'
+            });
+            const contributionsData = await response.json();
             setContribution(contributionsData || []);
+            setIsLoading(false);
         }
         loadContributions()
     }, []);
@@ -50,18 +55,22 @@ export default function ProfileContribution() {
         try {
             let savedContribution: ContributionData;
 
-            if( updatedContribution.id === undefined) { //Inserir Contribuição nova
-                const response = await postContributionUser(updatedContribution);
-                savedContribution = response;
+            if( updatedContribution.id === undefined) {
+                const response = await fetch('/api/contributions', {
+                    method: 'POST',
+                    body: JSON.stringify(updatedContribution)
+                });
 
-                //Adiciono a nova contribuição na lista local
+                savedContribution = await response.json();
                 setContribution((prev) => [...prev, savedContribution]);
             }
             else {
-                const response = await PutContributionUserByID(updatedContribution, updatedContribution.id); //Atualizar uma já existente
-                savedContribution = response;
+                const response = await fetch('/api/contributions/'  + updatedContribution.id, {
+                    method: 'PUT',
+                    body: JSON.stringify(updatedContribution)
+                });
 
-                //Atualizo somente a contribuição com o mesmo ID
+                savedContribution = await response.json();
                 setContribution((prev) =>
                     prev.map((contribution) =>
                         contribution.id === savedContribution.id ? savedContribution : contribution
@@ -81,11 +90,11 @@ export default function ProfileContribution() {
         try {
             if (contribution.id === undefined) return;
 
-            await DeleteContributionUserByID(contribution.id);
+            const response = await fetch('/api/contributions/' + contribution.id, {
+                method: 'DELETE'
+            });
 
-            //Atualiza a lista local
             setContribution((prev) => prev.filter((c) => c.id !== contribution.id));
-
         } catch (error: any) {
             alert(error.message || "Erro ao excluir contribuição")
         }
@@ -93,10 +102,8 @@ export default function ProfileContribution() {
             setIsModalOpen(false);
         }
     }
-    
 
     const handleAddClick = () => {
-        //Define valores padrão para uma nova contribuição
         setSelectedContribution({
             name: "",
             description: "",
@@ -108,6 +115,14 @@ export default function ProfileContribution() {
             ongName: "",
         });
         setIsModalOpen(true)
+    }
+
+    if (isLoading) {
+        return (
+            <div className="bg-white rounded-lg shadow p-4">
+                <h3 className="text-base font-medium mb-4">Carregando contribuições...</h3>
+            </div>
+        );
     }
 
     return (

@@ -5,7 +5,6 @@ import { useUser } from "@/context/userContext"
 
 export default function ProfileAbout() {
     const { user, setUser } = useUser();
-    // const [userData, setUser] = useState<{ description: string }>({ description: "" });
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -17,7 +16,6 @@ export default function ProfileAbout() {
 
     const handleSave = async () => {
         try {
-            // const handleSaveResponse = await PutUser( {description: user.description});
             const response = await fetch('/api/users', {
                 method: 'PUT',
                 body: JSON.stringify(user)

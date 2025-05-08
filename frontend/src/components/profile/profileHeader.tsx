@@ -55,6 +55,7 @@ export default function ProfileHeader() {
             alert("Falha ao atualizar dados do perfil. Tente novamente.")
         }
     }
+
     return (
         <div className="bg-white rounded-lg shadow mb-6">
             <div className="h-80 relative rounded-t-lg overflow-hidden">
