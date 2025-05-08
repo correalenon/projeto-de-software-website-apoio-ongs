@@ -153,17 +153,8 @@ export default function LoginPage() {
           </div>
         </div>
       </main>
-
-      {/* Rodapé bonito e discreto */}
-      <footer className="text-center mt-12 mb-6 text-sm text-gray-500">
-        <div className="flex flex-wrap justify-center gap-4 mb-2">
-          <Link href="#" className="hover:text-blue-600">Sobre</Link>
-          <Link href="#" className="hover:text-blue-600">Política de Privacidade</Link>
-          <Link href="#" className="hover:text-blue-600">Termos de Uso</Link>
-          <Link href="#" className="hover:text-blue-600">Contato</Link>
-        </div>
-        <p>Grupo 05 © 2025</p>
-      </footer>
+      {/* Footer */}
+      <Footer /> 
     </div>
   )
 }
