@@ -3,6 +3,7 @@ import { API_URL } from "@/api/config";
 
 export async function POST(request: NextRequest) {
     try {
+        console.log(API_URL)
         const { email, password } = await request.json();
         const response = await fetch(API_URL + "/login", {
             method: "POST",
@@ -11,6 +12,8 @@ export async function POST(request: NextRequest) {
             },
             body: JSON.stringify({ email, password }),
         });
+
+        console.log(await response.json());
 
         if (!response.ok) {
             return NextResponse.json({ error: await response.json() }, { status: response.status });
