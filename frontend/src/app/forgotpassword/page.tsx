@@ -3,17 +3,14 @@
 import type React from "react"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import Footer from "../../components/footer"
 import { envioEmail, geraCodigoEmail } from "../api/email"
-import { PostEmail } from "../api/users"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
   const [error, setError] = useState("")
   const [isButtonDisabled, setIsButtonDisabled] = useState(false)
-  const [countdown, setCountdown] = useState(0) //Contagem regressiva
-  const router = useRouter()
+  const [countdown, setCountdown] = useState(0)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,22 +20,24 @@ export default function ForgotPasswordPage() {
         return
       }
 
-    const validaEmail = await PostEmail(email)
-    if (validaEmail.status === 404) {
+    const response = await fetch('/api/users/email', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    });
+    if (response.status === 404) {
       setError("Email não encontrado")
       return
     }
-    else if (validaEmail.status === 500) {
+    else if (response.status === 500) {
       setError("Erro ao validar o email")
       return
     }
-
-    setError("") // Limpo se não houver erro anterior
+    setError("")
 
     try {
       envioEmail(email, geraCodigoEmail())
-      setIsButtonDisabled(true); //Desabilita o botão de envio
-      setCountdown(30); //Inicio a contagem regressiva de 30 segundos
+      setIsButtonDisabled(true);
+      setCountdown(30);
     }
     catch (error) {
       setError("Erro ao enviar o email de redefinição de senha")
