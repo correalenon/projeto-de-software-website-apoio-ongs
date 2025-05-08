@@ -7,7 +7,6 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Footer from "../../components/footer"
-import { PutPassword } from "../api/users"
 
 export default function EditPasswordPage() {
   const searchParams = useSearchParams();
@@ -21,7 +20,6 @@ export default function EditPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validação básica
     if (!codigo || !email || !password || !passwordConfirm) {
       setError("Por favor, preencha todos os campos")
       return
@@ -38,20 +36,22 @@ export default function EditPasswordPage() {
     }
 
     try {
-      const data = await PutPassword(email, password);
+      const response = await fetch('/api/users/editpassword', {
+        method: 'PUT',
+        body: JSON.stringify({ email, password })
+      });
 
-      if (data.status === 404) {
+      if (response.status === 404) {
         setError("Email não encontrado")
         return
       }
-      else if (data.status === 500) {
+      else if (response.status === 500) {
         setError("Erro ao validar o email")
         return
       } 
 
-      setError("") // Limpo se não houver erro anterior
+      setError("")
       alert("Senha atualiza com sucesso!")
-      //Redireciona para a página de login após o cadastro para gerar o token por lá
       router.push("/login");
     }
     catch (error) {
