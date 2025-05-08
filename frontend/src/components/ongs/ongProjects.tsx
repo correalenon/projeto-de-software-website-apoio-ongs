@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { GetProjects } from "../../app/api/projects"
 
 export default function OngProjects({ id }: { id: number }) {
     const [projects, setProjects] = useState([]);
@@ -11,7 +10,10 @@ export default function OngProjects({ id }: { id: number }) {
     useEffect(() => {
         async function loadProjects() {
             setIsLoading(true);
-            const fetchedProjects = await GetProjects();
+            const response = await fetch('/api/projects', {
+                method: 'GET'
+            });
+            const fetchedProjects = await response.json();
             setProjects(fetchedProjects || []);
             setIsLoading(false);
         }

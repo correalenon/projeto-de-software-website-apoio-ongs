@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 
-export default function Feed() {
+export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
     const [posts, setPosts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -27,7 +27,7 @@ export default function Feed() {
             setIsLoading(false);
         }
         loadPosts();
-    }, []);
+    }, [reloadTrigger]);
 
     if (isLoading) {
         return (

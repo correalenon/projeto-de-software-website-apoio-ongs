@@ -61,8 +61,8 @@ export default function LoginPage() {
       </header>
 
       {/* Conteúdo principal */}
-      <main className="flex-grow flex justify-center items-start px-4">
-        <div className="flex flex-col lg:flex-row gap-6 max-w-6xl w-full justify-center">
+      <main className="flex-grow flex justify-center items-center px-4 py-10">
+        <div className="flex flex-col lg:flex-row gap-6 max-w-6xl w-full items-center lg:items-start justify-center">
           {/* Bloco informativo */}
           <div className="bg-white p-8 rounded-xl shadow-md max-w-md w-full">
             <h2 className="text-xl font-semibold text-center mb-6">Junte-se à nossa rede!</h2>

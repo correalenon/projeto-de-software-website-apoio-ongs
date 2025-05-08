@@ -1,18 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { GetProject } from "../../app/api/projects";
 
 export default function ProjectHeader({ id }: { id: number }) {
     const [project, setProject] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+
     useEffect(() => {
         async function loadProject() {
-            const projectData = await GetProject(id);
+            setIsLoading(true);
+            const response = await fetch('/api/projects/' + id, {
+                method: 'GET'
+            });
+            const projectData = await response.json();
             setProject(projectData);
+            setIsLoading(false);
         }
         loadProject()
     }, []);
-    
+
+    if (isLoading) {
+        return (
+            <div className="bg-white rounded-lg shadow p-4">
+                <h3 className="text-base font-medium mb-4">Carregando Projeto...</h3>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white rounded-lg shadow mb-6">
             <div className="h-48 bg-gradient-to-r from-blue-500 to-blue-700 rounded-t-lg relative">

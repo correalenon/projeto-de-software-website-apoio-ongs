@@ -6,7 +6,6 @@ import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Footer from "../../components/footer"
-import { GetLocation, PostUser } from "../api/users"
 
 export default function SignupPage() {
   const [name, setName] = useState("")
@@ -22,7 +21,6 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validação básica
     if (!name || !email || !password || !passwordConfirm || !location || !role || !description) {
       setError("Por favor, preencha todos os campos")
       return
@@ -39,20 +37,20 @@ export default function SignupPage() {
     }
 
     try {
-      const {status, data} = await PostUser(name, email, password, location, role, description);
-
-      if (status === 400) {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        body: JSON.stringify({ name, email, password, location, role, description })
+      });
+      if (response.status === 400) {
         setError("Email já cadastrado")
         return
       }
-      else 
-      if (status === 500) {
+      else if (response.status === 500) {
         setError("Erro ao cadastrar usuário")
         return
       }
       else {
         alert("Cadastro realizado com sucesso!")
-        //Redireciona para a página de login após o cadastro para gerar o token por lá
         router.push("/login");
       }
     }
@@ -60,12 +58,6 @@ export default function SignupPage() {
       setError("Erro ao cadastrar usuário")
       return
     }
-
-    // Cookies.set("auth_token", data.token, { expires: 1 }, { path: "/"});
-
-    // Definir o cookie de autenticação (em uma aplicação real, isso seria feito pelo servidor)
-    // document.cookie = `auth_token=dummy_token; path=/; max-age=${60 * 60 * 24 * 7}` // 7 dias
-
   }
 
   return (
@@ -156,7 +148,12 @@ export default function SignupPage() {
                           return;
                         }
                         try {
-                          const location = await GetLocation(cep);
+                          const response = await fetch('/api/location', {
+                            method: 'POST',
+                            body: JSON.stringify({ cep })
+                          });
+                          const data = await response.json();
+                          const location = data.localidade + ", " + data.uf;
                           if (!location) {
                             alert("Localização não encontrada. Verifique o CEP e tenten novamente.");
                             return;

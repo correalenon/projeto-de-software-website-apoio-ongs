@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { GetLocation } from "../../app/api/users.js";
 
 interface EditContributionModalProps {
   isOpen: boolean;
@@ -46,7 +45,7 @@ export default function EditContributionModal({
     if (isOpen) {
         async function fetchAllOngs() {
             try {
-                const response = await fetch('/api/ongs', {
+              const response = await fetch('/api/ongs', {
                   method: 'GET'
               });
               const fetchedOngs = await response.json();
@@ -343,7 +342,12 @@ export default function EditContributionModal({
                     return;
                   }
                   try {
-                    const location = await GetLocation(cep);
+                    const response = await fetch('/api/location', {
+                      method: 'POST',
+                      body: JSON.stringify({ cep })
+                    });
+                    const data = await response.json();
+                    const location = data.localidade + ", " + data.uf;
                     if (!location) {
                       alert("Localização não encontrada. Verifique o CEP e tenten novamente.");
                       return;
