@@ -113,17 +113,20 @@ export default function EditProfileModal({ isOpen, onClose, onSave, initialData 
     });
   };  
 
-  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0]
-
-      // Create a preview URL for the image
-      const imageUrl = URL.createObjectURL(file)
-
-      setProfileData((prev) => ({
-        ...prev,
-        coverImage: imageUrl,
-      }))
+      const file = e.target.files[0];
+  
+      try {
+        const base64Image = await convertToBase64(file);
+  
+        setProfileData((prev) => ({
+          ...prev,
+          coverImage: base64Image // string base64
+        }));
+      } catch (error) {
+        console.error("Erro ao converter imagem para base64:", error);
+      }
     }
   }
 
