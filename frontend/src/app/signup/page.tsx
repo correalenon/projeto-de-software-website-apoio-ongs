@@ -177,24 +177,90 @@ export default function SignupPage() {
                 <label htmlFor="role" className="block text-sm font-medium text-gray-700">
                   Tipo de Usuário
                 </label>
-                <div className="mt-1">
-                  <select
-                    id="role"
-                    name="role"
-                    autoComplete="role"
-                    required
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="" disabled>
-                      Selecione o tipo de usuário
-                    </option>
-                    <option value="ADVERTISER">Empresa/ONG</option>
-                    <option value="VOLUNTARY">Voluntário</option>
-                  </select>
-                </div>
               </div>
+      <div>
+    <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+      Tipo de Usuário
+    </label>
+    <div className="mt-1">
+      <select
+        id="role"
+        name="role"
+        autoComplete="role"
+        required
+        value={role}
+        onChange={(e) => setRole(e.target.value)}
+        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+      >
+        <option value="" disabled>Selecione o tipo de usuário</option>
+        <option value="ADVERTISER">Empresa/ONG</option>
+        <option value="VOLUNTARY">Voluntário</option>
+      </select>
+    </div>
+  </div>
+
+  {/* Campos adicionais para Empresa/ONG */}
+  {role === "ADVERTISER" && (
+    <>
+      <hr className="my-4" />
+      <h3 className="text-md font-semibold text-gray-700">Informações da Organização</h3>
+
+      {[
+        { id: "nomeFantasia", label: "Nome da ONG (nome fantasia)", placeholder: "Nome usado publicamente" },
+        { id: "razaoSocial", label: "Razão Social", placeholder: "Nome jurídico no CNPJ" },
+        { id: "cnpj", label: "CNPJ", placeholder: "00.000.000/0000-00" },
+        { id: "fundacao", label: "Data de Fundação", type: "date" },
+        { id: "areaAtuacao", label: "Área de Atuação", placeholder: "Educação, Saúde, etc." },
+        { id: "missao", label: "Missão/Objetivo", placeholder: "Finalidade da ONG" },
+        { id: "cep", label: "CEP", placeholder: "00000-000" },
+        { id: "rua", label: "Rua / Avenida", placeholder: "Ex: Rua das Flores" },
+        { id: "numero", label: "Número", placeholder: "123" },
+        { id: "complemento", label: "Complemento", placeholder: "Bloco, sala, etc." },
+        { id: "bairro", label: "Bairro", placeholder: "Centro" },
+        { id: "cidade", label: "Cidade", placeholder: "São Paulo" },
+        { id: "estado", label: "Estado", placeholder: "SP" },
+        { id: "telefone", label: "Telefone / WhatsApp", placeholder: "(11) 91234-5678" },
+        { id: "emailInst", label: "E-mail institucional", placeholder: "contato@ong.org.br" },
+        { id: "redes", label: "Redes sociais", placeholder: "Facebook, Instagram, LinkedIn..." },
+      ].map(({ id, label, placeholder, type = "text" }) => (
+        <div key={id}>
+          <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+            {label}
+          </label>
+          <input
+            type={type}
+            id={id}
+            name={id}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            placeholder={placeholder}
+          />
+        </div>
+      ))}
+
+      <hr className="my-4" />
+      <h3 className="text-md font-semibold text-gray-700">Responsável Legal</h3>
+
+      {[
+        { id: "responsavelNome", label: "Nome completo", placeholder: "Nome do responsável legal" },
+        { id: "responsavelCpf", label: "CPF", placeholder: "000.000.000-00" },
+        { id: "responsavelRg", label: "RG", placeholder: "00.000.000-0" },
+        { id: "responsavelTel", label: "Telefone / Celular", placeholder: "(11) 98765-4321" },
+      ].map(({ id, label, placeholder }) => (
+        <div key={id}>
+          <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+            {label}
+          </label>
+          <input
+            type="text"
+            id={id}
+            name={id}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            placeholder={placeholder}
+          />
+        </div>
+      ))}
+    </>
+  )}
 
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">
