@@ -145,3 +145,22 @@ export const deleteOngByID = async (req, res) => {
         res.status(500).json({ error: "Erro ao deletar ONG" });
     }
 };
+
+export const getCNPJ = async (req, res) => {
+    try {
+        const { cnpj } = req.params
+
+        const response = await fetch(`https://www.receitaws.com.br/v1/cnpj/${cnpj}`, {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        const data = await response.json();
+
+        res.status(200).json(data);
+    } catch (error) {
+        return res.status(500).json({message: `Erro ao consultar dados de CNPJ: ${error}`});
+    }
+};

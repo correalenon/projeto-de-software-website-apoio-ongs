@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Footer from "../../components/footer"
+import {validaCNPJ} from "../functions.js"
 
 export default function SignupPage() {
   const [name, setName] = useState("")
@@ -114,16 +115,40 @@ export default function SignupPage() {
     }
   }
 
-  async function consultaDadosCNPJ() {
-    let CNPJ = prompt("Digite o CNPJ: ");
+async function consultaDadosCNPJ() {
+  let CNPJ = prompt("Digite o CNPJ:");
 
-    if (CNPJ) {
-      //Remove caracteres não númericos do CNPJ
-      CNPJ = CNPJ.replace(/\D/g, "");
+  if (!CNPJ) return;
 
-      //Verifica se o CNPJ tem 14 caracteres
-    }
+  // Remove tudo que não for número
+  CNPJ = CNPJ.replace(/\D/g, '');
+
+  if (!validaCNPJ(CNPJ)) {
+    alert("CNPJ informado é inválido");
+    return;
   }
+
+  try {
+    const response = await fetch(`/api/ongs/cnpj/${CNPJ}`, {
+      method: 'GET',
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    const data = await response.json();
+
+    if (data.status === "ERROR") {
+      alert(data.message || "Erro ao consultar CNPJ.");
+      return;
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
+    alert("Erro ao realizar consulta dos dados do CNPJ.");
+  }
+}
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
@@ -310,21 +335,66 @@ export default function SignupPage() {
             type="button"
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             onClick={async () => {
-              const data = await consultaDadosCEP();
+              try {
+               const data = await consultaDadosCNPJ(); 
 
-              {/* Primeiro limpo os campos */}
-              setNameONG("");
-              setSocialName("");
-              setCnpj("");
-              setDateFoundation("");
+               if (data) {
+                  {/* Primeiro limpo os campos */}
+                  setNameONG("");
+                  setSocialName("");
+                  setEmailONG("");
+                  setCnpj("");
+                  setDateFoundation("");
+                  setArea("");
+                  setCEP("");
+                  setStreet("");
+                  setComplement("");
+                  setDistrict("");
+                  setCity("");
+                  setState("");
+                  setNumber("");
+                  setCellphone("");
+   
+                  {/* seto eles caso existam na requisição */}
+                  data.fantasia ? setNameONG(data.fantasia.trim()) : setNameONG("");
+                  data.nome ? setSocialName(data.nome.trim()) : setSocialName("");
+                  data.cnpj ? setCnpj(data.cnpj.trim()): setCnpj("");
+                  
+                  if (data.abertura) {
+                    const partes = data.abertura.split("/");
+                    const dataFormatada = `${partes[2]}-${partes[1]}-${partes[0]}`; // yyyy-mm-dd
+                    setDateFoundation(dataFormatada);
+                  } else {
+                    setDateFoundation("");
+                  }
+                  
+                  data.email ? setEmailONG(data.email.trim()) : setEmailONG("");
+   
+                  if (data.atividade_principal && data.atividade_principal.length > 0) {
+                   const atividade = data.atividade_principal[0];
+   
+                   if (atividade.text && atividade.text !== "") setArea(atividade.text);
+                  }
 
-              {/* seto eles caso existam na requisição */}
-              if (data.cep.trim() !== "") setCEP(data.cep);
-              if (data.logradouro.trim() !== "") setStreet(data.logradouro);
-              if (data.complemento.trim() !== "") setComplement(data.complemento);
-              if (data.bairro.trim() !== "") setDistrict(data.bairro);
-              if (data.localidade.trim() !== "") setCity(data.localidade);
-              if (data.uf.trim() !== "") setState(data.uf);
+                  if (data.qsa && data.qsa.length > 0) {
+                    const responsavelLegal = data.qsa[0];
+
+                    if (responsavelLegal && responsavelLegal.nome !== "") setNameLegalGuardian(responsavelLegal.nome);
+                  }
+
+                  data.cep ? setCEP(data.cep.trim()) : setCEP("");
+                  data.logradouro ? setStreet(data.logradouro.trim()) : setStreet("");
+                  data.complemento ? setComplement(data.complemento.trim()) : setComplement("");
+                  data.bairro ? setDistrict(data.bairro.trim()) : setDistrict("");
+                  data.municipio ? setCity(data.municipio.trim()) : setCity("");
+                  data.uf ? setState(data.uf.trim()) : setState("");
+                  data.numero ? setNumber(data.numero.trim()) : setNumber("");
+                  data.telefone ? setCellphone(data.telefone.trim()) : setCellphone("");
+                }
+              } catch (error) {
+                alert(error);
+                return
+              }
 
             }}
             >
@@ -410,22 +480,24 @@ export default function SignupPage() {
             onClick={async () => {
               const data = await consultaDadosCEP();
 
-              {/* Primeiro limpo os campos */}
-              setCEP("");
-              setStreet("");
-              setComplement("");
-              setDistrict("");
-              setCity("");
-              setState("");
-              setNumber("");
-
-              {/* seto eles caso existam na requisição */}
-              if (data.cep.trim() !== "") setCEP(data.cep);
-              if (data.logradouro.trim() !== "") setStreet(data.logradouro);
-              if (data.complemento.trim() !== "") setComplement(data.complemento);
-              if (data.bairro.trim() !== "") setDistrict(data.bairro);
-              if (data.localidade.trim() !== "") setCity(data.localidade);
-              if (data.uf.trim() !== "") setState(data.uf);
+              if (data) {
+                {/* Primeiro limpo os campos */}
+                setCEP("");
+                setStreet("");
+                setComplement("");
+                setDistrict("");
+                setCity("");
+                setState("");
+                setNumber("");
+  
+                {/* seto eles caso existam na requisição */}
+                data.cep ? setCEP(data.cep.trim()) : setCEP("");
+                data.logradouro ? setStreet(data.logradouro.trim()) : setStreet("");
+                data.complemento ? setComplement(data.complemento.trim()) : setComplement("");
+                data.bairro ? setDistrict(data.bairro.trim()) : setDistrict("");
+                data.localidade ? setCity(data.localidade.trim()) : setCity("");
+                data.uf ? setState(data.uf.trim()) : setState("");
+              }
 
             }}
             >
