@@ -29,18 +29,18 @@ export const getMe = async (req, res) => {
                     },
                 },
                 skills: true,
-                ongs: {
-                    select: {
-                        name: true,
-                        cnpj: true,
-                        contact: true,
-                        images: {
-                            select: {
-                                url: true,
-                            },
-                        },
-                    },
-                },
+                // ongs: {
+                //     select: {
+                //         name: true,
+                //         cnpj: true,
+                //         contact: true,
+                //         images: {
+                //             select: {
+                //                 url: true,
+                //             },
+                //         },
+                //     },
+                // },
                 contributions: true,
                 profileImage: true,
                 coverImage: true
@@ -83,18 +83,18 @@ export const getUsers = async (req, res) => {
                         name: true
                     }
                 },
-                ongs: {
-                    select: {
-                        name: true,
-                        cnpj: true,
-                        contact: true,
-                        images: {
-                            select: {
-                                url: true
-                            }
-                        }
-                    }
-                }
+                // ongs: {
+                //     select: {
+                //         name: true,
+                //         cnpj: true,
+                //         contact: true,
+                //         images: {
+                //             select: {
+                //                 url: true
+                //             }
+                //         }
+                //     }
+                // }
             }
         });
         res.status(200).json(users);
@@ -129,18 +129,18 @@ export const getUserByID = async (req, res) => {
                         name: true
                     }
                 },
-                ongs: {
-                    select: {
-                        name: true,
-                        cnpj: true,
-                        contact: true,
-                        images: {
-                            select: {
-                                url: true
-                            }
-                        }
-                    }
-                }
+                // ongs: {
+                //     select: {
+                //         name: true,
+                //         cnpj: true,
+                //         contact: true,
+                //         images: {
+                //             select: {
+                //                 url: true
+                //             }
+                //         }
+                //     }
+                // }
             }
         });
         if (!user) {

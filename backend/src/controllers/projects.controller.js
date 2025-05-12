@@ -11,15 +11,8 @@ export const getProjects = async (req , res) => {
                 ong: {
                     select: {
                         id: true,
-                        name: true,
-                        contact: true,
-                        user: {
-                            select: {
-                                id: true,
-                                name: true,
-                                email: true
-                            },
-                        }
+                        nameONG: true,
+                        cellphone: true
                     }
                 },
                 images: {
@@ -47,15 +40,8 @@ export const getProjectsByID = async (req, res) => {
                 ong: {
                     select: {
                         id: true,
-                        name: true,
-                        contact: true,
-                        user: {
-                            select: {
-                                id: true,
-                                name: true,
-                                email: true
-                            },
-                        }
+                        nameONG: true,
+                        cellphone: true,
                     }
                 },
                 images: {

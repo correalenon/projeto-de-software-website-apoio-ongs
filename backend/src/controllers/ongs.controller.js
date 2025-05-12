@@ -1,32 +1,41 @@
 import express from "express";
 import prisma from "../db/client.js";
+import { dmmfToRuntimeDataModel } from "@prisma/client/runtime/library";
 
 export const getOngs = async (req, res) => {
     try {
         const ongs = await prisma.ongs.findMany({
             select: {
                 id: true,
-                name: true,
+                nameONG: true,
                 cnpj: true,
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    }
-                },
-                contact: true,
+                foundationDate: true,
+                area: true,
+                goals: true,
+                cep: true,
+                street: true,
+                number: true,
+                complement: true,
+                city: true,
+                district: true,
+                state: true,
+                cellphone: true,
+                emailONG: true,
+                socialMedia: true,
+                nameLegalGuardian: true,
                 description: true,
-                images: {
-                    select: {
-                        url: true,
-                    }
+                profileImage: true,
+                coverImage: true
                 }
+            });
+
+            if (!ongs) {
+                return res.status(500).json({error: `Erro ao buscar ONGS`});
             }
-        });
+
         res.status(200).json(ongs);
     } catch (error) {
-        res.status(500).json({ error: "Erro ao buscar ONGs" });
+        res.status(500).json({ error: `Erro ao buscar ONGs: ${error}` });
     }
 };
 
@@ -37,20 +46,30 @@ export const getOngByID = async (req, res) => {
             where: { id: parseInt(id) },
             select: {
                 id: true,
-                name: true,
+                nameONG: true,
                 cnpj: true,
-                user: {
-                    select: {
-                        id: true,
-                        name: true,
-                        email: true,
-                    }
-                },
-                contact: true,
+                foundationDate: true,
+                area: true,
+                goals: true,
+                cep: true,
+                street: true,
+                number: true,
+                complement: true,
+                city: true,
+                district: true,
+                state: true,
+                cellphone: true,
+                emailONG: true,
+                socialMedia: true,
+                nameLegalGuardian: true,
                 description: true,
-                images: {
+                profileImage: true,
+                coverImage: true,
+                projects: {
                     select: {
-                        url: true,
+                        name: true,
+                        description: true,
+                        images: true
                     }
                 }
             }
@@ -65,28 +84,46 @@ export const getOngByID = async (req, res) => {
 };
 
 export const postOng = async (req, res) => {
-    const { name, cnpj, userId, contact, description, images } = req.body;
-    if (!name || !cnpj || !userId || !contact || !description) {
-        return res.status(400).json({ error: "Todos os campos são obrigatórios" });
-    }
+    const { nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
+        state, cellphone, emailONG, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description, password} = req.body;
     try {
         const existingOng = await prisma.ongs.findUnique({ where: { cnpj } });
         if (existingOng) {
             return res.status(400).json({ error: "Já existe uma ONG com este CNPJ" });
         }
-        const newOng = await prisma.ongs.create({
-            data: {
-                name,
-                cnpj,
-                userId,
-                contact,
-                description,
-                images: {
-                    create: images && images.length > 0 ? images : [{ url: "https://avatars.githubusercontent.com/u/136519252?v=4" }]
-                }
-            }
-        });
-        const { createdAt, updatedAt, ...ongWithoutTimestamps } = newOng;
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const data = {
+            nameONG,
+            socialName,
+            cnpj,
+            foundationDate: new Date(foundationDate),
+            area,
+            goals,
+            cep,
+            street,
+            emailONG,
+            nameLegalGuardian,
+            password: hashedPassword
+        }
+
+        if (number) data.number = parseInt(number);
+        if (complement) data.complement = complement;
+        if (city) data.city = city;
+        if (district) data.district = district;
+        if (state) data.state = state;
+        if (cellphone) data.cellphone = cellphone;
+        if (socialMedia) data.socialMedia = socialMedia;
+        if (cpfLegalGuardian) data.cpfLegalGuardian = cpfLegalGuardian;
+        if (rgLegalGuardian) data.rgLegalGuardian = rgLegalGuardian;
+        if (description) data.description = description;
+        if (cellphoneLegalGuardian) data.cellphoneLegalGuardian = cellphoneLegalGuardian;
+
+        const newOng = await prisma.ongs.create({data});
+
+        const { password: _, updatedAt, ...ongWithoutTimestamps } = newOng;
+
         res.status(201).json(ongWithoutTimestamps);
     } catch (error) {
         res.status(500).json({ error: "Erro ao criar ONG" });
@@ -96,36 +133,48 @@ export const postOng = async (req, res) => {
 export const putOngByID = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, cnpj, userId, contact, description, images } = req.body;
-        const ong = await prisma.ongs.findUnique({ where: { id: parseInt(id) }, include: { images: true } });
+    const { nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
+        state, cellphone, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description} = req.body;
+
+        const ong = await prisma.ongs.findUnique({ where: { id: parseInt(id) } });
+
         if (!ong) {
             return res.status(404).json({ error: "ONG não encontrada" });
         }
+
         const existingOngCNPJ = await prisma.ongs.findUnique({ where: { cnpj } });
         if (existingOngCNPJ && existingOngCNPJ.id !== parseInt(id)) {
             return res.status(400).json({ error: "Já existe uma ONG com este CNPJ" });
         }
-        const filteredImages = images && images.length > 0
-            ? images.filter((image) => !ong.images.some(existingImage => existingImage.url === image.url))
-            : [];
-        const updatedOng = await prisma.ongs.update({
-            where: { id: parseInt(id) },
-            data: {
-                name,
-                cnpj,
-                userId,
-                contact,
-                description,
-                images: {
-                    create: filteredImages,
-                }
-            },
-            include: {
-                images: true,
-            }
-        });
+
+        const data = { };
+
+        if (complement) data.complement = complement;
+        if (city) data.city = city;
+        if (district) data.district = district;
+        if (state) data.state = state;
+        if (cellphone) data.cellphone = cellphone;
+        if (socialMedia) data.socialMedia = socialMedia;
+        if (cpfLegalGuardian) data.cpfLegalGuardian = cpfLegalGuardian;
+        if (rgLegalGuardian) data.rgLegalGuardian = rgLegalGuardian;
+        if (description) data.description = description;
+        if (cellphoneLegalGuardian) data.cellphoneLegalGuardian = cellphoneLegalGuardian;
+        if (nameONG) data.nameONG = nameONG;
+        if (socialName) data.socialName = socialName;
+        if (cnpj) data.cnpj = cnpj;
+        if (foundationDate) data.foundationDate = new Date(foundationDate);
+        if (area) data.area = area;
+        if (goals) data.goals = goals;
+        if (cep) data.cep = cep;
+        if (street) data.street = street;
+        if (nameLegalGuardian) data.nameLegalGuardian = nameLegalGuardian;
+        if (profileImage) data.profileImage = profileImage;
+        if (coverImage) data.coverImage = coverImage;
+
+        const updatedOng = await prisma.ongs.update({ where: { id: parseInt(id) }, data});
+
         const { createdAt, updatedAt, updatedImages, ...ongWithoutTimestamps } = updatedOng;
-        ongWithoutTimestamps.images = images.map(image => ({ url: image.url }));
+
         res.status(200).json(ongWithoutTimestamps);
     } catch (error) {
         res.status(500).json({ error: "Erro ao atualizar ONG" });
@@ -136,11 +185,14 @@ export const deleteOngByID = async (req, res) => {
     try {
         const { id } = req.params;
         const ong = await prisma.ongs.findUnique({ where: { id: parseInt(id) } });
+
         if (!ong) {
             return res.status(404).json({ error: "ONG não encontrada" });
         }
+
         await prisma.ongs.delete({ where: { id: parseInt(id) } });
         res.status(204).send();
+
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar ONG" });
     }

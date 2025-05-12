@@ -19,10 +19,10 @@ export default function SignupPage() {
   const [nameONG, setNameONG] = useState("")
   const [socialName, setSocialName] = useState("")
   const [cnpj, setCnpj] = useState("")
-  const [dateFoundation, setDateFoundation] = useState("")
+  const [foundationDate, setFoundationDate] = useState("")
   const [area, setArea] = useState("")
   const [goals, setGoals] = useState("")
-  const [CEP, setCEP] = useState("")
+  const [cep, setCep] = useState("")
   const [street, setStreet] = useState("")
   const [number, setNumber] = useState("")
   const [complement, setComplement] = useState("")
@@ -33,54 +33,105 @@ export default function SignupPage() {
   const [emailONG, setEmailONG] = useState("")
   const [socialMedia, setSocialMedia] = useState("")
   const [nameLegalGuardian, setNameLegalGuardian] = useState("")
-  const [CPFLegalGuardian, setCPFLegalGuardian] = useState("")
-  const [RGLegalGuardian, setRGLegalGuardian] = useState("")
+  const [cpfLegalGuardian, setCpfLegalGuardian] = useState("")
+  const [rgLegalGuardian, setRgLegalGuardian] = useState("")
   const [cellphoneLegalGuardian, setCellphoneLegalGuardian] = useState("")
+  const [ongId, setOngId] = useState("")
   const [error, setError] = useState("")
   const router = useRouter()
   const showVoluntaryFields = role === "VOLUNTARY";
   const showAdvertiserFields = role === "ADVERTISER";
+  const showCollaboratorFields = role === "COLLABORATOR";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!name || !email || !password || !passwordConfirm || !location || !role || !description) {
-      setError("Por favor, preencha todos os campos")
-      return
-    }
+    if (role !== 'ADVERTISER') {
 
-    if (password.length < 6) {
-      setError("A senha deve ter pelo menos 6 caracteres")
-      return
-    }
-
-    if (password !== passwordConfirm) {
-      setError("As senhas não coincidem")
-      return
-    }
-
-    try {
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        body: JSON.stringify({ name, email, password, location, role, description })
-      });
-      if (response.status === 400) {
-        setError("Email já cadastrado")
+      if (!name || !email || !password || !passwordConfirm || !location || !role) {
+        setError("Por favor, preencha todos os campos obrigatórios")
         return
       }
-      else if (response.status === 500) {
+  
+      if (password.length < 6) {
+        setError("A senha deve ter pelo menos 6 caracteres")
+        return
+      }
+  
+      if (password !== passwordConfirm) {
+        setError("As senhas não coincidem")
+        return
+      }
+  
+      try {
+        const response = await fetch('/api/users', {
+          method: 'POST',
+          body: JSON.stringify({ name, email, password, location, role, description })
+        });
+        if (response.status === 400) {
+          setError("Email já cadastrado")
+          return
+        }
+        else if (response.status === 500) {
+          setError("Erro ao cadastrar usuário")
+          return
+        }
+        else {
+          alert("Cadastro realizado com sucesso!")
+          router.push("/login");
+        }
+      }
+      catch (error) {
         setError("Erro ao cadastrar usuário")
         return
       }
-      else {
-        alert("Cadastro realizado com sucesso!")
-        router.push("/login");
+    }
+    else {
+      if (!nameONG || !socialName || !cnpj || !foundationDate || !area || !goals || !role || !cep || !street || !emailONG || !nameLegalGuardian || !password || !passwordConfirm) {
+        setError("Por favor, preencha todos os campos obrigatórios")
+        return
       }
+
+      if (password.length < 6) {
+        setError("A senha deve ter pelo menos 6 caracteres")
+        return
+      }
+  
+      if (password !== passwordConfirm) {
+        setError("As senhas não coincidem")
+        return
+      }
+
+      try {
+        const response = await fetch(`/api/ongs`, {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
+        state, cellphone, emailONG, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description})
+        });
+
+        if (response.status === 400) {
+          setError("Email já cadastrado")
+          return
+        }
+        else if (response.status === 500) {
+          setError("Erro ao cadastrar usuário")
+          return
+        }
+        else {
+          alert("Cadastro realizado com sucesso!")
+          router.push("/login");
+        }
+
+      } catch (error) {
+        setError(`Erro ao cadastrar ONG/Empresa: ${error}`)
+        return
+      }
+
     }
-    catch (error) {
-      setError("Erro ao cadastrar usuário")
-      return
-    }
+
   }
 
   async function consultaDadosCEP(){
@@ -185,12 +236,13 @@ async function consultaDadosCNPJ() {
                     <option value="" disabled>Selecione o tipo de usuário</option>
                     <option value="ADVERTISER">Empresa/ONG</option>
                     <option value="VOLUNTARY">Voluntário</option>
+                    <option value="COLLABORATOR">Colaborador</option>
                   </select>
                 </div>
               </div>
 
-              {/* Campos dos Voluntários */}
-              {showVoluntaryFields && (
+              {/* Campos dos Voluntários e Colaboradores de ONGs */}
+              {(showVoluntaryFields || showCollaboratorFields) && (
                 <>
                 {/* Nome */}
 
@@ -279,7 +331,7 @@ async function consultaDadosCNPJ() {
 
       <div>
         <label htmlFor="nameONG" className="block text-sm font-medium text-gray-700">
-          Nome Fantasia
+          Nome Fantasia*
         </label>
         <div className="mt-1">
           <input
@@ -298,7 +350,7 @@ async function consultaDadosCNPJ() {
 
       <div>
         <label htmlFor="socialName" className="block text-sm font-medium text-gray-700">
-          Razão Social
+          Razão Social*
         </label>
         <div className="mt-1">
           <input
@@ -317,7 +369,7 @@ async function consultaDadosCNPJ() {
 
       <div>
         <label htmlFor="cnpj" className="block text-sm font-medium text-gray-700">
-          CNPJ
+          CNPJ*
         </label>
         <div className="mt-1">
           <input
@@ -344,9 +396,9 @@ async function consultaDadosCNPJ() {
                   setSocialName("");
                   setEmailONG("");
                   setCnpj("");
-                  setDateFoundation("");
+                  setFoundationDate("");
                   setArea("");
-                  setCEP("");
+                  setCep("");
                   setStreet("");
                   setComplement("");
                   setDistrict("");
@@ -354,6 +406,8 @@ async function consultaDadosCNPJ() {
                   setState("");
                   setNumber("");
                   setCellphone("");
+                  setCpfLegalGuardian("")
+                  setRgLegalGuardian("")
    
                   {/* seto eles caso existam na requisição */}
                   data.fantasia ? setNameONG(data.fantasia.trim()) : setNameONG("");
@@ -363,9 +417,9 @@ async function consultaDadosCNPJ() {
                   if (data.abertura) {
                     const partes = data.abertura.split("/");
                     const dataFormatada = `${partes[2]}-${partes[1]}-${partes[0]}`; // yyyy-mm-dd
-                    setDateFoundation(dataFormatada);
+                    setFoundationDate(dataFormatada);
                   } else {
-                    setDateFoundation("");
+                    setFoundationDate("");
                   }
                   
                   data.email ? setEmailONG(data.email.trim()) : setEmailONG("");
@@ -382,7 +436,7 @@ async function consultaDadosCNPJ() {
                     if (responsavelLegal && responsavelLegal.nome !== "") setNameLegalGuardian(responsavelLegal.nome);
                   }
 
-                  data.cep ? setCEP(data.cep.trim()) : setCEP("");
+                  data.cep ? setCep(data.cep.trim()) : setCep("");
                   data.logradouro ? setStreet(data.logradouro.trim()) : setStreet("");
                   data.complemento ? setComplement(data.complemento.trim()) : setComplement("");
                   data.bairro ? setDistrict(data.bairro.trim()) : setDistrict("");
@@ -404,18 +458,18 @@ async function consultaDadosCNPJ() {
       </div>
 
       <div>
-        <label htmlFor="DateFoundation" className="block text-sm font-medium text-gray-700">
-          Data de Fundação
+        <label htmlFor="FoundationDate" className="block text-sm font-medium text-gray-700">
+          Data de Fundação*
         </label>
         <div className="mt-1">
           <input
-            id="DateFoundation"
-            name="DateFoundation"
+            id="FoundationDate"
+            name="FoundationDate"
             type="date"
-            autoComplete="DateFoundation"
+            autoComplete="FoundationDate"
             required
-            value={dateFoundation}
-            onChange={(e) => setDateFoundation(e.target.value)}
+            value={foundationDate}
+            onChange={(e) => setFoundationDate(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
@@ -423,7 +477,7 @@ async function consultaDadosCNPJ() {
 
       <div>
         <label htmlFor="area" className="block text-sm font-medium text-gray-700">
-          Área de Atuação
+          Área de Atuação*
         </label>
         <div className="mt-1">
           <input
@@ -431,6 +485,7 @@ async function consultaDadosCNPJ() {
             name="area"
             type="text"
             autoComplete="area"
+            required
             value={area}
             onChange={(e) => setArea(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -441,7 +496,7 @@ async function consultaDadosCNPJ() {
 
       <div>
         <label htmlFor="goals" className="block text-sm font-medium text-gray-700">
-          Missão/Objetivo
+          Missão/Objetivo*
         </label>
         <div className="mt-1">
           <input
@@ -460,7 +515,7 @@ async function consultaDadosCNPJ() {
 
       <div>
         <label htmlFor="cep" className="block text-sm font-medium text-gray-700">
-          CEP
+          CEP*
         </label>
         <div className="mt-1">
           <input
@@ -469,8 +524,8 @@ async function consultaDadosCNPJ() {
             type="text"
             autoComplete="cep"
             required
-            value={CEP}
-            onChange={(e) => setCEP(e.target.value)}
+            value={cep}
+            onChange={(e) => setCep(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="00000-000"
           />
@@ -482,7 +537,7 @@ async function consultaDadosCNPJ() {
 
               if (data) {
                 {/* Primeiro limpo os campos */}
-                setCEP("");
+                setCep("");
                 setStreet("");
                 setComplement("");
                 setDistrict("");
@@ -491,7 +546,7 @@ async function consultaDadosCNPJ() {
                 setNumber("");
   
                 {/* seto eles caso existam na requisição */}
-                data.cep ? setCEP(data.cep.trim()) : setCEP("");
+                data.cep ? setCep(data.cep.trim()) : setCep("");
                 data.logradouro ? setStreet(data.logradouro.trim()) : setStreet("");
                 data.complemento ? setComplement(data.complemento.trim()) : setComplement("");
                 data.bairro ? setDistrict(data.bairro.trim()) : setDistrict("");
@@ -508,7 +563,7 @@ async function consultaDadosCNPJ() {
 
       <div>
         <label htmlFor="street" className="block text-sm font-medium text-gray-700">
-          Rua/Avenida
+          Rua/Avenida*
         </label>
         <div className="mt-1">
           <input
@@ -635,7 +690,7 @@ async function consultaDadosCNPJ() {
 
       <div>
         <label htmlFor="emailONG" className="block text-sm font-medium text-gray-700">
-        E-mail institucional
+        E-mail institucional*
         </label>
         <div className="mt-1">
           <input
@@ -643,6 +698,7 @@ async function consultaDadosCNPJ() {
             name="emailONG"
             type="text"
             autoComplete="emailONG"
+            required
             value={emailONG}
             onChange={(e) => setEmailONG(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -674,7 +730,7 @@ async function consultaDadosCNPJ() {
 
       <div>
         <label htmlFor="nameLegalGuardian" className="block text-sm font-medium text-gray-700">
-        Nome completo
+        Nome completo*
         </label>
         <div className="mt-1">
           <input
@@ -682,6 +738,7 @@ async function consultaDadosCNPJ() {
             name="nameLegalGuardian"
             type="text"
             autoComplete="nameLegalGuardian"
+            required
             value={nameLegalGuardian}
             onChange={(e) => setNameLegalGuardian(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -700,8 +757,8 @@ async function consultaDadosCNPJ() {
             name="CPFLegalGuardian"
             type="text"
             autoComplete="CPFLegalGuardian"
-            value={CPFLegalGuardian}
-            onChange={(e) => setCPFLegalGuardian(e.target.value)}
+            value={cpfLegalGuardian}
+            onChange={(e) => setCpfLegalGuardian(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="000.000.000-00"
           />
@@ -718,8 +775,8 @@ async function consultaDadosCNPJ() {
             name="RGLegalGuardian"
             type="text"
             autoComplete="RGLegalGuardian"
-            value={RGLegalGuardian}
-            onChange={(e) => setRGLegalGuardian(e.target.value)}
+            value={rgLegalGuardian}
+            onChange={(e) => setRgLegalGuardian(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="00.000.000-0"
           />
@@ -746,7 +803,7 @@ async function consultaDadosCNPJ() {
     </>
   )}
 
-  {role && (
+  {(role) && (
     <>
     <hr className="my-4" />
               <div>
@@ -769,7 +826,7 @@ async function consultaDadosCNPJ() {
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Senha (6 ou mais caracteres)
+                  Senha (6 ou mais caracteres)*
                 </label>
                 <div className="mt-1">
                   <input
@@ -789,7 +846,7 @@ async function consultaDadosCNPJ() {
 
               <div>
                 <label htmlFor="passwordConfirm" className="block text-sm font-medium text-gray-700">
-                  Confirmação de Senha
+                  Confirmação de Senha*
                 </label>
                 <div className="mt-1">
                   <input

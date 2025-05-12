@@ -7,7 +7,7 @@ const router = Router();
 router.get("/cnpj/:cnpj", getCNPJ);
 router.get("/", authenticateUser, getOngs);
 router.get("/:id", authenticateUser, getOngByID);
-router.post("/", authenticateUser, postOng);
+router.post("/", postOng);
 router.put("/:id", authenticateUser, putOngByID);
 router.delete("/:id", authenticateUser, deleteOngByID);
 
