@@ -19,6 +19,7 @@ export const postLogin = async (req, res) => {
         }
 
         const entidade = user || ong;
+        const role = entidade.role || "ONG";
 
         const isPasswordValid = await bcrypt.compare(password, entidade.password); // bcryptjs funciona da mesma forma
 
@@ -27,7 +28,7 @@ export const postLogin = async (req, res) => {
         }
 
         const token = generateToken(entidade);
-        return res.status(200).json({ token });
+        return res.status(200).json({ token, role});
 
     } catch (error) {
         console.log(error);

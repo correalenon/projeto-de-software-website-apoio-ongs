@@ -26,7 +26,6 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password })
       });
 
-
       if (response.ok && response.status === 200) {
         const response = await fetch('/api/users/me', {
           method: 'GET'

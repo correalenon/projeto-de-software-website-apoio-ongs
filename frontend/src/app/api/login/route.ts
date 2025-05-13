@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
             httpOnly: true,
             path: '/',
             maxAge: 60 * 60
+            
         });
         
         return res;
