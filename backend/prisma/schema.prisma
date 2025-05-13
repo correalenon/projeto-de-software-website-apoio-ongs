@@ -16,7 +16,7 @@ datasource db {
 enum Role {
     ADMIN
     VOLUNTARY
-    ADVERTISER
+    COLLABORATOR
 }
 
 enum ContributionType {
@@ -32,8 +32,6 @@ model Images {
   url           String
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  ong           Ongs?       @relation(fields: [ongId], references: [id])
-  ongId         Int?
   project       Projects?   @relation(fields: [projectId], references: [id])
   projectId     Int?
   post          Posts?      @relation(fields: [postId], references: [id])
@@ -125,25 +123,44 @@ model Users {
   likes         Likes[]
   comments      Comments[]
   activity      Activities[]
-  ongs          Ongs[]
+  ong           Ongs?           @relation(fields: [ongId], references: [id])
+  ongId         Int?
   tags          Tags[]
   contributions Contribution[]
 }
 
 model Ongs {
-  id            Int         @id @default(autoincrement())
-  name          String 
-  cnpj          String      @unique
-  contact       String
-  description   String
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  user          Users       @relation(fields: [userId], references: [id])
-  userId        Int
-  projects      Projects[]
-  images        Images[]
-  tags          Tags[]
-  contributions Contribution[]
+  id                      Int         @id @default(autoincrement())
+  nameONG                 String
+  socialName              String
+  cnpj                    String      @unique
+  password                String
+  foundationDate          DateTime
+  area                    String?
+  goals                   String?
+  cep                     String?
+  street                  String?
+  number                  String?
+  complement              String?
+  city                    String?
+  district                String?
+  state                   String?
+  cellphone               String?
+  emailONG                String      @unique
+  socialMedia             String?
+  nameLegalGuardian       String
+  cpfLegalGuardian        String?
+  rgLegalGuardian         String?
+  cellphoneLegalGuardian  String?
+  description             String?
+  profileImage            String?
+  coverImage              String?
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
+  users                   Users[]
+  projects                Projects[]
+  tags                    Tags[]
+  contributions           Contribution[]
 }
 
 model Projects {

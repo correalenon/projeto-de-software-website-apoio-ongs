@@ -3,6 +3,10 @@ import prisma from "../db/client.js";
 
 export const getMe = async (req, res) => {
     try {
+        if (req.user.tipo !== "USER") {
+            return res.status(403).json({ error: "Você não tem permissão para acessar essa rota"});
+        }
+
         const { password, ...userWithoutPassword } = req.user; // Remove a senha do objeto req.user
         const { id } = req.user;
 
@@ -29,17 +33,12 @@ export const getMe = async (req, res) => {
                     },
                 },
                 skills: true,
-                ongs: {
+                ong: {
                     select: {
-                        name: true,
-                        cnpj: true,
-                        contact: true,
-                        images: {
-                            select: {
-                                url: true,
-                            },
-                        },
-                    },
+                        id: true,
+                        nameONG: true,
+                        emailONG: true,
+                    }
                 },
                 contributions: true,
                 profileImage: true,
@@ -83,23 +82,17 @@ export const getUsers = async (req, res) => {
                         name: true
                     }
                 },
-                ongs: {
+                ong: {
                     select: {
-                        name: true,
-                        cnpj: true,
-                        contact: true,
-                        images: {
-                            select: {
-                                url: true
-                            }
-                        }
+                        id: true,
+                        nameONG: true,
+                        emailONG: true,
                     }
-                }
+                },
             }
         });
         res.status(200).json(users);
     } catch (error) {
-        console.log(error);
         res.status(500).json({ error: "Erro ao buscar usuários" });
     }
 };
@@ -129,18 +122,13 @@ export const getUserByID = async (req, res) => {
                         name: true
                     }
                 },
-                ongs: {
+                ong: {
                     select: {
-                        name: true,
-                        cnpj: true,
-                        contact: true,
-                        images: {
-                            select: {
-                                url: true
-                            }
-                        }
+                        id: true,
+                        nameONG: true,
+                        emailONG: true,
                     }
-                }
+                },
             }
         });
         if (!user) {

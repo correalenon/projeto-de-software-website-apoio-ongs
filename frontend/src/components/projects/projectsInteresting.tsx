@@ -10,7 +10,7 @@ export default function ProjectsInteresting() {
     useEffect(() => {
         async function loadProjects() {
             setIsLoading(true);
-            const response = await fetch('/api/ongs', {
+            const response = await fetch('/api/projects', {
                 method: 'GET'
             });
             const fetchedProjects = await response.json();

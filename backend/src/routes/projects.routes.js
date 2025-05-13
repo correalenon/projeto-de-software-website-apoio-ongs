@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { getProjects, getProjectsByID, postProject, putProjectByID, deleteProjectByID } from '../controllers/projects.controller.js';
-import { authenticateUser } from '../services/authentication.js';
+import { authenticateUserOrOng } from '../services/authentication.js';
 
 const router = Router();
 
-router.get("/", authenticateUser, getProjects);
-router.get("/:id", authenticateUser, getProjectsByID);
-router.post("/", authenticateUser, postProject);
-router.put("/:id", authenticateUser, putProjectByID);
-router.delete("/:id", authenticateUser, deleteProjectByID);
+router.get("/", authenticateUserOrOng, getProjects);
+router.get("/:id", authenticateUserOrOng, getProjectsByID);
+router.post("/", authenticateUserOrOng, postProject);
+router.put("/:id", authenticateUserOrOng, putProjectByID);
+router.delete("/:id", authenticateUserOrOng, deleteProjectByID);
 
 export default router;
