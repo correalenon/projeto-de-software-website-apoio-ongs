@@ -146,7 +146,7 @@ model Ongs {
   district                String?
   state                   String?
   cellphone               String?
-  emailONG                String
+  emailONG                String      @unique
   socialMedia             String?
   nameLegalGuardian       String
   cpfLegalGuardian        String?

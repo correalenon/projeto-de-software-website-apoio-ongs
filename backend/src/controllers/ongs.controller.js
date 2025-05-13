@@ -1,6 +1,68 @@
 import express from "express";
+import bcrypt from "bcryptjs";
 import prisma from "../db/client.js";
 import { dmmfToRuntimeDataModel } from "@prisma/client/runtime/library";
+
+export const getMe = async (req, res) => {
+    try {
+        if (req.user.tipo !== "ONG") {
+            return res.status(403).json({ error: "Você não tem permissão para acessar essa rota"});
+        }
+
+        const { password, ...ongWithoutPassword } = req.user; // Remove a senha do objeto req.user
+        const { id } = req.user;
+
+        const ongs = await prisma.ongs.findUnique({
+            where: { id: parseInt(id) },
+            select: {
+                id: true,
+                nameONG: true,
+                emailONG: true,
+                socialName: true,
+                cnpj: true,
+                foundationDate: true,
+                area: true,
+                goals: true,
+                cep: true,
+                street: true,
+                number: true,
+                complement: true,
+                district: true,
+                state: true,
+                cellphone: true,
+                emailONG: true,
+                socialMedia: true,
+                nameLegalGuardian: true,
+                cpfLegalGuardian: true,
+                rgLegalGuardian: true,
+                cellphoneLegalGuardian: true,
+                description: true,
+                createdAt: true,
+                updatedAt: true,
+                projects: true,
+                tags: {
+                    select: {
+                        name: true,
+                    },
+                },
+                profileImage: true,
+                coverImage: true
+            },
+        });
+
+        // Combina os dados de ongWithoutPassword com os dados de ongs
+        const combinedOngData = {
+            ...ongWithoutPassword,
+            ...ongs,
+        };
+
+        return res.status(200).json(combinedOngData);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ error: "Erro ao buscar ong /me" });
+    }
+};
+
 
 export const getOngs = async (req, res) => {
     try {
@@ -108,7 +170,7 @@ export const postOng = async (req, res) => {
             password: hashedPassword
         }
 
-        if (number) data.number = parseInt(number);
+        if (number) data.number = number;
         if (complement) data.complement = complement;
         if (city) data.city = city;
         if (district) data.district = district;
@@ -127,11 +189,17 @@ export const postOng = async (req, res) => {
         res.status(201).json(ongWithoutTimestamps);
     } catch (error) {
         res.status(500).json({ error: "Erro ao criar ONG" });
+        console.error(error);
     }
 };
 
 export const putOngByID = async (req, res) => {
     try {
+
+        if (req.user.tipo !== "ONG") {
+            return res.status(403).json({ error: "Você não tem permissão para acessar essa rota"});
+        }
+
         const { id } = req.params;
     const { nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
         state, cellphone, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description} = req.body;
@@ -177,12 +245,17 @@ export const putOngByID = async (req, res) => {
 
         res.status(200).json(ongWithoutTimestamps);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: "Erro ao atualizar ONG" });
     }
 };
 
 export const deleteOngByID = async (req, res) => {
     try {
+        if (req.user.tipo !== "ONG") {
+            return res.status(403).json({ error: "Você não tem permissão para acessar essa rota"});
+        }
+
         const { id } = req.params;
         const ong = await prisma.ongs.findUnique({ where: { id: parseInt(id) } });
 

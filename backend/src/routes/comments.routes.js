@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import { authenticateUser } from '../services/authentication.js';
+import { authenticateUserOrOng } from '../services/authentication.js';
 import { getComments, getCommentByID, postComment, deleteCommentByID, putCommentByID, getCommentsByPostID } from '../controllers/comments.controller.js';
 
 const router = Router();
 
-router.get("/", authenticateUser, getComments);
-router.get("/:id", authenticateUser, getCommentByID);
-router.get("/post/:postId", authenticateUser, getCommentsByPostID);
-router.post("/", authenticateUser, postComment);
-router.delete("/:id", authenticateUser, deleteCommentByID);
-router.put("/:id", authenticateUser, putCommentByID);
+router.get("/", authenticateUserOrOng, getComments);
+router.get("/:id", authenticateUserOrOng, getCommentByID);
+router.get("/post/:postId", authenticateUserOrOng, getCommentsByPostID);
+router.post("/", authenticateUserOrOng, postComment);
+router.delete("/:id", authenticateUserOrOng, deleteCommentByID);
+router.put("/:id", authenticateUserOrOng, putCommentByID);
 
 export default router;

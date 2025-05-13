@@ -109,7 +109,7 @@ export default function SignupPage() {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
-        state, cellphone, emailONG, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description})
+        state, cellphone, emailONG, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description, password})
         });
 
         if (response.status === 400) {

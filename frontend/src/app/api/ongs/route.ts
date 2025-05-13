@@ -23,16 +23,16 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-    const { nameONG, socialName, cnpj, FoudationDate, area, goals, cep, street, number, complement, city, district, 
-        state, cellphone, emailONG, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description} = await request.json();
+    const { nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
+        state, cellphone, emailONG, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description, password} = await request.json();
     try {
         const response = await fetch(API_URL + "/ongs", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({nameONG, socialName, cnpj, FoudationDate, area, goals, cep, street, number, complement, city, district, 
-        state, cellphone, emailONG, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description })
+            body: JSON.stringify({nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
+        state, cellphone, emailONG, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description, password })
         });
         
         if (response.status === 201) {
