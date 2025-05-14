@@ -1,18 +1,18 @@
 import { Router } from 'express';
 import { getPosts, getPostByID, postPost, postLike, postComment, putPostByID, putCommentByID, deletePostByID, deleteLikeByID, deleteCommentByID } from '../controllers/posts.controller.js';
-import { authenticateUser } from "../services/authentication.js";
+import { authenticateUserOrOng } from "../services/authentication.js";
 
 const router = Router();
 
-router.get("/", authenticateUser, getPosts);
-router.get("/:id", authenticateUser, getPostByID);
-router.post("/", authenticateUser, postPost);
-router.post("/:postId/likes", authenticateUser, postLike);
-router.post("/:postId/comments", authenticateUser, postComment);
-router.put("/:id", authenticateUser, putPostByID);
-router.put("/:postId/comments/:commentId", authenticateUser, putCommentByID);
-router.delete("/:id", authenticateUser, deletePostByID);
-router.delete("/:postId/likes/:likeId", authenticateUser, deleteLikeByID);
-router.delete("/:postId/comments/:commentId", authenticateUser, deleteCommentByID);
+router.get("/", authenticateUserOrOng, getPosts);
+router.get("/:id", authenticateUserOrOng, getPostByID);
+router.post("/", authenticateUserOrOng, postPost);
+router.post("/:postId/likes", authenticateUserOrOng, postLike);
+router.post("/:postId/comments", authenticateUserOrOng, postComment);
+router.put("/:id", authenticateUserOrOng, putPostByID);
+router.put("/:postId/comments/:commentId", authenticateUserOrOng, putCommentByID);
+router.delete("/:id", authenticateUserOrOng, deletePostByID);
+router.delete("/:postId/likes/:likeId", authenticateUserOrOng, deleteLikeByID);
+router.delete("/:postId/comments/:commentId", authenticateUserOrOng, deleteCommentByID);
 
 export default router;

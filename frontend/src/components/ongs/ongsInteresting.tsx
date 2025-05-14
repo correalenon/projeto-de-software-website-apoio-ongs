@@ -41,15 +41,13 @@ export default function OngsInteresting() {
                         <div className="p-4">
                         <div className="flex flex-col items-center text-center">
                             <div className="h-20 w-20 rounded-full overflow-hidden mb-3">
-                                {ong.images.length > 0 && (
                                     <img
-                                    src={ong.images[0].content}
-                                    alt={ong.name}
+                                    src={ong.profileImage}
+                                    alt={ong.nameONG}
                                     className="h-full w-full object-cover"
                                 />
-                            )}
                             </div>
-                            <h4 className="font-medium">{ong.name}</h4>
+                            <h4 className="font-medium">{ong.nameONG}</h4>
                             <p className="text-sm text-gray-500 mb-2">{ong.cnpj}</p>
                             <p className="text-xs text-gray-500 mb-3">
                             <span className="inline-flex items-center">
@@ -70,7 +68,7 @@ export default function OngsInteresting() {
                                 <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                                 </svg>
-                                Contato: {ong.contact}
+                                Contato: {ong.cellphone}
                             </span>
                             </p>
                             <Link href={`/ongs/${ong.id}`} className="w-full border border-gray-300 rounded py-1 px-3 hover:bg-gray-50">

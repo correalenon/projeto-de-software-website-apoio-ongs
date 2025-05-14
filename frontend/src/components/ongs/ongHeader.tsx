@@ -51,8 +51,8 @@ export default function OngHeader({ id }: { id: number }) {
             <div className="absolute -top-16 left-8">
                 <div className="h-32 w-32 rounded-full border-4 border-white overflow-hidden">
                     <img
-                        src={ong?.images[0].content || "/placeholder.svg?height=40&width=40"}
-                        alt={ong?.name || "Carregando..."}
+                        src={ong?.profileImage || "/placeholder.svg?height=40&width=40"}
+                        alt={ong?.nameONG || "Carregando..."}
                         className="h-full w-full object-cover"
                     />
                 </div>
@@ -60,9 +60,9 @@ export default function OngHeader({ id }: { id: number }) {
             <div className="pt-20">
                 <div className="flex justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold">{ong?.name || "Carregando..."}</h1>
+                    <h1 className="text-2xl font-bold">{ong?.nameONG || "Carregando..."}</h1>
                     <p className="text-lg">{ong?.cnpj || "Carregando..."}</p>
-                    <p className="text-sm text-gray-500 mt-1">Responsável: {ong?.user.name || "Carregando..."}</p>
+                    <p className="text-sm text-gray-500 mt-1">Responsável: {ong?.nameLegalGuardian || "Carregando..."}</p>
                     <div className="flex gap-2 mt-3">
                         {/* <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded">Open to</button> */}
                         {/* <button className="border border-gray-300 px-4 py-1 rounded hover:bg-gray-50">Add profile section</button> */}

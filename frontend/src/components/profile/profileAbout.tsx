@@ -59,7 +59,7 @@ export default function ProfileAbout() {
             </div>
             <div className="px-4 pb-4">
                 <p>
-                    {user?.description || "Carregando..."}
+                    {user?.description || ""}
                 </p>
             </div>
 

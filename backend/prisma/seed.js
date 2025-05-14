@@ -64,9 +64,24 @@ async function main() {
         if (!existingOng) {
             await prisma.ongs.create({
                 data: {
-                    name: faker.company.name(),
+                    nameONG: faker.company.name(),
+                    socialName: faker.company.name(),
                     cnpj,
-                    contact: faker.phone.number(),
+                    foundationDate: new Date(faker.date.past()),
+                    area: faker.lorem.word(),
+                    goals: faker.company.buzzPhrase(),
+                    cep: faker.location.zipCode(),
+                    street: faker.location.street(),
+                    number: faker.location.streetAddress(),
+                    complement: faker.location.secondaryAddress(),
+                    city: faker.location.city(),
+                    district: "Centro",
+                    state: faker.location.state(),
+                    cellphone: faker.phone.number(),
+                    emailONG: faker.internet.email(),
+                    password: await bcrypt.hash(faker.internet.password(), 10),
+                    socialMedia: faker.lorem.words(),
+                    nameLegalGuardian: faker.person.fullName(),
                     description: faker.lorem.paragraph(),
                     userId: Math.floor(Math.random() * 10) + 1,
                     images: {

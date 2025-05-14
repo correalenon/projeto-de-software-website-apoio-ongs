@@ -21,3 +21,26 @@ export async function GET(request: NextRequest) {
         throw error;
     }
 }
+
+export async function POST(request: NextRequest) {
+    const { nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
+        state, cellphone, emailONG, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description, password} = await request.json();
+    try {
+        const response = await fetch(API_URL + "/ongs", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
+        state, cellphone, emailONG, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description, password })
+        });
+        
+        if (response.status === 201) {
+          return NextResponse.json({ error: await response.json() }, { status: response.status });
+        }
+
+        return NextResponse.json(await response.json(), { status: response.status });
+    } catch (error) {
+        throw error;
+    }
+}
