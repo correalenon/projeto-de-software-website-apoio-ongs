@@ -27,7 +27,7 @@ async function main() {
                     create: [
                         { name: "ADMIN" },
                         { name: "VOLUNTARY" },
-                        { name: "ADVERTISER" }
+                        { name: "COLLABORATOR" }
                     ]
                 }
             }
@@ -44,13 +44,13 @@ async function main() {
                     email,
                     password: await bcrypt.hash(faker.internet.password(), 10),
                     location: faker.location.streetAddress({ useFullAddress: true }),
-                    role: "VOLUNTARY",
+                    role: "COLLABORATOR",
                     description: faker.lorem.text(),
                     tags: {
                         create: [
                             { name: "ADMIN" },
                             { name: "VOLUNTARY" },
-                            { name: "ADVERTISER" }
+                            { name: "COLLABORATOR" }
                         ]
                     }
                 },
@@ -83,18 +83,16 @@ async function main() {
                     socialMedia: faker.lorem.words(),
                     nameLegalGuardian: faker.person.fullName(),
                     description: faker.lorem.paragraph(),
-                    userId: Math.floor(Math.random() * 10) + 1,
-                    images: {
-                        create: [
-                            {
-                                content: faker.image.dataUri({ 
-                                    width: 640,
-                                    height: 480,
-                                    type: 'svg-base64' 
-                                })
-                            }
-                        ]
-                    }
+                    profileImage: faker.image.dataUri({
+                        width: 640,
+                        height: 480,
+                        type: 'svg-base64' 
+                    }),
+                    coverImage:faker.image.dataUri({
+                        width: 640,
+                        height: 480,
+                        type: 'svg-base64' 
+                    })
                 },
             });
         }

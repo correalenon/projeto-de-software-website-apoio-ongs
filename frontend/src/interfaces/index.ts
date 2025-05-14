@@ -37,14 +37,17 @@ export interface Post {
 
 export interface Ong {
     id: number
-    name: string
+    nameONG: string
+    emailONG: string
     cnpj: string
     contact: string
     description: string
     createdAt: string
     updatedAt: string
     user: User
-    images: Image[]
+    profileImage: string
+    coverImage: string
+    cellphone: string
 }
 
 export interface Project {

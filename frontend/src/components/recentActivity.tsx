@@ -10,7 +10,8 @@ export default function RecentActivity() {
             method: 'GET'
         });
         const activitiesData = await response.json();
-        setActivities(activitiesData || []);
+        const sortedActivities = (activitiesData || []).sort((a: Activitie, b: Activitie) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        setActivities(sortedActivities || []);
     }
 
     useEffect(() => {
