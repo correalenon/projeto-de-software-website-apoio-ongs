@@ -1,7 +1,5 @@
-import express from "express";
 import bcrypt from "bcryptjs";
 import prisma from "../db/client.js";
-import { dmmfToRuntimeDataModel } from "@prisma/client/runtime/library";
 
 export const getMe = async (req, res) => {
     try {
@@ -63,7 +61,6 @@ export const getMe = async (req, res) => {
     }
 };
 
-
 export const getOngs = async (req, res) => {
     try {
         const ongs = await prisma.ongs.findMany({
@@ -86,11 +83,8 @@ export const getOngs = async (req, res) => {
                 socialMedia: true,
                 nameLegalGuardian: true,
                 description: true,
-                images: {
-                    select: {
-                        content: true,
-                    }
-                }
+                profileImage: true,
+                coverImage: true,
             }
         });
 
@@ -133,16 +127,16 @@ export const getOngByID = async (req, res) => {
                 projects: {
                     select: {
                         name: true,
-                        email: true,
+                        description: true,
+                        images: {
+                            select: {
+                                id: true,
+                                content: true,
+                            }
+                        }
                     }
                 },
-                contact: true,
                 description: true,
-                images: {
-                    select: {
-                        content: true,
-                    }
-                }
             }
         });
         if (!ong) {
