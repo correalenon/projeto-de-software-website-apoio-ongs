@@ -2,9 +2,10 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import type { Project } from "@/interfaces/index";
 
 export default function ProjectsInteresting() {
-    const [projects, setProjects] = useState([]);
+    const [projects, setProjects] = useState<Project[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     
     useEffect(() => {
@@ -42,7 +43,7 @@ export default function ProjectsInteresting() {
                             <div className="h-20 w-20 rounded-full overflow-hidden mb-3">
                             {project.images.length > 0 && (
                                 <img
-                                    src={project.images[0].url}
+                                    src={project.images[0].content}
                                     alt={project.name}
                                     className="h-full w-full object-cover"
                                 />

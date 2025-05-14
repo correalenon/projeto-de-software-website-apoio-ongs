@@ -29,7 +29,8 @@ enum ContributionType {
 
 model Images {
   id            Int         @id @default(autoincrement())
-  url           String
+  content       String?
+  caption       String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   ong           Ongs?       @relation(fields: [ongId], references: [id])
@@ -43,7 +44,6 @@ model Images {
 model Likes {
   id            Int         @id @default(autoincrement())
   createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
   user          Users?      @relation(fields: [userId], references: [id])
   userId        Int?
   post          Posts?      @relation(fields: [postId], references: [id])
@@ -63,7 +63,6 @@ model Comments {
 
 model Posts {
   id            Int         @id @default(autoincrement())
-  title         String
   description   String
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

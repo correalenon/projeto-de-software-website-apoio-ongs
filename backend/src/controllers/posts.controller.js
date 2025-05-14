@@ -1,4 +1,3 @@
-import express from "express";
 import prisma from "../db/client.js";
 
 export const getPosts = async (req, res) => {
@@ -6,7 +5,6 @@ export const getPosts = async (req, res) => {
         const posts = await prisma.posts.findMany({
             select: {
                 id: true,
-                title: true,
                 description: true,
                 createdAt: true,
                 updatedAt: true,
@@ -15,7 +13,8 @@ export const getPosts = async (req, res) => {
                         id: true,
                         name: true,
                         email: true,
-                        location: true
+                        location: true,
+                        profileImage: true
                     }
                 },
                 project: {
@@ -26,14 +25,14 @@ export const getPosts = async (req, res) => {
                 },
                 images: {
                     select: {
-                        url: true,
+                        content: true,
+                        caption: true
                     }
                 },
                 likes: {
                     select: {
                         id: true,
                         createdAt: true,
-                        updatedAt: true,
                         user: {
                             select: {
                                 id: true,
@@ -52,6 +51,7 @@ export const getPosts = async (req, res) => {
                             select: {
                                 id: true,
                                 name: true,
+                                profileImage: true
                             }
                         }
                     }
@@ -76,7 +76,6 @@ export const getPostByID = async (req, res) => {
             where: { id: parseInt(id) },
             select: {
                 id: true,
-                title: true,
                 description: true,
                 createdAt: true,
                 updatedAt: true,
@@ -85,7 +84,8 @@ export const getPostByID = async (req, res) => {
                         id: true,
                         name: true,
                         email: true,
-                        location: true
+                        location: true,
+                        profileImage: true
                     }
                 },
                 project: {
@@ -96,14 +96,14 @@ export const getPostByID = async (req, res) => {
                 },
                 images: {
                     select: {
-                        url: true,
+                        content: true,
+                        caption: true
                     }
                 },
                 likes: {
                     select: {
                         id: true,
                         createdAt: true,
-                        updatedAt: true,
                         user: {
                             select: {
                                 id: true,
@@ -122,6 +122,7 @@ export const getPostByID = async (req, res) => {
                             select: {
                                 id: true,
                                 name: true,
+                                profileImage: true
                             }
                         }
                     }
@@ -143,30 +144,31 @@ export const getPostByID = async (req, res) => {
 };
 
 export const postPost = async (req, res) => {
-    const { title, description, userId, projectId, images, tags } = req.body;
-    if (!title || !description || !userId || !projectId) {
+    const { description, userId, projectId, images, tags } = req.body;
+    if (!description || !userId || !projectId) {
         return res.status(400).json({ error: "Todos os campos são obrigatórios" });
     }
     try {
         const existingPost = await prisma.posts.findFirst({
             where: {
-                title,
                 description,
                 userId,
                 projectId
             },
         });
         if (existingPost) {
-            return res.status(400).json({ error: "Já existe um post com title, description, userId e projectId idênticos" });
+            return res.status(400).json({ error: "Já existe um post com description, userId e projectId idênticos" });
         }
         const newPost = await prisma.posts.create({
             data: {
-                title,
                 description,
                 userId,
                 projectId,
                 images: {
-                    create: images && images.length > 0 ? images : [{ url: "https://avatars.githubusercontent.com/u/136519252?v=4" }]
+                    create: images && images.length > 0 ? images : [{
+                        content: null,
+                        caption: null
+                    }],
                 },
                 tags: {
                     create: tags && tags.length > 0 ? tags : []
@@ -175,7 +177,8 @@ export const postPost = async (req, res) => {
             include: {
                 images: {
                     select: {
-                        url: true
+                        content: true,
+                        caption: true
                     }
                 },
                 tags: {
@@ -192,10 +195,122 @@ export const postPost = async (req, res) => {
     }
 };
 
+export const postLike =  async (req, res) => {
+    const { id } = req.user;
+    const { postId } = req.params;
+
+    if (!postId) {
+        return res.status(400).json({ error: "Preencha todos os campos obrigatórios"});
+    }
+
+    try {
+
+        const data = {
+            userId: parseInt(id),
+            postId: parseInt(postId)
+        };
+
+        const createLike = await prisma.likes.create({ data });
+        const like = await prisma.likes.findUnique({
+            where: { id: createLike.id },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                post: {
+                    select: {
+                        id: true,
+                        description: true,
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const createActivity = await prisma.activities.create({
+            data: {
+                description: like.user.name + ' curtiu o post de ' + like.post.user.name,
+                userId: parseInt(id),
+                postId: parseInt(postId)
+            }
+        });
+
+        res.status(201).json(like);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao cadastrar like de usuário" });
+    }
+};
+
+export const postComment =  async (req, res) => {
+    const { id } = req.user;
+    const { postId } = req.params;
+    const { description } = req.body;
+
+    if (!postId|| !description) {
+        return res.status(400).json({ error: "Preencha todos os campos obrigatórios"});
+    }
+
+    try {
+
+        const data = {
+            description: description,
+            userId: parseInt(id),
+            postId: parseInt(postId)
+        };
+
+        const createComment = await prisma.comments.create({ data });
+        const comment = await prisma.comments.findUnique({
+            where: { id: createComment.id },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        profileImage: true
+                    }
+                },
+                post: {
+                    select: {
+                        id: true,
+                        description: true,
+                        user: {
+                            select: {
+                                id: true,
+                                name: true,
+                                profileImage: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        const createActivity = await prisma.activities.create({
+            data: {
+                description: comment.user.name + ' comentou no post de ' + comment.post.user.name,
+                userId: parseInt(id),
+                postId: parseInt(postId)
+            }
+        });
+
+        res.status(201).json(comment);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao cadastrar comentário no post" });
+    }
+};
+
 export const putPostByID = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, description, userId, projectId, images, likes, comments, activities, tags } = req.body;
+        const { description, userId, projectId, images, likes, comments, activities, tags } = req.body;
         const post = await prisma.posts.findUnique({
             where: { id: parseInt(id) },
             include: {
@@ -210,7 +325,7 @@ export const putPostByID = async (req, res) => {
             return res.status(404).json({ error: "Post não encontrado" });
         }
         const filteredImages = images && images.length > 0
-            ? images.filter((image) => !post.images.some(existingImage => existingImage.url === image.url))
+            ? images.filter((image) => !post.images.some(existingImage => existingImage.content === image.content))
             : [];
         const filteredTags = tags && tags.length > 0
             ? tags.filter((tag) => !post.tags.some(existingTag => existingTag.name === tag.name))
@@ -218,7 +333,6 @@ export const putPostByID = async (req, res) => {
         const updatedPost = await prisma.posts.update({
             where: { id: parseInt(id) },
             data: {
-                title,
                 description,
                 userId,
                 projectId,
@@ -241,7 +355,8 @@ export const putPostByID = async (req, res) => {
             include: {
                 images: {
                     select: {
-                        url: true
+                        content: true,
+                        caption: true
                     }
                 },
                 tags: {
@@ -269,7 +384,8 @@ export const putPostByID = async (req, res) => {
                         user: {
                             select: {
                                 id: true,
-                                name: true
+                                name: true,
+                                profileImage: true
                             }
                         }
                     }
@@ -279,6 +395,39 @@ export const putPostByID = async (req, res) => {
         res.status(200).json(updatedPost);
     } catch (error) {
         res.status(500).json({ error: "Erro ao atualizar post" });
+    }
+};
+
+export const putCommentByID = async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const { commentId } = req.params;
+        const { description } = req.body;
+       
+        const post = await prisma.posts.findUnique({ where: { id: parseInt(postId) }});
+        const comment = await prisma.comments.findUnique({ where: { id: parseInt(commentId) }});
+        if (!post || !comment) {
+            return res.status(404).json({ error: "Post ou Comentário não encontrado" });
+        }
+        
+        const updateComment = await prisma.comments.update({
+            where: { id: parseInt(commentId) },
+            data: {
+                description,
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        profileImage: true
+                    }
+                }
+            }
+        });
+        res.status(200).json(updateComment);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao atualizar comentário" });
     }
 };
 
@@ -293,5 +442,41 @@ export const deletePostByID = async (req, res) => {
         res.status(204).send();
     } catch (error) {
         res.status(500).json({ error: "Erro ao deletar Post" });
+    }
+};
+
+export const deleteLikeByID =  async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const { likeId } = req.params;
+
+        const post = await prisma.posts.findUnique({ where: { id: parseInt(postId) }});
+        const like = await prisma.likes.findUnique({ where: { id: parseInt(likeId) }});
+        if (!post || !like) {
+            return res.status(404).json({ error: "Post ou Like não encontrado" });
+        }
+
+        await prisma.likes.delete({ where: { id: parseInt(likeId) } });
+        res.status(204).json({ message: "Like deletado com sucesso"});
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao deletar like" });
+    }
+};
+
+export const deleteCommentByID =  async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const { commentId } = req.params;
+
+        const post = await prisma.posts.findUnique({ where: { id: parseInt(postId) }});
+        const comment = await prisma.comments.findUnique({ where: { id: parseInt(commentId) }});
+        if (!post || !comment) {
+            return res.status(404).json({ error: "Post ou comentário não encontrado" });
+        }
+
+        await prisma.comments.delete({ where: { id: parseInt(commentId) } });
+        res.status(204).json({ message: "Comentário deletado com sucesso"});
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao deletar like" });
     }
 };

@@ -24,7 +24,7 @@ export const getProjects = async (req , res) => {
                 },
                 images: {
                     select: {
-                        url: true,
+                        content: true,
                     }
                 }
             }
@@ -60,7 +60,7 @@ export const getProjectsByID = async (req, res) => {
                 },
                 images: {
                     select: {
-                        url: true,
+                        content: true,
                     }
                 }
             }
@@ -95,7 +95,7 @@ export const postProject =  async (req, res) => {
                 description,
                 ongId,
                 images: {
-                    create: images && images.length > 0 ? images : [{ url: "https://avatars.githubusercontent.com/u/136519252?v=4" }]
+                    create: images && images.length > 0 ? images : [{ content: "https://avatars.githubusercontent.com/u/136519252?v=4" }]
                 }
             }
         });
@@ -132,7 +132,7 @@ export const putProjectByID = async (req, res) => {
             });
         }
         const filteredImages = images && images.length > 0
-            ? images.filter((image) => !project.images.some(existingImage => existingImage.url === image.url))
+            ? images.filter((image) => !project.images.some(existingImage => existingImage.content === image.content))
             : [];
         const updatedProject = await prisma.projects.update({
             where: { id: parseInt(id) },
@@ -149,7 +149,7 @@ export const putProjectByID = async (req, res) => {
             }
         });
         const { createdAt, updatedAt, updatedImages, ...projectsWithoutTimestamps } = updatedProject;
-        projectsWithoutTimestamps.images = images.map(image => ({ url: image.url }));
+        projectsWithoutTimestamps.images = images.map(image => ({ content: image.content }));
         res.status(200).json(projectsWithoutTimestamps);
     } catch (error) {
         console.log(error);

@@ -14,13 +14,12 @@ interface CreatePostModalProps {
 }
 
 export interface PostData {
-  title: string
   description: string
   userId?: number
   projectId?: number
   hashtags: string[]
   images: {
-    file: File | null
+    content: string
     caption: string
   }[]
 }
@@ -29,6 +28,13 @@ interface ImageWithCaption {
   file: File | null
   preview: string
   caption: string
+  base64?: string
+}
+
+const IMAGE_CONFIG = {
+  maxWidth: 1200,
+  maxHeight: 1200,
+  quality: 0.85,
 }
 
 export default function CreatePostModal({
@@ -39,7 +45,6 @@ export default function CreatePostModal({
   userTitle,
   onPost,
 }: CreatePostModalProps) {
-  const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [images, setImages] = useState<ImageWithCaption[]>([])
   const [hashtags, setHashtags] = useState<string[]>([])
@@ -47,16 +52,14 @@ export default function CreatePostModal({
   const [isHashtagInputVisible, setIsHashtagInputVisible] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [editingImageIndex, setEditingImageIndex] = useState<number | null>(null)
-  const [titleError, setTitleError] = useState(false)
   const [textError, setTextError] = useState(false)
+  const [processingImages, setProcessingImages] = useState(false)
 
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const titleInputRef = useRef<HTMLInputElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
   const hashtagInputRef = useRef<HTMLInputElement>(null)
   const captionInputRef = useRef<HTMLInputElement>(null)
 
-  // Fechar o modal ao clicar fora dele
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -66,37 +69,35 @@ export default function CreatePostModal({
 
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside)
-      document.body.style.overflow = "hidden" // Impedir rolagem do body
+      document.body.style.overflow = "hidden"
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
-      document.body.style.overflow = "auto" // Restaurar rolagem do body
+      document.body.style.overflow = "auto"
     }
   }, [isOpen, onClose])
 
-  // Focar no campo de título quando o modal abrir
   useEffect(() => {
-    if (isOpen && titleInputRef.current) {
-      titleInputRef.current.focus()
+    if (isOpen && textareaRef.current) {
+      setTimeout(() => {
+        textareaRef.current?.focus()
+      }, 100)
     }
   }, [isOpen])
 
-  // Focar no input de hashtag quando ele se tornar visível
   useEffect(() => {
     if (isHashtagInputVisible && hashtagInputRef.current) {
       hashtagInputRef.current.focus()
     }
   }, [isHashtagInputVisible])
 
-  // Focar no input de legenda quando começar a editar
   useEffect(() => {
     if (editingImageIndex !== null && captionInputRef.current) {
       captionInputRef.current.focus()
     }
   }, [editingImageIndex])
 
-  // Limpar recursos quando o componente for desmontado
   useEffect(() => {
     return () => {
       images.forEach((image) => {
@@ -107,48 +108,90 @@ export default function CreatePostModal({
     }
   }, [images])
 
-  // Resetar erros quando o usuário começa a digitar
-  useEffect(() => {
-    if (title.trim()) {
-      setTitleError(false)
-    }
-  }, [title])
-
   useEffect(() => {
     if (description.trim()) {
       setTextError(false)
     }
   }, [description])
 
-  // Resetar o estado quando o modal é fechado
   useEffect(() => {
     if (!isOpen) {
-      setTitleError(false)
       setTextError(false)
     }
   }, [isOpen])
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const resizeImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      img.src = URL.createObjectURL(file)
+      img.onload = () => {
+        let width = img.width
+        let height = img.height
+
+        if (width > IMAGE_CONFIG.maxWidth || height > IMAGE_CONFIG.maxHeight) {
+          const ratio = Math.min(IMAGE_CONFIG.maxWidth / width, IMAGE_CONFIG.maxHeight / height)
+          width = Math.floor(width * ratio)
+          height = Math.floor(height * ratio)
+        }
+
+        const canvas = document.createElement("canvas")
+        canvas.width = width
+        canvas.height = height
+
+        const ctx = canvas.getContext("2d")
+        if (!ctx) {
+          reject(new Error("Não foi possível criar o contexto do canvas"))
+          return
+        }
+
+        ctx.drawImage(img, 0, 0, width, height)
+        const base64 = canvas.toDataURL(file.type, IMAGE_CONFIG.quality)
+        URL.revokeObjectURL(img.src)
+        resolve(base64)
+      }
+
+      img.onerror = () => {
+        URL.revokeObjectURL(img.src)
+        reject(new Error("Erro ao carregar a imagem"))
+      }
+    })
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const filesArray = Array.from(e.target.files)
 
-      // Filtrar apenas imagens
       const imageFiles = filesArray.filter((file) => file.type.startsWith("image/"))
 
-      const newImages = imageFiles.map((file) => ({
-        file,
-        preview: URL.createObjectURL(file),
-        caption: "",
-      }))
+      if (imageFiles.length === 0) return
 
-      setImages((prev) => [...prev, ...newImages])
+      setProcessingImages(true)
+      try {
+        const processedImages = await Promise.all(
+          imageFiles.map(async (file) => {
+            const preview = URL.createObjectURL(file)
+            const base64 = await resizeImage(file)
+            return {
+              file,
+              preview,
+              caption: "",
+              base64,
+            }
+          }),
+        )
+        setImages((prev) => [...prev, ...processedImages])
+      } catch (error) {
+        console.error("Erro ao processar imagens:", error)
+        alert("Ocorreu um erro ao processar as imagens. Por favor, tente novamente.")
+      } finally {
+        setProcessingImages(false)
+      }
     }
   }
 
   const removeImage = (index: number) => {
     setImages((prev) => {
       const newImages = [...prev]
-      // Revogar URL do objeto para evitar vazamento de memória
       if (newImages[index].preview) {
         URL.revokeObjectURL(newImages[index].preview)
       }
@@ -163,10 +206,8 @@ export default function CreatePostModal({
 
   const addHashtag = () => {
     if (newHashtag.trim()) {
-      // Remover o # se o usuário já o incluiu
       const tag = newHashtag.trim().startsWith("#") ? newHashtag.trim() : `#${newHashtag.trim()}`
 
-      // Adicionar apenas se não existir já
       if (!hashtags.includes(tag)) {
         setHashtags((prev) => [...prev, tag])
       }
@@ -199,17 +240,11 @@ export default function CreatePostModal({
   }
 
   const fixImageCaption = (index: number) => {
-    // Confirmar a legenda e sair do modo de edição
     setEditingImageIndex(null)
   }
 
   const validateForm = (): boolean => {
     let isValid = true
-
-    if (!title.trim()) {
-      setTitleError(true)
-      isValid = false
-    }
 
     if (!description.trim()) {
       setTextError(true)
@@ -220,7 +255,6 @@ export default function CreatePostModal({
   }
 
   const handleSubmit = async () => {
-    // Validar formulário
     if (!validateForm()) {
       return
     }
@@ -228,35 +262,28 @@ export default function CreatePostModal({
     setIsSubmitting(true)
 
     try {
-      // Preparar dados para envio
       const postData: PostData = {
-        title: title,
         description: description,
         hashtags,
         images: images.map((img) => ({
-          file: img.file,
+          content: img.base64 || "",
           caption: img.caption,
         })),
       }
 
-      // Chamar a função externa para postar
       await onPost(postData)
 
-      // Limpar e fechar o modal após sucesso
-      setTitle("")
       setDescription("")
       setHashtags([])
       setImages([])
       onClose()
     } catch (error) {
       console.error("Erro ao enviar post:", error)
-      // Aqui você poderia mostrar uma mensagem de erro
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  // Inserir hashtags no texto
   const insertHashtagsInText = () => {
     if (hashtags.length > 0) {
       const hashtagsText = hashtags.join(" ") + " "
@@ -264,12 +291,14 @@ export default function CreatePostModal({
         if (prev.trim().endsWith(hashtagsText.trim())) {
           return prev
         }
-        return prev + (prev && !prev.endsWith(" ") ? " " : "") + hashtagsText
+        return prev + (prev && !prev.endsWith(" ") ? " " : "") + "\n" + hashtagsText
       })
     }
   }
 
-  if (!isOpen) return null
+  if (!isOpen) {
+    return null
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
@@ -312,25 +341,8 @@ export default function CreatePostModal({
           </div>
         </div>
 
-        {/* Campos de título e texto com indicadores de obrigatório */}
+        {/* Campos de texto com indicadores de obrigatório */}
         <div className="px-4 pb-3">
-          <div className="mb-3">
-            <label htmlFor="post-title" className="block text-sm font-medium text-gray-700 mb-1">
-              Título <span className="text-red-500">*</span>
-            </label>
-            <input
-              ref={titleInputRef}
-              id="post-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Adicione um título ao seu post"
-              className={`w-full text-lg font-semibold border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
-                titleError ? "border-red-500 bg-red-50" : "border-gray-300"
-              }`}
-            />
-            {titleError && <p className="text-red-500 text-xs mt-1">O título é obrigatório</p>}
-          </div>
-
           <div className="mb-3">
             <label htmlFor="post-text" className="block text-sm font-medium text-gray-700 mb-1">
               Descrição <span className="text-red-500">*</span>
@@ -389,11 +401,11 @@ export default function CreatePostModal({
                 onChange={(e) => setNewHashtag(e.target.value)}
                 onKeyDown={handleHashtagKeyDown}
                 onBlur={addHashtag}
-                placeholder="Add a hashtag"
+                placeholder="Adicionar hashtag"
                 className="flex-grow border border-gray-300 rounded-l-md px-3 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
               <button onClick={addHashtag} className="bg-blue-600 text-white px-3 py-1 rounded-r-md hover:bg-blue-700">
-                Add
+                Adicionar
               </button>
             </div>
           )}
@@ -459,7 +471,7 @@ export default function CreatePostModal({
                         htmlFor={`image-caption-${index}`}
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Add a caption to this image
+                        Adicionar legenda a esta imagem
                       </label>
                       <div className="flex">
                         <input
@@ -468,7 +480,7 @@ export default function CreatePostModal({
                           type="text"
                           value={image.caption}
                           onChange={(e) => updateImageCaption(index, e.target.value)}
-                          placeholder="What's this image about?"
+                          placeholder="Sobre o que é esta imagem?"
                           className="flex-grow border border-gray-300 rounded-l-md px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
                         <button
@@ -489,7 +501,7 @@ export default function CreatePostModal({
                           >
                             <path d="M20 6 9 17l-5-5" />
                           </svg>
-                          Fix
+                          Adicionar
                         </button>
                       </div>
                     </div>
@@ -536,7 +548,7 @@ export default function CreatePostModal({
                 <path d="M10 3 8 21" />
                 <path d="M16 3l-2 18" />
               </svg>
-              Add hashtag
+              Adicionar hashtag
             </button>
 
             {hashtags.length > 0 && (
@@ -560,7 +572,7 @@ export default function CreatePostModal({
                   <path d="m11 15 5-5c1-1 2.1-1 3 0l5 5" />
                   <path d="M3 9h18" />
                 </svg>
-                Insert hashtags in text
+                Inserir hashtags no texto
               </button>
             )}
           </div>
@@ -571,7 +583,14 @@ export default function CreatePostModal({
           <div className="flex space-x-4">
             {/* Botão de imagem - apenas imagens são permitidas */}
             <label className="cursor-pointer text-gray-500 hover:bg-gray-100 p-2 rounded-full">
-              <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleFileChange}
+                disabled={processingImages}
+              />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -582,21 +601,41 @@ export default function CreatePostModal({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="text-blue-500"
+                className={`${processingImages ? "text-gray-400" : "text-blue-500"}`}
               >
                 <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
                 <circle cx="9" cy="9" r="2" />
                 <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
               </svg>
             </label>
+            {processingImages && (
+              <div className="flex items-center text-sm text-gray-500">
+                <svg
+                  className="animate-spin mr-2 h-4 w-4 text-blue-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Processando imagens...
+              </div>
+            )}
           </div>
 
           {/* Botão de publicar */}
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || processingImages}
             className={`px-4 py-1.5 rounded-full font-medium flex items-center ${
-              isSubmitting ? "bg-gray-200 text-gray-400 cursor-not-allowed" : "bg-blue-600 text-white hover:bg-blue-700"
+              isSubmitting || processingImages
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
           >
             {isSubmitting ? (
@@ -614,13 +653,22 @@ export default function CreatePostModal({
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Posting...
+                Publicando...
               </>
             ) : (
-              "Post"
+              "Publicar"
             )}
           </button>
         </div>
+        {/* Informações sobre resolução de imagem */}
+        {images.length > 0 && (
+          <div className="px-4 py-2 border-t text-xs text-gray-500">
+            <p>
+              As imagens serão redimensionadas para uma resolução máxima de {IMAGE_CONFIG.maxWidth}x
+              {IMAGE_CONFIG.maxHeight} pixels, mantendo a proporção original.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

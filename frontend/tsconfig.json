@@ -21,6 +21,7 @@
     "baseUrl": "src",
     "paths": {
       "@/api/*": ["app/api/*"],
+      "@/interfaces/*": ["interfaces/*"],
       "@/components/*": ["components/*"],
       "@/context/*": ["context/*"],
       "@/styles/*": ["styles/*"]

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react"
+import type { Ong } from "@/interfaces/index"
 
 export default function OngHeader({ id }: { id: number }) {
-    const [ong, setOng] = useState(null);
+    const [ong, setOng] = useState<Ong[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -50,7 +51,7 @@ export default function OngHeader({ id }: { id: number }) {
             <div className="absolute -top-16 left-8">
                 <div className="h-32 w-32 rounded-full border-4 border-white overflow-hidden">
                     <img
-                        src={ong?.images[0].url || "/placeholder.svg?height=40&width=40"}
+                        src={ong?.images[0].content || "/placeholder.svg?height=40&width=40"}
                         alt={ong?.name || "Carregando..."}
                         className="h-full w-full object-cover"
                     />

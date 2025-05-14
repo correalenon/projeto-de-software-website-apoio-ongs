@@ -5,15 +5,24 @@ import { useEffect, useState } from "react"
 export default function RecentActivity() {
     const [activities, setActivities] = useState([]);
     
+    async function loadActivities() {
+        const response = await fetch('/api/activities', {
+            method: 'GET'
+        });
+        const activitiesData = await response.json();
+        setActivities(activitiesData || []);
+    }
+
     useEffect(() => {
-        async function loadActivities() {
-            const response = await fetch('/api/activities', {
-                method: 'GET'
-            });
-            const activitiesData = await response.json();
-            setActivities(activitiesData || []);
-        }
-        loadActivities()
+        loadActivities();
+    }, []);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            loadActivities();
+        }, 60000); // 60.000 ms = 60s
+
+        return () => clearInterval(interval);
     }, []);
 
     return (

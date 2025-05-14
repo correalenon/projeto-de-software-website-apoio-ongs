@@ -2,9 +2,10 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import type { Ong } from "@/interfaces/index"
 
 export default function OngsInteresting() {
-    const [ongs, setOngs] = useState([]);
+    const [ongs, setOngs] = useState<Ong[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     
     useEffect(() => {
@@ -42,7 +43,7 @@ export default function OngsInteresting() {
                             <div className="h-20 w-20 rounded-full overflow-hidden mb-3">
                                 {ong.images.length > 0 && (
                                     <img
-                                    src={ong.images[0].url}
+                                    src={ong.images[0].content}
                                     alt={ong.name}
                                     className="h-full w-full object-cover"
                                 />

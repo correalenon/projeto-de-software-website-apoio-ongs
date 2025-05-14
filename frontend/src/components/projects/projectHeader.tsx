@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react"
+import type { Project } from "@/interfaces/index";
 
 export default function ProjectHeader({ id }: { id: number }) {
-    const [project, setProject] = useState(null);
+    const [project, setProject] = useState<Project[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -50,7 +51,7 @@ export default function ProjectHeader({ id }: { id: number }) {
             <div className="absolute -top-16 left-8">
                 <div className="h-32 w-32 rounded-full border-4 border-white overflow-hidden">
                     <img
-                        src={project?.images[0].url || "/placeholder.svg?height=40&width=40"}
+                        src={project?.images[0].content || "/placeholder.svg?height=40&width=40"}
                         alt={project?.name || "Carregando..."}
                         className="h-full w-full object-cover"
                     />

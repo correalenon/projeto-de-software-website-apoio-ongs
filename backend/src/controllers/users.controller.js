@@ -36,7 +36,7 @@ export const getMe = async (req, res) => {
                         contact: true,
                         images: {
                             select: {
-                                url: true,
+                                content: true,
                             },
                         },
                     },
@@ -90,7 +90,7 @@ export const getUsers = async (req, res) => {
                         contact: true,
                         images: {
                             select: {
-                                url: true
+                                content: true
                             }
                         }
                     }
@@ -136,7 +136,7 @@ export const getUserByID = async (req, res) => {
                         contact: true,
                         images: {
                             select: {
-                                url: true
+                                content: true
                             }
                         }
                     }

@@ -19,7 +19,7 @@ export const getOngs = async (req, res) => {
                 description: true,
                 images: {
                     select: {
-                        url: true,
+                        content: true,
                     }
                 }
             }
@@ -50,7 +50,7 @@ export const getOngByID = async (req, res) => {
                 description: true,
                 images: {
                     select: {
-                        url: true,
+                        content: true,
                     }
                 }
             }
@@ -82,7 +82,7 @@ export const postOng = async (req, res) => {
                 contact,
                 description,
                 images: {
-                    create: images && images.length > 0 ? images : [{ url: "https://avatars.githubusercontent.com/u/136519252?v=4" }]
+                    create: images && images.length > 0 ? images : [{ content: "https://avatars.githubusercontent.com/u/136519252?v=4" }]
                 }
             }
         });
@@ -106,7 +106,7 @@ export const putOngByID = async (req, res) => {
             return res.status(400).json({ error: "Já existe uma ONG com este CNPJ" });
         }
         const filteredImages = images && images.length > 0
-            ? images.filter((image) => !ong.images.some(existingImage => existingImage.url === image.url))
+            ? images.filter((image) => !ong.images.some(existingImage => existingImage.content === image.content))
             : [];
         const updatedOng = await prisma.ongs.update({
             where: { id: parseInt(id) },
@@ -125,7 +125,7 @@ export const putOngByID = async (req, res) => {
             }
         });
         const { createdAt, updatedAt, updatedImages, ...ongWithoutTimestamps } = updatedOng;
-        ongWithoutTimestamps.images = images.map(image => ({ url: image.url }));
+        ongWithoutTimestamps.images = images.map(image => ({ content: image.content }));
         res.status(200).json(ongWithoutTimestamps);
     } catch (error) {
         res.status(500).json({ error: "Erro ao atualizar ONG" });
