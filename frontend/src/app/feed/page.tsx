@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Header from "@/components/header"
-import Feed from "@/components/feed"
+import Feed from "@/components/feed/feed"
 import RecentActivity from "@/components/recentActivity"
 import Footer from "@/components/footer"
 import CreatePostModal, { type PostData } from "@/components/createPostModal"
@@ -19,9 +19,13 @@ export default function HomePage() {
       postData.userId = user?.id;
       postData.projectId = 1;
       const response = await fetch('/api/posts', {
-          method: 'POST',
+          method: "POST",
           body: JSON.stringify(postData)
       });
+      if (!response.ok) {
+        console.log("Erro ao publicar o post", await response.json());
+        throw new Error("Falha ao publicar o post")
+      }
       setReloadTrigger(prev => prev + 1);
     } catch (error) {
       throw new Error("Erro ao publicar o post");
@@ -33,7 +37,6 @@ export default function HomePage() {
       {/* Header */}
       <Header />
 
-      {/* Resto do conteúdo da página inicial permanece o mesmo */}
       {/* Conteúdo principal */}
       <main className="container px-4 py-6 mx-auto">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
@@ -43,26 +46,16 @@ export default function HomePage() {
               <div className="h-16 bg-blue-600 rounded-t-lg"></div>
               <div className="flex justify-center -mt-8">
                 <div className="h-16 w-16 rounded-full border-4 border-white overflow-hidden">
-                  {user?.profileImage? (
+                  {user?.profileImage ? (
                       <img
-                          src={user.profileImage || "Carregando..."}
-                          alt={user.name || "Carregando..."}
+                          src={user.profileImage || "/placeholder.svg?height=64&width=64"}
+                          alt={user?.name || "Usuário"}
                           className="h-full w-full object-cover"
                       />
                     ) : (
-                      "Carregando..."
-                  )}
-                  {user?.profileImage? (
-                    <CreatePostModal
-                      isOpen={isPostModalOpen}
-                      onClose={() => setIsPostModalOpen(false)}
-                      userImage={user.profileImage || "Carregando..."}
-                      userName={user.name || "Carregando..."}
-                      userTitle={user.role || "Carregando..."}
-                      onPost={handlePost}
-                    />
-                    ) : (
-                      "Carregando..."
+                      <div className="h-full w-full bg-gray-300 flex items-center justify-center">
+                        <span className="text-gray-600 font-semibold">{user?.name?.charAt(0) || "U"}</span>
+                      </div>
                   )}
                 </div>
               </div>
@@ -73,21 +66,25 @@ export default function HomePage() {
               <div className="border-t border-b my-3 py-3">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Visualizações do Perfil</span>
-                  <span className="font-semibold text-blue-600">{user?.views !== undefined ? user.views : "Carregando..."}</span>
+                  <span className="font-semibold text-blue-600">
+                    {user?.views !== undefined ? user.views : "Carregando..."}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm mt-2">
                   <span className="text-gray-500">Conexões</span>
-                    <span className="font-semibold text-blue-600">{user?.connections !== undefined ? user.connections : "Carregando..."}</span>
+                    <span className="font-semibold text-blue-600">
+                      {user?.connections !== undefined ? user.connections : "Carregando..."}
+                    </span>
                 </div>
                 <div className="flex justify-between text-sm mt-2">
                   <span className="text-gray-500">Atividades</span>
-                    <span className="font-semibold text-blue-600">{user?.activity ? user.activity.length : "Carregando..."}</span>
+                    <span className="font-semibold text-blue-600">
+                      {user?.activity ? user.activity.length : "Carregando..."}
+                    </span>
                 </div>
               </div>
             </div>
           </div>
-            {/* Modal de criação de post */}
-            
 
           {/* Main Content */}
           <div className="md:col-span-2 space-y-4">
@@ -95,7 +92,17 @@ export default function HomePage() {
             <div className="bg-white p-4 rounded-lg shadow">
               <div className="flex gap-3">
                 <div className="h-10 w-10 rounded-full overflow-hidden">
-                  <img src="/placeholder.svg?height=40&width=40" alt="User" className="h-full w-full object-cover" />
+                  {user?.profileImage ? (
+                    <img
+                      src={user.profileImage || "/placeholder.svg"}
+                      alt={user.name || "Usuário"}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full bg-gray-300 flex items-center justify-center">
+                      <span className="text-gray-600 font-semibold">{user?.name?.charAt(0) || "U"}</span>
+                    </div>
+                  )}
                 </div>
                 <button
                   onClick={() => setIsPostModalOpen(true)}
@@ -116,6 +123,17 @@ export default function HomePage() {
           
         </div>
       </main>
+
+      {/* Modal de criação de post */}
+      <CreatePostModal
+        isOpen={isPostModalOpen}
+        onClose={() => setIsPostModalOpen(false)}
+        userImage={user?.profileImage || "/placeholder.svg?height=40&width=40"}
+        userName={user?.name || "Usuário"}
+        userTitle={user?.role || ""}
+        onPost={handlePost}
+      />
+
       {/* Footer */}
       <Footer />  
     </div>

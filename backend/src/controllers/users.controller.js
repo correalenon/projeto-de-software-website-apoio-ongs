@@ -38,7 +38,14 @@ export const getMe = async (req, res) => {
                         id: true,
                         nameONG: true,
                         emailONG: true,
-                    }
+                        cnpj: true,
+                        contact: true,
+                        images: {
+                            select: {
+                                content: true,
+                            },
+                        },
+                    },
                 },
                 contributions: true,
                 profileImage: true,
@@ -87,6 +94,13 @@ export const getUsers = async (req, res) => {
                         id: true,
                         nameONG: true,
                         emailONG: true,
+                        cnpj: true,
+                        contact: true,
+                        images: {
+                            select: {
+                                content: true
+                            }
+                        }
                     }
                 },
             }
@@ -127,6 +141,13 @@ export const getUserByID = async (req, res) => {
                         id: true,
                         nameONG: true,
                         emailONG: true,
+                        cnpj: true,
+                        contact: true,
+                        images: {
+                            select: {
+                                url: true
+                            }
+                        }
                     }
                 },
             }

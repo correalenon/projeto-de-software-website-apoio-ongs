@@ -83,6 +83,18 @@ async function main() {
                     socialMedia: faker.lorem.words(),
                     nameLegalGuardian: faker.person.fullName(),
                     description: faker.lorem.paragraph(),
+                    userId: Math.floor(Math.random() * 10) + 1,
+                    images: {
+                        create: [
+                            {
+                                content: faker.image.dataUri({ 
+                                    width: 640,
+                                    height: 480,
+                                    type: 'svg-base64' 
+                                })
+                            }
+                        ]
+                    }
                 },
             });
         }
@@ -100,7 +112,11 @@ async function main() {
                     images: {
                         create: [
                             {
-                                url: faker.image.urlLoremFlickr({ category: 'nature' }),
+                                content: faker.image.dataUri({ 
+                                    width: 640,
+                                    height: 480,
+                                    type: 'svg-base64' 
+                                })
                             }
                         ]
                     }
@@ -110,40 +126,30 @@ async function main() {
     }
 
     for (let i = 0; i < 5; i++) {
-        const title = faker.book.title();
-        const existingProject = await prisma.posts.findFirst({ where: { title } });
-        if (!existingProject) {
-            await prisma.posts.create({
-                data: {
-                    title,
-                    description: faker.lorem.paragraph(),
-                    userId: Math.floor(Math.random() * 5) + 1,
-                    projectId: Math.floor(Math.random() * 5) + 1,
-                    images: {
-                        create: [
-                            {
-                                url: faker.image.urlLoremFlickr({ category: 'nature' })
-                            }
-                        ]
-                    },
-                    tags: {
-                        create: [
-                            {
-                                name: faker.book.genre()
-                            }
-                        ]
-                    }
-                },
-            });
-        }
-    }
-
-    for (let i = 0; i < 5; i++) {
-        await prisma.likes.create({
+        await prisma.posts.create({
             data: {
+                description: faker.lorem.paragraph(),
                 userId: Math.floor(Math.random() * 5) + 1,
-                postId: Math.floor(Math.random() * 5) + 1,
-            }
+                projectId: Math.floor(Math.random() * 5) + 1,
+                images: {
+                    create: [
+                        {
+                            content: faker.image.dataUri({ 
+                                width: 640,
+                                height: 480,
+                                type: 'svg-base64' 
+                            })
+                        }
+                    ]
+                },
+                tags: {
+                    create: [
+                        {
+                            name: faker.book.genre()
+                        }
+                    ]
+                }
+            },
         });
     }
 

@@ -86,14 +86,17 @@ export const getOngs = async (req, res) => {
                 socialMedia: true,
                 nameLegalGuardian: true,
                 description: true,
-                profileImage: true,
-                coverImage: true
+                images: {
+                    select: {
+                        content: true,
+                    }
                 }
-            });
-
-            if (!ongs) {
-                return res.status(500).json({error: `Erro ao buscar ONGS`});
             }
+        });
+
+        if (!ongs) {
+            return res.status(500).json({error: `Erro ao buscar ONGS`});
+        }
 
         res.status(200).json(ongs);
     } catch (error) {
@@ -130,8 +133,14 @@ export const getOngByID = async (req, res) => {
                 projects: {
                     select: {
                         name: true,
-                        description: true,
-                        images: true
+                        email: true,
+                    }
+                },
+                contact: true,
+                description: true,
+                images: {
+                    select: {
+                        content: true,
                     }
                 }
             }
@@ -153,7 +162,7 @@ export const postOng = async (req, res) => {
         if (existingOng) {
             return res.status(400).json({ error: "Já existe uma ONG com este CNPJ" });
         }
-
+        
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const data = {
@@ -185,7 +194,6 @@ export const postOng = async (req, res) => {
         const newOng = await prisma.ongs.create({data});
 
         const { password: _, updatedAt, ...ongWithoutTimestamps } = newOng;
-
         res.status(201).json(ongWithoutTimestamps);
     } catch (error) {
         res.status(500).json({ error: "Erro ao criar ONG" });
@@ -201,7 +209,7 @@ export const putOngByID = async (req, res) => {
         }
 
         const { id } = req.params;
-    const { nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
+        const { nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
         state, cellphone, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description} = req.body;
 
         const ong = await prisma.ongs.findUnique({ where: { id: parseInt(id) } });

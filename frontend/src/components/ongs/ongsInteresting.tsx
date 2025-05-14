@@ -2,9 +2,10 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
+import type { Ong } from "@/interfaces/index"
 
 export default function OngsInteresting() {
-    const [ongs, setOngs] = useState([]);
+    const [ongs, setOngs] = useState<Ong[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     
     useEffect(() => {

@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
         });
 
         if (!response.ok) {
-          return NextResponse.json({ error: 'Erro ao buscar posts' }, { status: response.status });
+            return NextResponse.json({ error: await response.json() }, { status: response.status });
         }
         return NextResponse.json(await response.json(), { status: response.status });
     } catch (error) {

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react"
+import type { Ong } from "@/interfaces/index"
 
 export default function AboutSection({ id }: { id: number }) {
-    const [ong, setOng] = useState(null);
+    const [ong, setOng] = useState<Ong[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
