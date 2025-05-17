@@ -16,16 +16,17 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: await response.json() }, { status: response.status });
         }
       
-        const { token } = await response.json();
-        const res = NextResponse.json({ message: 'Login bem-sucedido' });
+        const { token, role } = await response.json();
+
+        const res = NextResponse.json({ message: role });
         res.cookies.set({
             name: 'token',
             value: token,
             httpOnly: true,
             path: '/',
             maxAge: 60 * 60
-        });
-        
+            
+        });        
         return res;
     } catch (error) {
         throw error;

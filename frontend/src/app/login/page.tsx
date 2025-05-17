@@ -5,12 +5,14 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Footer from "@/components/footer"
 import { useUser } from "@/context/userContext"
+import { POST } from "@/api/logout/route"
 
 export default function LoginPage() {
   const { setUser } = useUser()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [info, setInfo] = useState("")
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,20 +28,48 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password })
       });
 
+      const data = await response.json();
 
       if (response.ok && response.status === 200) {
-        const response = await fetch('/api/users/me', {
-          method: 'GET'
-        });
-        if (!response.ok) {
-          setError("Erro ao buscar usuário")
-          return
+
+        if (data.message !== "ONG") {
+          const response = await fetch('/api/users/me', {
+            method: 'GET'
+          });
+          if (!response.ok) {
+            setError("Erro ao buscar usuário")
+            return
+          }
+          const userData = await response.json();
+          setUser(userData);
         }
-        const userData = await response.json();
-        setUser(userData);
+        else {
+          setInfo('Login de ONG em desenvolvimento...');
+
+          const response = await fetch('/api/logout', {
+          method: 'POST',
+          });
+          if (!response.ok) {
+            return
+          }
+          router.push("/login")
+
+          // const response = await fetch('/api/ongs/me', {
+          //   method: 'GET'
+          // });
+
+          // if (!response.ok) {
+          //   setError("Erro ao buscar ONG")
+          //   return
+          // }
+          // const ongData = await response.json();
+          // setOng(ongData);
+        }
+      }
+
         router.push('/feed');
         router.refresh();
-      }
+      
       if (!response.ok && response.status === 401) {
         setError("Email ou senha inválidos");
         return
@@ -100,6 +130,10 @@ export default function LoginPage() {
 
             {error && (
               <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>
+            )}
+
+            {info && (
+              <div className="mb-4 p-3 bg-blue-100 text-blue-700 rounded-md text-sm">{info}</div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
