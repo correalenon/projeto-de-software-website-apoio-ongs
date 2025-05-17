@@ -5,7 +5,6 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Footer from "@/components/footer"
 import { useUser } from "@/context/userContext"
-import { POST } from "@/api/logout/route"
 
 export default function LoginPage() {
   const { setUser } = useUser()
@@ -17,6 +16,9 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    setError("")
+    setInfo("")
 
     if (!email || !password) {
       setError("Por favor, preencha todos os campos")

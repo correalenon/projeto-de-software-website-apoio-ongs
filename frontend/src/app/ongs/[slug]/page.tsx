@@ -1,6 +1,8 @@
 import Header from "@/components/header";
 import OngHeader from "@/components/ongs/ongHeader";
 import AboutSection from "@/components/ongs/aboutOngSection";
+import ContactSection from "@/components/ongs/contactOngSection";
+import AddressSection from "@/components/ongs/addressOngSection";
 import OngProjects from "@/components/ongs/ongProjects";
 import Footer from "@/components/footer";
 
@@ -17,6 +19,12 @@ export default async function RootLayout({children, params }: { children: React.
 
                 {/* About Section */}
                 <AboutSection id={slug} />
+
+                {/* Contact Section */}
+                <ContactSection id={slug} />
+
+                {/* Address Section */}
+                <AddressSection id={slug} />
 
                 {/* Projects Section */}
                 <OngProjects id={slug} />

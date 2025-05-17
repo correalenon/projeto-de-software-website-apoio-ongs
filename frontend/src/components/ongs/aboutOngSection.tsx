@@ -1,58 +1,60 @@
 "use client";
 
-import { useEffect, useState } from "react"
-import type { Ong } from "@/interfaces/index"
+import { useEffect, useState } from "react";
+import type { Ong } from "@/interfaces/index";
 
 export default function AboutSection({ id }: { id: number }) {
-    const [ong, setOng] = useState<Ong[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+  const [ong, setOng] = useState<Ong | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        async function loadOng() {
-            setIsLoading(true);
-            const response = await fetch('/api/ongs/' + id, {
-                method: 'GET'
-            });
-            const ongData = await response.json();
-            setOng(ongData);
-            setIsLoading(false);
-        }
-        loadOng()
-    }, []);
-
-    if (isLoading) {
-        return (
-            <div className="bg-white rounded-lg shadow p-4">
-                <h3 className="text-base font-medium mb-4">Carregando Ong...</h3>
-            </div>
-        );
+  useEffect(() => {
+    async function loadOng() {
+      try {
+        const response = await fetch('/api/ongs/' + id);
+        const data = await response.json();
+        setOng(data);
+      } finally {
+        setIsLoading(false);
+      }
     }
+    loadOng();
+  }, [id]);
 
+  if (isLoading || !ong) {
     return (
-        <div className="bg-white rounded-lg shadow">
-            <div className="flex flex-row items-center justify-between p-4">
-                <h3 className="text-lg font-medium">Sobre</h3>
-                <button className="p-2 rounded-full hover:bg-gray-100">
-                    <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    >
-                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                    </svg>
-                </button>
-            </div>
-            <div className="px-4 pb-4">
-                <p>
-                    {ong?.description || "Carregando..."}
-                </p>
-            </div>
-        </div>
-    )
+      <div className="bg-white rounded-lg shadow p-4 text-center">
+        <h3 className="text-base font-medium">Carregando informações...</h3>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-lg shadow mb-6">
+      <div className="px-6 py-4 border-b">
+        <h2 className="text-xl font-semibold text-gray-800">Sobre a ONG</h2>
+      </div>
+
+      <div className="px-6 py-4 space-y-4">
+        {/* Descrição */}
+        {ong.description && (
+          <div>
+            <h3 className="text-lg font-medium text-gray-700 mb-1">Descrição</h3>
+            <p className="text-gray-600 text-justify leading-relaxed">
+              {ong.description}
+            </p>
+          </div>
+        )}
+
+        {/* Objetivos */}
+        {ong.goals && (
+          <div>
+            <h3 className="text-lg font-medium text-gray-700 mb-1">Objetivos</h3>
+            <p className="text-gray-600 text-justify leading-relaxed whitespace-pre-line">
+              {ong.goals}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
