@@ -29,6 +29,15 @@ export default function ContactSection({ id }: { id: number }) {
     );
   }
 
+function fixUrl(url: string) {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return 'http://' + url;
+}
+
+
   return (
     <div className="bg-white rounded-lg shadow mb-6">
       <div className="px-6 py-4 border-b">
@@ -54,15 +63,16 @@ export default function ContactSection({ id }: { id: number }) {
           <div className="flex items-center gap-3 text-gray-700">
             <FaGlobe className="text-blue-600" />
             <a
-              href={ong.socialMedia}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={fixUrl(ong.socialMedia)}          
+              target="_blank"                 
+              rel="noopener noreferrer"       
               className="text-blue-600 hover:underline break-all"
             >
               {ong.socialMedia}
             </a>
           </div>
         )}
+
       </div>
     </div>
   );

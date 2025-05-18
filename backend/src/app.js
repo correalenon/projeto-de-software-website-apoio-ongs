@@ -16,7 +16,7 @@ function validateDatabaseConnection() {
 validateDatabaseConnection();
 
 const app = express();
-app.use(express.json({ limit: "5mb" }));
+app.use(express.json({ limit: "1000mb" }));
 app.use(cors({
     origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],

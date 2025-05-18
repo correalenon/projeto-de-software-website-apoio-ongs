@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Ong } from "@/interfaces/index";
+import { noProfileImageONG } from "app/images";
 
 export default function OngHeader({ id }: { id: number }) {
   const [ong, setOng] = useState<Ong | null>(null);
@@ -45,7 +46,7 @@ export default function OngHeader({ id }: { id: number }) {
         <div className="absolute -top-16 left-6">
           <div className="h-32 w-32 rounded-full border-4 border-white shadow-md overflow-hidden bg-white">
             <img
-              src={ong.profileImage || "/placeholder-profile.png"}
+              src={ong.profileImage || noProfileImageONG}
               alt={ong.nameONG}
               className="h-full w-full object-cover"
             />

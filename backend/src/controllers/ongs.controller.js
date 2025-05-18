@@ -106,6 +106,7 @@ export const getOngByID = async (req, res) => {
             select: {
                 id: true,
                 nameONG: true,
+                socialName: true,
                 cnpj: true,
                 foundationDate: true,
                 area: true,
@@ -204,7 +205,7 @@ export const putOngByID = async (req, res) => {
 
         const { id } = req.params;
         const { nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
-        state, cellphone, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description} = req.body;
+        state, cellphone, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description, profileImage, coverImage} = req.body;
 
         const ong = await prisma.ongs.findUnique({ where: { id: parseInt(id) } });
 
@@ -212,9 +213,12 @@ export const putOngByID = async (req, res) => {
             return res.status(404).json({ error: "ONG não encontrada" });
         }
 
-        const existingOngCNPJ = await prisma.ongs.findUnique({ where: { cnpj } });
-        if (existingOngCNPJ && existingOngCNPJ.id !== parseInt(id)) {
-            return res.status(400).json({ error: "Já existe uma ONG com este CNPJ" });
+        if (cnpj) {
+            const existingOngCNPJ = await prisma.ongs.findUnique({ where: { cnpj } });
+
+            if (existingOngCNPJ && existingOngCNPJ.id !== parseInt(id)) {
+                return res.status(400).json({ error: "Já existe uma ONG com este CNPJ" });
+            }
         }
 
         const data = { };
@@ -231,6 +235,7 @@ export const putOngByID = async (req, res) => {
         if (cellphoneLegalGuardian) data.cellphoneLegalGuardian = cellphoneLegalGuardian;
         if (nameONG) data.nameONG = nameONG;
         if (socialName) data.socialName = socialName;
+        if (number) data.number = number;
         if (cnpj) data.cnpj = cnpj;
         if (foundationDate) data.foundationDate = new Date(foundationDate);
         if (area) data.area = area;
@@ -243,7 +248,7 @@ export const putOngByID = async (req, res) => {
 
         const updatedOng = await prisma.ongs.update({ where: { id: parseInt(id) }, data});
 
-        const { createdAt, updatedAt, updatedImages, ...ongWithoutTimestamps } = updatedOng;
+        const { createdAt, updatedAt, updatedImages, password, ...ongWithoutTimestamps } = updatedOng;
 
         res.status(200).json(ongWithoutTimestamps);
     } catch (error) {

@@ -17,7 +17,7 @@ export default function OngsProjectsSidebar() {
         }
         loadOngs();
         async function loadProjects() {
-            const response = await fetch('/api/ongs', {
+            const response = await fetch('/api/projects', {
                 method: 'GET'
             });
             const fetchedProjects = await response.json();

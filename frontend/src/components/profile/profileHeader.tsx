@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import EditProfileModal, { type ProfileData } from "@/components/profile/editProfileModal"
 import { useUser } from "@/context/userContext"
+import { noProfileImageUser} from "../../app/images"
 
 
 export default function ProfileHeader() {
@@ -69,7 +70,7 @@ export default function ProfileHeader() {
             <div className="absolute -top-16 left-8">
                 <div className="h-32 w-32 rounded-full border-4 border-white overflow-hidden">
                     <img
-                        src={profileData.profileImage || "Carregando..."}
+                        src={profileData.profileImage || noProfileImageUser}
                         alt={profileData.name || "Carregando..."}
                         className="h-full w-full object-cover"
                     />
