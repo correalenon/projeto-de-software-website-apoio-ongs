@@ -1,67 +1,65 @@
-"use client";
+"use client"; 
 
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import type { Project } from "@/interfaces/index"
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import type { Project } from "@/interfaces/index";
 
 export default function OngProjects({ id }: { id: number }) {
-    const [projects, setProjects] = useState<Project[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    
-    useEffect(() => {
-        async function loadProjects() {
-            setIsLoading(true);
-            const response = await fetch('/api/projects', {
-                method: 'GET'
-            });
-            const fetchedProjects = await response.json();
-            setProjects(fetchedProjects || []);
-            setIsLoading(false);
-        }
-        loadProjects();
-    }, []);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-    if (isLoading) {
-        return (
-            <div className="bg-white rounded-lg shadow p-4">
-                <h3 className="text-base font-medium mb-4">Carregando Projetos...</h3>
-            </div>
-        );
+  useEffect(() => {
+    async function loadProjects() {
+      try {
+        const ongIdNum = Number(id);
+        const response = await fetch('/api/projects');
+        const allProjects = await response.json();
+        const filtered = allProjects.filter((p: Project) => p.ongId === ongIdNum);
+        setProjects(filtered || []);
+      } finally {
+        setIsLoading(false);
+      }
     }
+    loadProjects();
+  }, [id]);
 
+  if (isLoading) {
     return (
-        <div className="bg-white rounded-lg shadow">
-            <div className="p-4">
-                <h3 className="text-base font-medium mb-4 text-center">Principais projetos desta ONG</h3>
-            </div>
-            <div className="p-4 pt-0">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {projects.map((project, i) => (
-                    <div key={i} className="border rounded-lg bg-white">
-                        <div className="p-4">
-                        <div className="flex flex-col items-center text-center">
-                            <div className="h-20 w-20 rounded-full overflow-hidden mb-3">
-                            {project.images.length > 0 && (
-                                <img
-                                    src={project.images[0].content}
-                                    alt={project.name}
-                                    className="h-full w-full object-cover"
-                                />
-                            )}
-                            </div>
-                            <h4 className="font-medium">{project.name}</h4>
-                            <p className="text-xs text-gray-500 mb-3"></p>
-                            <Link href={`/projects/${project.id}`} className="w-full border border-gray-300 rounded py-1 px-3 hover:bg-gray-50">
-                                <button>
-                                    Visualizar Projeto
-                                </button>
-                            </Link>
-                        </div>
-                        </div>
-                    </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    )
+      <div className="bg-white rounded-lg shadow p-4 text-center">
+        <h3 className="text-base font-medium">Carregando projetos...</h3>
+      </div>
+    );
+  }
+
+  return (
+<div className="bg-white rounded-lg shadow mb-6">
+  <div className="px-6 py-4 border-b">
+    <h2 className="text-xl font-semibold text-gray-800 text-center">Projetos da ONG</h2>
+  </div>
+
+  <div className="px-6 py-4">
+    {projects.length === 0 ? (
+      <p className="text-center text-gray-500">Nenhum projeto cadastrado ainda.</p>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {projects.map((project, i) => (
+          <div key={i} className="border rounded-lg hover:shadow-md transition">
+            {project.images.length > 0 && (
+              <Link legacyBehavior href={`/projects/${project.id}`} passHref>
+                <a className="block h-48 w-full overflow-hidden rounded-t-lg cursor-pointer">
+                  <img
+                    src={project.images[0].content}
+                    alt={project.name}
+                    className="h-full w-full object-cover"
+                  />
+                </a>
+              </Link>
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
+  );
 }

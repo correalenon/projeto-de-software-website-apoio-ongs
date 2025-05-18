@@ -15,6 +15,7 @@ export const getProjects = async (req , res) => {
                         cellphone: true
                     }
                 },
+                ongId: true,
                 images: {
                     select: {
                         content: true,
