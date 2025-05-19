@@ -50,7 +50,7 @@ export default function ProjectsInteresting() {
                             )}
                             </div>
                             <h4 className="font-medium">{project.name}</h4>
-                            <p className="text-sm text-gray-500 mb-2">{project.cnpj}</p>
+                            <p className="text-sm text-gray-500 mb-2">{project.description}</p>
                             <p className="text-xs text-gray-500 mb-3">
                             <span className="inline-flex items-center">
                                 <svg
@@ -70,7 +70,7 @@ export default function ProjectsInteresting() {
                                 <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                                 </svg>
-                                {/* ONG: {project.ong.name} */}
+                                ONG: {project.ong.nameONG}
                             </span>
                             </p>
                             <Link href={`/projects/${project.id}`} className="w-full border border-gray-300 rounded py-1 px-3 hover:bg-gray-50">

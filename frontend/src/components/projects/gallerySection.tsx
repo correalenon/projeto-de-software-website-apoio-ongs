@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { Project } from "@/interfaces/index";
 // import { noProfileImageProject } from "app/images";
 
-export default function ProjectHeader({ id }: { id: number }) {
+export default function GallerySection({ id }: { id: number }) {
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -24,23 +24,23 @@ export default function ProjectHeader({ id }: { id: number }) {
   if (isLoading || !project) {
     return (
       <div className="bg-white rounded-lg shadow p-4 text-center">
-        <h3 className="text-base font-medium">Carregando informações da Projeto...</h3>
+        <h3 className="text-base font-medium">Carregando informações do Projeto...</h3>
       </div>
     );
   }
-
   return (
-    <div className="relative h-64 rounded-lg overflow-hidden shadow">
-      <img
-        src={project.coverImage || "/projeto-capa.jpg"}
-        alt="Foto de capa do projeto"
-        className="w-full h-full object-cover"
-      />
-      <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent p-4">
-        <h1 className="text-white text-2xl font-bold">{project.name}</h1>
-        <p className="text-gray-200 text-sm">
-          Vinculado à ONG: <span className="font-semibold">{project.ong.nameONG}</span>
-        </p>
+    <div className="bg-white rounded-lg p-6 shadow">
+      <h2 className="text-lg font-semibold mb-4">Galeria</h2>
+      <div className="flex gap-4 overflow-x-auto pb-2">
+        {project.images.map((img, i) => (
+          <div key={i} className="min-w-[200px] h-40 rounded overflow-hidden shadow">
+            <img
+              src={img}
+              alt={`Foto ${i + 1}`}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
