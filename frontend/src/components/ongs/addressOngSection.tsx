@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Ong } from "@/interfaces/index";
-import { FaMapMarkerAlt } from "react-icons/fa"; // Opcional, caso queira ícone
+import { FaMapMarkerAlt } from "react-icons/fa";
 
 export default function AddressSection({ id }: { id: number }) {
   const [ong, setOng] = useState<Ong | null>(null);

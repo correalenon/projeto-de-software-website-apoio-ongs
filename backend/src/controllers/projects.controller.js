@@ -43,6 +43,13 @@ export const getProjectsByID = async (req, res) => {
                         id: true,
                         nameONG: true,
                         cellphone: true,
+                        emailONG: true,
+                        street: true,
+                        number: true,
+                        complement: true,
+                        city: true,
+                        district: true,
+                        state: true,
                     }
                 },
                 images: {

@@ -68,6 +68,7 @@ export interface Project {
     description: string
     createdAt: string
     updatedAt: string
+    coverImage: string
     ong: Ong[]
     ongId: number
     images: Image[]
