@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import type { Project } from "@/interfaces/index";
+import { noProfileImageProject } from "app/images";
 
 export default function ProjectsInteresting() {
     const [projects, setProjects] = useState<Project[]>([]);
@@ -43,7 +44,7 @@ export default function ProjectsInteresting() {
                             <div className="h-20 w-20 rounded-full overflow-hidden mb-3">
                             {project.images.length > 0 && (
                                 <img
-                                    src={project.images[0].content}
+                                    src={project.images[0].content || noProfileImageProject}
                                     alt={project.name}
                                     className="h-full w-full object-cover"
                                 />
