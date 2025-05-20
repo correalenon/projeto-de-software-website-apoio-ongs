@@ -2,6 +2,7 @@ import type React from "react"
 import "./globals.css"
 import type { Metadata } from "next"
 import { UserProvider } from "@/context/userContext"
+import { OngProvider } from "@/context/ongContext"
 
 export const metadata: Metadata = {
   title: "Colabora",
@@ -14,7 +15,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR">
       <body>
         <UserProvider>
+          <OngProvider>
           {children}
+          </OngProvider>
         </UserProvider>
       </body>
     </html>

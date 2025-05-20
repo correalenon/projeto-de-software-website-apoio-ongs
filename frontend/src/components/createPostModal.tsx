@@ -16,6 +16,7 @@ interface CreatePostModalProps {
 export interface PostData {
   description: string
   userId?: number
+  ongId?: number
   projectId?: number
   hashtags: string[]
   images: {

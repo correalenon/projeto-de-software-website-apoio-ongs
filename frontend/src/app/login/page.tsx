@@ -5,9 +5,11 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Footer from "@/components/footer"
 import { useUser } from "@/context/userContext"
+import { useOng } from "@/context/ongContext"
 
 export default function LoginPage() {
   const { setUser } = useUser()
+  const { setOng } = useOng()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -46,26 +48,28 @@ export default function LoginPage() {
           setUser(userData);
         }
         else {
-          setInfo('Login de ONG em desenvolvimento...');
-
-          const response = await fetch('/api/logout', {
-          method: 'POST',
+          const response = await fetch('/api/ongs/me', {
+            method: 'GET'
           });
+          
           if (!response.ok) {
+            setError("Erro ao buscar ONG")
             return
           }
-          router.push("/login")
-
-          // const response = await fetch('/api/ongs/me', {
-          //   method: 'GET'
-          // });
-
-          // if (!response.ok) {
-          //   setError("Erro ao buscar ONG")
-          //   return
-          // }
-          // const ongData = await response.json();
-          // setOng(ongData);
+          const ongData = await response.json();
+          setOng(ongData);
+          
+          
+          
+          //Como estava antes
+          // setInfo('Login de ONG em desenvolvimento...');
+              // const response = await fetch('/api/logout', {
+              // method: 'POST',
+              // });
+              // if (!response.ok) {
+              //   return
+              // }
+              // router.push("/login")
         }
       }
 
