@@ -7,28 +7,53 @@ import RecentActivity from "@/components/recentActivity"
 import Footer from "@/components/footer"
 import CreatePostModal, { type PostData } from "@/components/createPostModal"
 import { useUser } from "@/context/userContext"
+import { useOng } from "@/context/ongContext"
 
 export default function HomePage() {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const [reloadTrigger, setReloadTrigger] = useState(0);
 
   const { user } = useUser();
+  const { ong } = useOng();
+
+  const typeLabels: Record<string, string> = {
+      ONG: "ONG",
+      COLLABORATOR: "COLABORADOR",
+      VOLUNTARY: "VOLUNTÁRIO",
+      ADMIN: "ADMINISTRADOR"
+  };
+
+  const profileImage = user?.profileImage || ong?.profileImage || "/placeholder.svg";
+  const name = user?.name || ong?.nameONG || "Usuário";
+  const role = user?.role || "ONG";
+
 
   const handlePost = async (postData: PostData) => {
     try {
-      postData.userId = user?.id;
-      postData.projectId = 1;
+      if (user) {
+        postData.userId = user.id;
+      } else if (ong) {
+        postData.ongId = ong.id;
+      } else {
+        throw new Error("Usuário ou ONG não autenticado");
+      }
+      postData.projectId = 1; // NÃO SEI O PQ ISSO AQUI SÓ SEI QUE SE EU TIRAR PARA DE FUNCIONAR {JAMIL}
+
       const response = await fetch('/api/posts', {
           method: "POST",
-          body: JSON.stringify(postData)
+          body: JSON.stringify(postData),
+          headers: {
+            "Content-Type": "application/json"
+          }
       });
+
       if (!response.ok) {
-        console.log("Erro ao publicar o post", await response.json());
-        throw new Error("Falha ao publicar o post")
+        console.error("Erro ao publicar o post", await response.json());
+        throw new Error("Falha ao publicar o post");
       }
       setReloadTrigger(prev => prev + 1);
     } catch (error) {
-      throw new Error("Erro ao publicar o post");
+      console.error(error);
     }
   }
 
@@ -46,25 +71,26 @@ export default function HomePage() {
               <div className="h-16 bg-blue-600 rounded-t-lg"></div>
               <div className="flex justify-center -mt-8">
                 <div className="h-16 w-16 rounded-full border-4 border-white overflow-hidden">
-                  {user?.profileImage ? (
+                  {profileImage ? (
                       <img
-                          src={user.profileImage || "/placeholder.svg?height=64&width=64"}
-                          alt={user?.name || "Usuário"}
+                          src={profileImage}
+                          alt={name}
                           className="h-full w-full object-cover"
                       />
                     ) : (
                       <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-gray-600 font-semibold">{user?.name?.charAt(0) || "U"}</span>
+                        <span className="text-gray-600 font-semibold">{name.charAt(0)}</span>
                       </div>
                   )}
                 </div>
               </div>
             </div>
             <div className="text-center pt-2 p-4">
-              <h3 className="font-semibold text-lg">{user?.name || "Carregando..."}</h3>
-              <p className="text-sm text-gray-500">{user?.role || "Carregando..."}</p>
+              <h3 className="font-semibold text-lg">{name}</h3>
+              <p className="text-sm text-gray-500">{typeLabels[role]}</p>
+              {role !== 'ONG' && (
               <div className="border-t border-b my-3 py-3">
-                <div className="flex justify-between text-sm">
+                {/* <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Visualizações do Perfil</span>
                   <span className="font-semibold text-blue-600">
                     {user?.views !== undefined ? user.views : "Carregando..."}
@@ -75,14 +101,16 @@ export default function HomePage() {
                     <span className="font-semibold text-blue-600">
                       {user?.connections !== undefined ? user.connections : "Carregando..."}
                     </span>
-                </div>
+                </div> */}
                 <div className="flex justify-between text-sm mt-2">
                   <span className="text-gray-500">Atividades</span>
                     <span className="font-semibold text-blue-600">
                       {user?.activity ? user.activity.length : "Carregando..."}
                     </span>
                 </div>
-              </div>
+                </div>
+              )}
+
             </div>
           </div>
 
@@ -92,15 +120,15 @@ export default function HomePage() {
             <div className="bg-white p-4 rounded-lg shadow">
               <div className="flex gap-3">
                 <div className="h-10 w-10 rounded-full overflow-hidden">
-                  {user?.profileImage ? (
+                  {profileImage ? (
                     <img
-                      src={user.profileImage || "/placeholder.svg"}
-                      alt={user.name || "Usuário"}
+                      src={profileImage}
+                      alt={name}
                       className="h-full w-full object-cover"
                     />
                   ) : (
                     <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                      <span className="text-gray-600 font-semibold">{user?.name?.charAt(0) || "U"}</span>
+                      <span className="text-gray-600 font-semibold">{name.charAt(0)}</span>
                     </div>
                   )}
                 </div>
@@ -115,12 +143,10 @@ export default function HomePage() {
 
             {/* Feed */}
             <Feed reloadTrigger={reloadTrigger} />
-
           </div>
 
           {/* Recent Activity */}
           <RecentActivity />
-          
         </div>
       </main>
 
@@ -128,15 +154,14 @@ export default function HomePage() {
       <CreatePostModal
         isOpen={isPostModalOpen}
         onClose={() => setIsPostModalOpen(false)}
-        userImage={user?.profileImage || "/placeholder.svg?height=40&width=40"}
-        userName={user?.name || "Usuário"}
-        userTitle={user?.role || ""}
+        userImage={profileImage}
+        userName={name}
+        userTitle={typeLabels[role]}
         onPost={handlePost}
       />
 
       {/* Footer */}
-      <Footer />  
+      <Footer />
     </div>
-  )
+  );
 }
-

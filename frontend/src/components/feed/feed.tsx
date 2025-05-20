@@ -4,10 +4,12 @@ import type React from "react"
 
 import { useEffect, useState, useRef } from "react"
 import { useUser } from "@/context/userContext"
+import { useOng } from "@/context/ongContext"
 import type { Comment, Post } from "@/interfaces/index"
 
 export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
     const { user } = useUser()
+    const { ong } = useOng()
     const [posts, setPosts] = useState<Post[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [comments, setComments] = useState<Record<number, Comment[]>>({})
@@ -19,6 +21,7 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
     const [visibleComments, setVisibleComments] = useState<Record<number, number>>({})
     const [hasMoreComments, setHasMoreComments] = useState<Record<number, boolean>>({})
     const commentInputRefs = useRef<Record<number, HTMLInputElement | null>>({})
+    const loggedInEntity = user ?? ong;
 
     function getDaysAgo(dateString: string): string {
         const date = new Date(dateString)
@@ -30,7 +33,7 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
     }
 
     async function handleLike(postId: number) {
-        if (!user) return
+        if (!loggedInEntity) return
 
         const postIndex = posts.findIndex((p) => p.id === postId)
         if (postIndex === -1) return
@@ -39,7 +42,7 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
 
         if (post.userLiked) {
             try {
-                const like = post.likes.find((like: any) => like.user.id === user.id)
+                const like = post.likes.find((like: any) => like.user.id === loggedInEntity.id)
                 const res = await fetch('/api/posts/' + postId + '/likes/' + like.id, {
                     method: "DELETE",
                 })
@@ -48,7 +51,7 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                     const updatedPosts = [...posts]
                     updatedPosts[postIndex] = {
                         ...post,
-                        likes: post.likes.filter((like: any) => like.user.id !== user.id),
+                        likes: post.likes.filter((like: any) => like.user.id !== loggedInEntity.id),
                         userLiked: false,
                     }
                     setPosts(updatedPosts)
@@ -305,7 +308,7 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                         .sort((a: Post, b: Post) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                         .map((post: any) => ({
                             ...post,
-                            userLiked: post.likes.some((like: any) => like.user.id === user?.id),
+                            userLiked: post.likes.some((like: any) => like.user.id === loggedInEntity?.id),
                         }))
 
                     setPosts(sortedPosts)
@@ -340,10 +343,10 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
             }
         }
 
-        if (user?.id) {
+        if (loggedInEntity?.id) {
             loadPosts()
         }
-    }, [user?.id, reloadTrigger])
+    }, [loggedInEntity?.id, reloadTrigger])
 
     if (isLoading) {
         return (
@@ -380,7 +383,7 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                     <p className="text-sm text-gray-500">{getDaysAgo(post.createdAt)} • 🌎</p>
                     </div>
                 </div>
-                {user?.id === post.user.id && (
+                {loggedInEntity?.id === post.user.id && (
                     <button
                     className="rounded-full p-2 hover:bg-gray-100"
                     onClick={() => handleDelete(post.id)}
@@ -499,10 +502,10 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                 {showCommentInput[post.id] && (
                 <form className="flex items-start gap-2 mb-3" onSubmit={(e) => handleComment(post.id, e)}>
                     <div className="h-8 w-8 rounded-full overflow-hidden flex-shrink-0">
-                    {user?.profileImage ? (
+                    {loggedInEntity?.profileImage ? (
                         <img
                         src={post.user.profileImage || "/placeholder.svg"}
-                        alt={user.name || ""}
+                        alt={loggedInEntity.name || ""}
                         className="h-full w-full object-cover"
                         />
                     ) : (
@@ -591,7 +594,7 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                             <div className="bg-gray-100 rounded-lg p-3 relative group">
                             <div className="flex justify-between">
                                 <h4 className="font-medium text-sm">{comment.user.name}</h4>
-                                {user?.id === comment.user.id && (
+                                {loggedInEntity?.id === comment.user.id && (
                                 <div className="hidden group-hover:flex gap-1">
                                     <button
                                     onClick={() => startEditComment(comment)}

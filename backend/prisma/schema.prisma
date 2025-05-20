@@ -60,6 +60,8 @@ model Posts {
   updatedAt     DateTime    @updatedAt
   user          Users?      @relation(fields: [userId], references: [id])
   userId        Int?
+  ong           Ongs?       @relation(fields: [ongId], references: [id])
+  ongId         Int?        
   project       Projects?   @relation(fields: [projectId], references: [id])
   projectId     Int?
   images        Images[]
@@ -154,6 +156,7 @@ model Ongs {
   projects                Projects[]
   tags                    Tags[]
   contributions           Contribution[]
+  posts                   Posts[]
 }
 
 model Projects {
