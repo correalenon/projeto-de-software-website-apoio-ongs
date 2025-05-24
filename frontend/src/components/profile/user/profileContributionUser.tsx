@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import EditContributionModal, {ContributionData} from "@/components/profile/editContributionModal";
+import EditContributionModal, {ContributionData} from "@/components/profile/user/editContributionModal";
 
-export default function ProfileContribution() {
+export default function ProfileContributionUser() {
     interface Contribution {
         id?: number;
         name: string;

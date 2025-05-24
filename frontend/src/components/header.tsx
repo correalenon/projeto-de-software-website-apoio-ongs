@@ -125,7 +125,7 @@ export default function Header() {
                 isHovered ? "opacity-100 visible" : "opacity-0 invisible"
               }`}
             >
-              <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <Link href="/profile/ong" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 Meu Perfil
               </Link>
               <div className="border-t border-gray-100 my-1"></div>

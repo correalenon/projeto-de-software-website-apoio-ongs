@@ -1,7 +1,7 @@
 import Header from "@/components/header"
-import ProfileHeader from "@/components/profile/profileHeader"
-import ProfileAbout from "@/components/profile/profileAbout"
-import ProfileContribution from "@/components/profile/profileContribution"
+import ProfileHeaderUser from "@/components/profile/user/profileHeaderUser"
+import ProfileAboutUser from "@/components/profile/user/profileAboutUser"
+import ProfileContributionUser from "@/components/profile/user/profileContributionUser"
 import Footer from "@/components/footer"
 
 export default function ProfilePage() {
@@ -11,15 +11,15 @@ export default function ProfilePage() {
       <Header />
       <main className="container px-4 py-6 mx-auto">
         {/* Profile Header */}
-        < ProfileHeader />
+        < ProfileHeaderUser />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-2 space-y-6">
             {/* About Section */}
-            < ProfileAbout />
+            < ProfileAboutUser />
 
             {/* Contribution Section */}
-            < ProfileContribution />
+            < ProfileContributionUser />
           </div>
 
           <div className="space-y-6">
