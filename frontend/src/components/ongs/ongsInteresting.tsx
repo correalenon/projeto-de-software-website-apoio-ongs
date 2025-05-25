@@ -37,8 +37,8 @@ export default function OngsInteresting() {
             </div>
             <div className="p-4 pt-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {ongs.map((ong, i) => ( 
-                    <div key={i} className="border rounded-lg bg-white">
+                    {ongs.map((ong, index) => ( 
+                    <div key={index} className="border rounded-lg bg-white">
                         <div className="p-4">
                         <div className="flex flex-col items-center text-center">
                             <div className="h-20 w-20 rounded-full overflow-hidden mb-3">

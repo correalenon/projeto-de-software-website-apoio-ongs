@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useUser } from "@/context/userContext"
 
-export default function ProfileAbout() {
+export default function ProfileAboutUser() {
     const { user, setUser } = useUser();
     const [isModalOpen, setIsModalOpen] = useState(false);
 

@@ -18,7 +18,7 @@ export default function ProjectsPage() {
           {/* Main Content */}
           <div className="md:col-span-3 space-y-6">
 
-            {/* Projetos interessantes */}
+            {/* Projetos */}
             <ProjectsInteresting />
           </div>
         </div>

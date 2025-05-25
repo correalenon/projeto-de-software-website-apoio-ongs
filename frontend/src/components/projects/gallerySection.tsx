@@ -29,10 +29,11 @@ export default function GallerySection({ id }: { id: number }) {
     );
   }
   return (
-    <div className="bg-white rounded-lg p-6 shadow">
-      <h2 className="text-lg font-semibold mb-4">Galeria</h2>
+  <div className="bg-white rounded-lg p-6 shadow">
+    <h2 className="text-lg font-semibold mb-4">Galeria</h2>
+    {project.complementImages.length > 0 ? (
       <div className="flex gap-4 overflow-x-auto pb-2">
-        {project.images.map((img, i) => (
+        {project.complementImages.map((img, i) => (
           <div key={i} className="min-w-[200px] h-40 rounded overflow-hidden shadow">
             <img
               src={img}
@@ -42,6 +43,9 @@ export default function GallerySection({ id }: { id: number }) {
           </div>
         ))}
       </div>
-    </div>
+    ) : (
+      <p className="text-gray-500">Sem fotos a exibir</p>
+    )}
+  </div>
   );
 }

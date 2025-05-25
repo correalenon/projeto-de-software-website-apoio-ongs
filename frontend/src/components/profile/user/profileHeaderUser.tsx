@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import EditProfileModal, { type ProfileData } from "@/components/profile/editProfileModal"
+import EditProfileModal, { type ProfileData } from "@/components/profile/user/editProfileModalUser"
 import { useUser } from "@/context/userContext"
-import { noProfileImageUser} from "../../app/images"
+import { noProfileImageUser } from "app/images";
 
 
-export default function ProfileHeader() {
+export default function ProfileHeaderUser() {
     const { user, setUser } = useUser();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);

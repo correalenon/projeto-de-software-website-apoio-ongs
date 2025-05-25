@@ -2,13 +2,21 @@
 
 import { useRouter } from "next/navigation"
 import { useUser } from "@/context/userContext";
+import { useOng } from "@/context/ongContext";
 
 export default function LogoutButton() {
   const router = useRouter()
-  const { logout } = useUser();
+  const { user, logout } = useUser();
+  const { logoutOng } = useOng();
 
   const handleLogout = async () => {
-    logout();
+    if (user) {
+      logout();
+    }
+    else {
+      logoutOng();
+    }
+    
     
     const response = await fetch('/api/logout', {
       method: 'POST',

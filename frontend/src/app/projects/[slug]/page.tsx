@@ -19,7 +19,7 @@ export default async function RootLayout({children, params }: { children: React.
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
           <div className="md:col-span-2 space-y-6">
             <AboutSection id={slug} />
-            <ContributeSection />
+            <ContributeSection id={slug} />
             <AdditionalInfoSection id={slug} />
             <GallerySection id={slug} />
           </div>
