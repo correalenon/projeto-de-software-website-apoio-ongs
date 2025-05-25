@@ -37,7 +37,7 @@ export default function HomePage() {
       } else {
         throw new Error("Usuário ou ONG não autenticado");
       }
-      postData.projectId = 1; // NÃO SEI O PQ ISSO AQUI SÓ SEI QUE SE EU TIRAR PARA DE FUNCIONAR {JAMIL}
+      // postData.projectId = 1; // NÃO SEI O PQ ISSO AQUI SÓ SEI QUE SE EU TIRAR PARA DE FUNCIONAR {JAMIL} //AGORA EU ENTENDI
 
       const response = await fetch('/api/posts', {
           method: "POST",
@@ -117,6 +117,7 @@ export default function HomePage() {
           {/* Main Content */}
           <div className="md:col-span-2 space-y-4">
             {/* Post Creator */}
+            {user?.role !== 'VOLUNTARY' && (
             <div className="bg-white p-4 rounded-lg shadow">
               <div className="flex gap-3">
                 <div className="h-10 w-10 rounded-full overflow-hidden">
@@ -140,6 +141,7 @@ export default function HomePage() {
                 </button>
               </div>
             </div>
+            )}
 
             {/* Feed */}
             <Feed reloadTrigger={reloadTrigger} />

@@ -726,7 +726,9 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
         {posts.length === 0 && !isLoading && (
             <div className="bg-white rounded-lg shadow p-8 text-center">
             <h3 className="text-lg font-medium text-gray-700 mb-2">Nenhum post encontrado</h3>
+            {user?.role !== 'VOLUNTARY' && (
             <p className="text-gray-500">Seja o primeiro a compartilhar algo com sua rede!</p>
+            )}
             </div>
         )}
         </div>

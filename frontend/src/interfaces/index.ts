@@ -69,8 +69,10 @@ export interface Project {
     createdAt: string
     updatedAt: string
     coverImage: string
-    ong: Ong[]
     ongId: number
-    images: Image[]
-    post: Post[]
+    projectImage: string
+    complementImages: string[]
+    contributionProject: string
+    additionalInfo: string 
+    ong: Ong[]
 }

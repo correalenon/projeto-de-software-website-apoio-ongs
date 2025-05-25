@@ -24,7 +24,7 @@ export default function ProjectHeader({ id }: { id: number }) {
   if (isLoading || !project) {
     return (
       <div className="bg-white rounded-lg shadow p-4 text-center">
-        <h3 className="text-base font-medium">Carregando informações da Projeto...</h3>
+        <h3 className="text-base font-medium">Carregando informações do Projeto...</h3>
       </div>
     );
   }
@@ -32,7 +32,7 @@ export default function ProjectHeader({ id }: { id: number }) {
   return (
     <div className="relative h-64 rounded-lg overflow-hidden shadow">
       <img
-        src={project.coverImage || "/projeto-capa.jpg"}
+        src={project.projectImage || "/projeto-capa.jpg"}
         alt="Foto de capa do projeto"
         className="w-full h-full object-cover"
       />

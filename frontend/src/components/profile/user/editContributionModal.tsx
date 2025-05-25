@@ -35,7 +35,7 @@ export default function EditContributionModal({
 }: EditContributionModalProps) {
   const [contributionData, setContributionData] = useState<ContributionData>(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [allOngs, setAllOngs] = useState<{ id: number; name: string }[]>([]); // Todas as ONGs carregadas
+  const [allOngs, setAllOngs] = useState<{ id: number; name: string }[]>([]);
   const [suggestions, setSuggestions] = useState<{ id: number; name: string } []>([]);
   const [isSuggestionSelected, setIsSuggestionSelected] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);

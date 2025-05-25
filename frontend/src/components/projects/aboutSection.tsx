@@ -22,7 +22,7 @@ export default function AboutSection({ id }: { id: number }) {
   if (isLoading || !project) {
     return (
       <div className="bg-white rounded-lg shadow p-4 text-center">
-        <h3 className="text-base font-medium">Carregando informações da Projeto...</h3>
+        <h3 className="text-base font-medium">Carregando informações do Projeto...</h3>
       </div>
     );
   }

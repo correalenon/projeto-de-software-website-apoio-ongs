@@ -27,8 +27,6 @@ model Images {
   caption       String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
-  project       Projects?   @relation(fields: [projectId], references: [id])
-  projectId     Int?
   post          Posts?      @relation(fields: [postId], references: [id])
   postId        Int?
 }
@@ -92,8 +90,6 @@ model Tags {
   userId        Int?
   ong           Ongs?       @relation(fields: [ongId], references: [id])
   ongId         Int?
-  project       Projects?   @relation(fields: [projectId], references: [id])
-  projectId     Int?
   post          Posts?      @relation(fields: [postId], references: [id])
   postId        Int?
 }
@@ -167,10 +163,13 @@ model Projects {
   updatedAt     DateTime        @updatedAt
   ong           Ongs            @relation(fields: [ongId], references: [id])
   ongId         Int
-  images        Images[]
+  complementImages String[]
   posts         Posts[]
   activities    Activities[]
-  tags          Tags[]
+  additionalInfo String?
+  projectImage   String?
+  contributionProject String[]
+
 }
 
 model Contribution {

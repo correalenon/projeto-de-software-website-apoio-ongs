@@ -98,6 +98,21 @@ export const getOngs = async (req, res) => {
     }
 };
 
+export const getOngProjects = async (req, res) => {
+    try {
+        const { id } = req.user
+
+        const projectsOng = await prisma.projects.findMany({
+            where: {ongId: parseInt(id)}
+        })
+
+        res.status(200).json(projectsOng);
+
+    } catch (error) {
+        res.status(500).json({error: "Erro ao buscar projetos de ong"});
+    }
+}
+
 export const getOngByID = async (req, res) => {
     try {
         const { id } = req.params;
@@ -129,12 +144,11 @@ export const getOngByID = async (req, res) => {
                     select: {
                         name: true,
                         description: true,
-                        images: {
-                            select: {
-                                id: true,
-                                content: true,
-                            }
-                        }
+                        projectImage: true,
+                        complementImages: true,
+                        additionalInfo: true,
+                        contributionProject: true,
+                        id: true
                     }
                 },
                 description: true,
@@ -196,14 +210,14 @@ export const postOng = async (req, res) => {
     }
 };
 
-export const putOngByID = async (req, res) => {
+export const putOng = async (req, res) => {
     try {
 
         if (req.user.tipo !== "ONG") {
             return res.status(403).json({ error: "Você não tem permissão para acessar essa rota"});
         }
+        const {id} = req.user;
 
-        const { id } = req.params;
         const { nameONG, socialName, cnpj, foundationDate, area, goals, cep, street, number, complement, city, district, 
         state, cellphone, socialMedia, nameLegalGuardian, cpfLegalGuardian, rgLegalGuardian, cellphoneLegalGuardian, description, profileImage, coverImage} = req.body;
 

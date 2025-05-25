@@ -1,44 +1,79 @@
-"use client"; 
+"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Project } from "@/interfaces/index";
-import EditProjectModal from "@/components/profile/ong/editProjectModal";  // Importando o modal de edição de projeto
+import EditProjectModal, { ProjectData } from "@/components/profile/ong/editProjectModal";  // Importando o modal de edição de projeto
+import { useOng } from "@/context/ongContext";
 
-export default function ProfileOngProjects({ id }: { id: number }) {
-  const [projects, setProjects] = useState<Project[]>([]);
+export default function ProfileOngProjects() {
+  interface Project {
+    id?: number;
+    name: string;
+    description: string;
+    createdAt: string;
+    updatedAt: string;
+    projectImage: string;
+    additionalInfo: string;
+    contributionProject: string[];
+    ongId: number;
+    complementImages: string[];
+    type: string;
+  }
+
+  const [projects, setProject] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const {ong} = useOng();
 
   useEffect(() => {
     async function loadProjects() {
       try {
-        const ongIdNum = Number(id);
-        const response = await fetch('/api/projects');
-        const allProjects = await response.json();
-        const filtered = allProjects.filter((p: Project) => p.ongId === ongIdNum);
-        setProjects(filtered || []);
+        setIsLoading(true);
+        const response = await fetch('/api/ongs/projects', {
+          method: 'GET',
+        });
+
+        const projectsData = await response.json();
+        setProject(projectsData || []);
       } finally {
         setIsLoading(false);
       }
     }
     loadProjects();
-  }, [id]);
+  }, []);
 
   const handleEditClick = (project: Project) => {
-    setSelectedProject(project);
+    setSelectedProject({ ...project });
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (projectId: number) => {
+  const handleAddClick = () => {
+    setSelectedProject({
+      id: 0,
+      name: "",
+      description: "",
+      createdAt: new Date().toISOString().split("T")[0],
+      updatedAt: new Date().toISOString().split("T")[0],
+      contributionProject: [],
+      projectImage: "",
+      ongId: ong!.id,
+      complementImages: [],
+      additionalInfo: "",
+      type: "",
+    });
+    setIsModalOpen(true);
+  };
+
+
+  const handleDelete = async (projectData: ProjectData) => {
     try {
-      const response = await fetch(`/api/projects/${projectId}`, {
+      const response = await fetch(`/api/projects/${projectData.id}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-        setProjects((prev) => prev.filter((project) => project.id !== projectId));
+        setProject((prev) => prev.filter((project) => project.id !== projectData.id));
       } else {
         alert("Erro ao excluir o projeto.");
       }
@@ -46,6 +81,43 @@ export default function ProfileOngProjects({ id }: { id: number }) {
       alert("Erro ao excluir o projeto.");
     }
   };
+
+  const handleSave = async (updatedProject: ProjectData) => {
+    try {
+      let savedProject: ProjectData;
+
+      if (updatedProject.id === 0) {
+        // Caso seja um projeto novo
+        const response = await fetch('/api/projects', {
+          method: 'POST',
+          body: JSON.stringify(updatedProject),
+        });
+
+        savedProject = await response.json();
+        setProject((prev) => [...prev, savedProject]);
+      } else {
+        // Caso seja um projeto existente
+        const response = await fetch(`/api/projects/${updatedProject.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(updatedProject),
+        });
+
+        savedProject = await response.json();
+        setProject((prev) =>
+          prev.map((project) =>
+            project.id === savedProject.id
+              ? { ...project, ...savedProject }
+              : project
+          )
+        );
+      }
+    } catch (error: any) {
+      alert(error.message || "Erro ao criar/atualizar projeto");
+    } finally {
+      setIsModalOpen(false);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -58,7 +130,28 @@ export default function ProfileOngProjects({ id }: { id: number }) {
   return (
     <div className="bg-white rounded-lg shadow mb-6">
       <div className="px-6 py-4 border-b">
-        <h2 className="text-xl font-semibold text-gray-800 text-center">Projetos da ONG</h2>
+        <h2 className="text-xl font-semibold text-gray-800 text-center">
+          Projetos da ONG
+          <button
+            className="p-2 rounded-full hover:bg-gray-100"
+            aria-label="Adicionar Novo Projeto"
+            onClick={handleAddClick}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+          </button>
+        </h2>
       </div>
 
       <div className="px-6 py-4">
@@ -66,13 +159,13 @@ export default function ProfileOngProjects({ id }: { id: number }) {
           <p className="text-center text-gray-500">Nenhum projeto cadastrado ainda.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {projects.map((project) => (
+            {projects.map((project: any) => (
               <div key={project.id} className="border rounded-lg hover:shadow-md transition">
-                {project.images.length > 0 && (
+                {project.projectImage.length > 0 && (
                   <Link legacyBehavior href={`/projects/${project.id}`} passHref>
                     <a className="block h-48 w-full overflow-hidden rounded-t-lg cursor-pointer">
                       <img
-                        src={project.images[0].content}
+                        src={project.projectImage}
                         alt={project.name}
                         className="h-full w-full object-cover"
                       />
@@ -90,7 +183,7 @@ export default function ProfileOngProjects({ id }: { id: number }) {
                       Editar
                     </button>
                     <button
-                      onClick={() => handleDelete(project.id)}
+                      onClick={() => handleDelete(project)}
                       className="text-red-600 hover:text-red-800"
                     >
                       Excluir
@@ -109,14 +202,8 @@ export default function ProfileOngProjects({ id }: { id: number }) {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           initialData={selectedProject}
-          onSave={(updatedProject) => {
-            setProjects((prev) =>
-              prev.map((project) =>
-                project.id === updatedProject.id ? updatedProject : project
-              )
-            );
-            setIsModalOpen(false);
-          }}
+          type={selectedProject.id ? "Editar Projeto" : "Novo Projeto"}
+          onSave={handleSave}
         />
       )}
     </div>

@@ -31,7 +31,7 @@ export default function AdditionalInfoSection({ id }: { id: number }) {
   return (
     <div className="bg-white rounded-lg p-6 shadow">
       <h2 className="text-lg font-semibold mb-2">Informações Adicionais</h2>
-      <p className="text-gray-700">{project?.info}</p>
+      <p className="text-gray-700">{project?.additionalInfo}</p>
     </div>
   );
 }

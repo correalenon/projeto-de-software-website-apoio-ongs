@@ -145,25 +145,29 @@ export const getPostByID = async (req, res) => {
 
 export const postPost = async (req, res) => {
     const { description, userId, projectId, images, tags } = req.body;
-    if (!description || !userId || !projectId) {
+    if (!description || !userId) {
         return res.status(400).json({ error: "Todos os campos são obrigatórios" });
     }
+
     try {
-        const existingPost = await prisma.posts.findFirst({
-            where: {
-                description,
-                userId,
-                projectId
-            },
-        });
-        if (existingPost) {
-            return res.status(400).json({ error: "Já existe um post com description, userId e projectId idênticos" });
+        if (projectId) {
+            const existingPost = await prisma.posts.findFirst({
+                where: {
+                    description,
+                    userId,
+                    projectId
+                },
+            });
+            if (existingPost) {
+                return res.status(400).json({ error: "Já existe um post com description, userId e projectId idênticos" });
+            }
         }
+
         const newPost = await prisma.posts.create({
             data: {
                 description,
                 userId,
-                projectId,
+                ...(projectId && projectId > 0 ? { projectId } : {}), //se o projectId foi informado ou for maior que 0 eu passo ele para o create, se não, não passo.
                 images: {
                     create: images && images.length > 0 ? images : [{
                         content: null,
@@ -191,6 +195,7 @@ export const postPost = async (req, res) => {
         const { updatedAt, ...postWithoutTimestamps } = newPost;
         res.status(201).json(postWithoutTimestamps);
     } catch (error) {
+        console.log(error);
         res.status(500).json({ error: "Erro ao criar post" });
     }
 };
@@ -335,7 +340,7 @@ export const putPostByID = async (req, res) => {
             data: {
                 description,
                 userId,
-                projectId,
+                ...(projectId && projectId > 0 ? { projectId } : {}), //se o projectId foi informado ou for maior que 0 eu passo ele para o create, se não, não passo.,
                 images: {
                     create: filteredImages
                 },

@@ -3,8 +3,6 @@
 import type React from "react";
 
 import { useState, useRef, useEffect } from "react";
-import { useOng } from "@/context/ongContext";
-import { noProfileImageONG } from "../../../app/images";
 
 interface EditProfileModalOngProps {
   isOpen: boolean;
@@ -21,7 +19,7 @@ export interface ProfileDataOng {
   foundationDate: Date;
 }
 
-export default function EditProfileModalOng({ isOpen, onClose, onSave, initialData }: EditProfileModalOngProps) {
+export default function EditProfileModalOng({ isOpen, onClose, onSave, initialData, canDelete }: EditProfileModalOngProps) {
   const [profileDataOng, setProfileDataOng] = useState<ProfileDataOng>(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeSection, setActiveSection] = useState<string>("intro");

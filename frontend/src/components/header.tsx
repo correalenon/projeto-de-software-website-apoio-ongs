@@ -3,10 +3,14 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import LogoutButton from "@/components/logout-button";
+import { useOng } from "@/context/ongContext";
 
 export default function Header() {
   const [isHovered, setIsHovered] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { ong } = useOng();
+
+  const profileLink = ong ? "/profile/ong" : "/profile/user";
 
   const handleMouseEnter = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -18,7 +22,7 @@ export default function Header() {
       setIsHovered(false);
     }, 200);
   };
-  
+
   return (
     <header className="sticky top-0 z-10 bg-white border-b">
       <div className="container flex items-center justify-between h-14 px-4 mx-auto">
@@ -113,7 +117,7 @@ export default function Header() {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <Link href="/profile" className="flex flex-col items-center">
+            <Link href={profileLink} className="flex flex-col items-center">
               <div className="h-7 w-7 rounded-full overflow-hidden">
                 <img src="/placeholder.svg?height=32&width=32" alt="User" className="h-full w-full object-cover" />
               </div>
@@ -125,7 +129,7 @@ export default function Header() {
                 isHovered ? "opacity-100 visible" : "opacity-0 invisible"
               }`}
             >
-              <Link href="/profile/ong" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <Link href={profileLink} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 Meu Perfil
               </Link>
               <div className="border-t border-gray-100 my-1"></div>
@@ -133,10 +137,9 @@ export default function Header() {
                 <LogoutButton />
               </div>
             </div>
-
           </div>
         </nav>
       </div>
     </header>
-  )
+  );
 }

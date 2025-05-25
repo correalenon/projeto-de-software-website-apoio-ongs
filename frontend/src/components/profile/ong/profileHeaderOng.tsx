@@ -19,13 +19,13 @@ export default function ProfileHeaderOng() {
 
   useEffect(() => {
     async function loadOng() {
-        setIsLoading(true);  
+        setIsLoading(true); 
         setProfileDataOng({
             nameONG: ong?.nameONG || "",
-            socialName: "", // or provide a fallback/default if not present in ONG
+            socialName: ong?.socialName || "",
             profileImage: ong?.profileImage || "",
             coverImage: ong?.coverImage || "",
-            foundationDate: new Date(), // or provide a fallback/default if not present in ONG
+            foundationDate: new Date(),
         });
         }
         setIsLoading(false);

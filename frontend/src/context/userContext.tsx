@@ -14,11 +14,13 @@ type User = {
 type UserContextType = {
   user: User | null
   setUser: (user: User | null) => void
+  logout: () => void
 }
 
 const UserContext = createContext<UserContextType>({
   user: null,
   setUser: () => {},
+  logout: () => {},
 })
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
@@ -26,7 +28,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user")
-    if (storedUser) {
+    if (storedUser !== null) {
       setUserState(JSON.parse(storedUser))
     }
   }, [])
@@ -41,8 +43,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const logout = () => {
-    setUser(null);
-  };
+    setUser(null)
+  }
 
   return (
     <UserContext.Provider value={{ user, setUser, logout }}>

@@ -41,10 +41,10 @@ export default function ProjectsInteresting() {
                     <div key={i} className="border rounded-lg bg-white">
                         <div className="p-4">
                         <div className="flex flex-col items-center text-center">
-                            <div className="h-20 w-20 rounded-full overflow-hidden mb-3">
-                            {project.images.length > 0 && (
+                            <div className="h-40 w-50 overflow-hidden mb-3">
+                            {project.projectImage && (
                                 <img
-                                    src={project.images[0].content || noProfileImageProject}
+                                    src={project.projectImage || noProfileImageProject}
                                     alt={project.name}
                                     className="h-full w-full object-cover"
                                 />
@@ -85,7 +85,7 @@ export default function ProjectsInteresting() {
                     ))}
                 </div>
                 <button className="w-full border border-gray-300 rounded py-2 px-3 mt-4 hover:bg-gray-50">
-                    Show more
+                    Mostrar mais
                 </button>
             </div>
         </div>
