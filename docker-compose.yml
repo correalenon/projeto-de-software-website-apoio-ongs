@@ -23,6 +23,7 @@ services:
       - postgres
     command: >
       sh -c "
+      npm run migrate-generate &&
       npm run migrate-prod &&
       npm run start
       "
