@@ -23,10 +23,10 @@ services:
       - postgres
     command: >
       sh -c "
-      npm run migrate-generate &&
-      npm run migrate-prod &&
+      npx prisma migrate deploy &&
       npm run start
       "
+
 
 
   
