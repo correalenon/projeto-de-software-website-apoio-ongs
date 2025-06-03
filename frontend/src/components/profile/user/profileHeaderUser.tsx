@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import EditProfileModal, { type ProfileData } from "@/components/profile/user/editProfileModalUser"
+import EditPasswordModal from "@/components/profile/editPasswordModal"
 import { useUser } from "@/context/userContext"
 import { noProfileImageUser } from "app/images";
 
@@ -9,6 +10,7 @@ import { noProfileImageUser } from "app/images";
 export default function ProfileHeaderUser() {
     const { user, setUser } = useUser();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isEditPasswordModalOpen, setIsEditPasswordModal] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [profileData, setProfileData] = useState<ProfileData>({
         name: "",
@@ -57,6 +59,24 @@ export default function ProfileHeaderUser() {
         }
     }
 
+    
+    const handleSaveNewPassword = async(newPassword: string) => {
+        try {
+            const email = user?.email;
+            const response = await fetch("/api/users/editpassword", {
+                method: 'PUT',
+                body: JSON.stringify({email, password: newPassword})
+            });
+
+            const data = await response.json();
+
+            if (!data) throw new Error;
+        }
+        catch (error: any) {
+            alert("Falha ao atualizar senha do usuário: " + error.message);
+        }
+    }
+
     return (
         <div className="bg-white rounded-lg shadow mb-6">
             <div className="h-80 relative rounded-t-lg overflow-hidden">
@@ -91,7 +111,11 @@ export default function ProfileHeaderUser() {
                         >
                         Editar Perfil
                         </button>
-                        <button className="border border-gray-300 px-4 py-1 rounded hover:bg-gray-50">Mais Opções</button>
+                        <button 
+                        onClick={() => setIsEditPasswordModal(true)}
+                        className="border border-gray-300 px-4 py-1 rounded hover:bg-gray-50">
+                            Alterar Senha
+                            </button>
                         {/* Edit Profile Modal */}
                         <EditProfileModal
                             isOpen={isEditModalOpen}
@@ -99,6 +123,11 @@ export default function ProfileHeaderUser() {
                             onSave={handleSaveProfile}
                             initialData={profileData}
                         />
+                        <EditPasswordModal
+                          isOpen={isEditPasswordModalOpen}
+                          onClose={() => setIsEditPasswordModal(false)}
+                          onSave={handleSaveNewPassword}
+                          ></EditPasswordModal>
                     </div>
                 </div>
                 </div>

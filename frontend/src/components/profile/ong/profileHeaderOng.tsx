@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import EditProfileModalOng, { type ProfileDataOng } from "@/components/profile/ong/editProfileModalOng";
+import EditPasswordModal from "../editPasswordModal";
 import { useOng } from "@/context/ongContext";
 import { noProfileImageONG } from "../../../app/images";
 
 export default function ProfileHeaderOng() {
   const { ong, setOng } = useOng();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditPasswordModalOpen, setIsEditPasswordModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [profileDataOng, setProfileDataOng] = useState<ProfileDataOng>({
     nameONG: "",
@@ -48,6 +50,23 @@ export default function ProfileHeaderOng() {
     }
   };
 
+    const handleSaveNewPassword = async(newPassword: string) => {
+        try {
+            const email = ong?.emailONG;
+            const response = await fetch("/api/ongs/editpassword", {
+                method: 'PUT',
+                body: JSON.stringify({email, password: newPassword})
+            });
+
+            const data = await response.json();
+
+            if (!data) throw new Error;
+        }
+        catch (error: any) {
+            alert("Falha ao atualizar senha do usuário: " + error.message);
+        }
+    }
+
   return (
     <div className="bg-white rounded-lg shadow mb-6">
       <div className="h-80 relative rounded-t-lg overflow-hidden">
@@ -83,7 +102,9 @@ export default function ProfileHeaderOng() {
                 >
                   Editar Perfil
                 </button>
-                <button className="border border-gray-300 px-4 py-1 rounded hover:bg-gray-50">Mais Opções</button>
+                <button 
+                onClick={() => setIsEditPasswordModal(true)}
+                className="border border-gray-300 px-4 py-1 rounded hover:bg-gray-50">Alterar Senha</button>
                 {/* Edit Profile Modal */}
                 <EditProfileModalOng
                   isOpen={isEditModalOpen}
@@ -91,6 +112,11 @@ export default function ProfileHeaderOng() {
                   onSave={handleSaveProfile}
                   initialData={profileDataOng}
                 />
+                <EditPasswordModal
+                  isOpen={isEditPasswordModalOpen}
+                  onClose={() => setIsEditPasswordModal(false)}
+                  onSave={handleSaveNewPassword}
+                  ></EditPasswordModal>
               </div>
             </div>
           </div>
