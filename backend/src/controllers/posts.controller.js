@@ -144,10 +144,12 @@ export const getPostByID = async (req, res) => {
 };
 
 export const postPost = async (req, res) => {
-    const { description, userId, projectId, images, tags } = req.body;
-    if (!description || !userId) {
-        return res.status(400).json({ error: "Todos os campos são obrigatórios" });
+    const { description, userId, projectId, images, tags, ongId } = req.body;
+    if (!description) {
+        return res.status(400).json({ error: "Campo descrição é obrigatório" });
     }
+
+    const idEntidade = userId ? userId : ongId; //Se for informado o userId, pego o userId, se não, ongId
 
     try {
         if (projectId) {
@@ -162,6 +164,22 @@ export const postPost = async (req, res) => {
                 return res.status(400).json({ error: "Já existe um post com description, userId e projectId idênticos" });
             }
         }
+
+        let data = {
+            description,
+            images: {
+                create: images && images.length > 0 ? images : [{
+                    content: null,
+                    caption: null
+                }],
+            },
+            tags: {
+                create: tags && tags.length > 0 ? tags : []
+            }
+        }
+
+        if (userId) data.userId = userId;
+        if (ongId) data.ongId = ongId;
 
         const newPost = await prisma.posts.create({
             data: {
