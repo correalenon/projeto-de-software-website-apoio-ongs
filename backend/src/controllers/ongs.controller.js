@@ -310,3 +310,27 @@ export const getCNPJ = async (req, res) => {
         return res.status(500).json({message: `Erro ao consultar dados de CNPJ: ${error}`});
     }
 };
+
+export const PutPasswordOng = async (req, res) => {
+    try {
+        if (req.user.tipo !== "ONG") {
+            return res.status(403).json({ error: "Você não tem permissão para acessar essa rota"});
+        }
+
+        const { email, password } = req.body;
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const ong = await prisma.ongs.update({
+            where: { emailONG: email },
+            data: { password: hashedPassword }
+        })
+
+        if (!ong) {
+            return res.status(404).json( { message: "ONG não encontrada" });
+        }
+
+        res.status(200).json( { message: "Senha atualizada com sucesso"});
+    }
+    catch (error) {
+        res.status(500).json({ message: "Erro ao atualizar senha"});
+    }
+}
