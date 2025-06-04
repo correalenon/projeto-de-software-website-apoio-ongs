@@ -17,6 +17,15 @@ export const getPosts = async (req, res) => {
                         profileImage: true
                     }
                 },
+                ong: {
+                    select: {
+                        id: true,
+                        nameONG: true,
+                        emailONG: true,
+                        city: true,
+                        profileImage: true
+                    }
+                },
                 project: {
                     select: {
                         id: true,
@@ -38,6 +47,12 @@ export const getPosts = async (req, res) => {
                                 id: true,
                                 name: true,
                             }
+                        },
+                        ong: {
+                            select: {
+                                id: true,
+                                nameONG: true,
+                            }
                         }
                     }
                 },
@@ -51,7 +66,14 @@ export const getPosts = async (req, res) => {
                             select: {
                                 id: true,
                                 name: true,
-                                profileImage: true
+                                profileImage: true,
+                            }
+                        },
+                        ong: {
+                            select: {
+                                id: true,
+                                nameONG: true,
+                                profileImage: true,
                             }
                         }
                     }
@@ -88,6 +110,15 @@ export const getPostByID = async (req, res) => {
                         profileImage: true
                     }
                 },
+                ong: {
+                    select: {
+                        id: true,
+                        nameONG: true,
+                        emailONG: true,
+                        city: true,
+                        profileImage: true
+                    }
+                },
                 project: {
                     select: {
                         id: true,
@@ -109,6 +140,12 @@ export const getPostByID = async (req, res) => {
                                 id: true,
                                 name: true,
                             }
+                        },
+                        ong: {
+                            select: {
+                                id: true,
+                                nameONG: true,
+                            }
                         }
                     }
                 },
@@ -123,6 +160,13 @@ export const getPostByID = async (req, res) => {
                                 id: true,
                                 name: true,
                                 profileImage: true
+                            }
+                        },
+                        ong: {
+                            select: {
+                                id: true,
+                                nameONG: true,
+                                profileImage: true,
                             }
                         }
                     }
@@ -149,8 +193,6 @@ export const postPost = async (req, res) => {
         return res.status(400).json({ error: "Campo descrição é obrigatório" });
     }
 
-    const idEntidade = userId ? userId : ongId; //Se for informado o userId, pego o userId, se não, ongId
-
     try {
         if (projectId) {
             const existingPost = await prisma.posts.findFirst({
@@ -166,7 +208,7 @@ export const postPost = async (req, res) => {
         }
 
         let data = {
-            description,
+            description : description,
             images: {
                 create: images && images.length > 0 ? images : [{
                     content: null,
@@ -182,20 +224,7 @@ export const postPost = async (req, res) => {
         if (ongId) data.ongId = ongId;
 
         const newPost = await prisma.posts.create({
-            data: {
-                description,
-                userId,
-                ...(projectId && projectId > 0 ? { projectId } : {}), //se o projectId foi informado ou for maior que 0 eu passo ele para o create, se não, não passo.
-                images: {
-                    create: images && images.length > 0 ? images : [{
-                        content: null,
-                        caption: null
-                    }],
-                },
-                tags: {
-                    create: tags && tags.length > 0 ? tags : []
-                }
-            },
+            data,
             include: {
                 images: {
                     select: {
@@ -206,6 +235,22 @@ export const postPost = async (req, res) => {
                 tags: {
                     select: {
                         name: true
+                    }
+                },
+                ong: {
+                    select: {
+                        id: true,
+                        nameONG: true,
+                        profileImage: true,
+                        city: true,
+                    }
+                },
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        profileImage: true,
+                        location: true,
                     }
                 }
             }
@@ -218,39 +263,76 @@ export const postPost = async (req, res) => {
     }
 };
 
-export const postLike =  async (req, res) => {
-    const { id } = req.user;
+export const postLike = async (req, res) => {
+    const { id, tipo } = req.user;
     const { postId } = req.params;
 
     if (!postId) {
-        return res.status(400).json({ error: "Preencha todos os campos obrigatórios"});
+        return res.status(400).json({ error: "ID do post não informado" });
+    }
+
+    let likeData = {
+        postId: parseInt(postId),
+    };
+
+    if (tipo !== "ONG") {
+        likeData.userId = id; // O ID do usuário que deu o like
+    } else {
+        likeData.ongId = id; // O ID da ONG que deu o like
     }
 
     try {
+        // 1. Verifico se o like já existe para evitar duplicações
+        let existingLike;
+        if (tipo !== "ONG") {
+            existingLike = await prisma.likes.findFirst({
+                where: { userId: id, postId: parseInt(postId) },
+            });
+        } else {
+            existingLike = await prisma.likes.findFirst({
+                where: { ongId: id, postId: parseInt(postId) },
+            });
+        }
 
-        const data = {
-            userId: parseInt(id),
-            postId: parseInt(postId)
-        };
+        if (existingLike) {
+            return res.status(409).json({ error: "Você já curtiu este post." });
+        }
 
-        const createLike = await prisma.likes.create({ data });
+
+        // 2. Crio o Like
+        const createLike = await prisma.likes.create({ data: likeData });
+
+        // 3. Busco o Like recém-criado com todas as informações necessárias
+        // (user/ong que deu o like, e user/ong do post)
         const like = await prisma.likes.findUnique({
             where: { id: createLike.id },
             include: {
-                user: {
+                user: { // O usuário que deu o like
                     select: {
                         id: true,
                         name: true,
                     }
                 },
+                ong: { // A ONG que deu o like
+                    select: {
+                        id: true,
+                        nameONG: true,
+                    }
+                },
                 post: {
                     select: {
                         id: true,
-                        description: true,
+                        description: true, // Ou outro campo para o nome do post
                         user: {
                             select: {
                                 id: true,
                                 name: true,
+                            }
+                        },
+                        ong: {
+                            select: {
+                                id: true,
+                                nameONG: true,
                             }
                         }
                     }
@@ -258,17 +340,47 @@ export const postLike =  async (req, res) => {
             }
         });
 
+        // se o post não foi encontrado ou está incompleto
+        if (!like || !like.post) {
+            return res.status(404).json({ error: "Post não encontrado ou inválido." });
+        }
+
+        // --- ACTIVITIES ---
+
+        // 4. Determino o nome de quem deu o like
+        const likerName = like.user?.name || like.ong?.nameONG;
+        if (!likerName) {
+            console.error("Erro: Nome do curtir (liker) não encontrado.");
+            return res.status(500).json({ error: "Erro interno: Liker não identificado." });
+        }
+
+        // 5. Determino o nome do autor do post
+        const postAuthorName = like.post.user?.name || like.post.ong?.nameONG;
+        if (!postAuthorName) {
+            console.error("Erro: Nome do autor do post não encontrado.");
+            return res.status(500).json({ error: "Erro interno: Autor do post não identificado." });
+        }
+
+        // 6. Construo a descrição da activity dinamicamente
+        const activityDescription = `${likerName} curtiu o post de ${postAuthorName}.`;
+
+        // 7. Crio a Activity
         const createActivity = await prisma.activities.create({
             data: {
-                description: like.user.name + ' curtiu o post de ' + like.post.user.name,
-                userId: parseInt(id),
-                postId: parseInt(postId)
+                description: activityDescription,
+                // O userId ou ongId da activity deve ser de QUEM DEU O LIKE, não do autor do post.
+                userId: tipo !== "ONG" ? id : null, // Se for usuário, preenche userId, senão null
+                ongId: tipo === "ONG" ? id : null, // Se for ONG, preenche ongId, senão null
+                postId: parseInt(postId) // O ID do post curtido
             }
         });
 
+        // --- FIM ACTIVITIES ---
+
         res.status(201).json(like);
     } catch (error) {
-        res.status(500).json({ error: "Erro ao cadastrar like de usuário" });
+        console.error("Erro ao cadastrar like ou atividade:", error);
+        res.status(500).json({ error: "Erro interno ao processar o like." });
     }
 };
 

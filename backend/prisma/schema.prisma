@@ -36,6 +36,8 @@ model Likes {
   createdAt     DateTime    @default(now())
   user          Users?      @relation(fields: [userId], references: [id])
   userId        Int?
+  ongId         Int?
+  ong           Ongs?       @relation(fields: [ongId], references: [id])
   post          Posts?      @relation(fields: [postId], references: [id])
   postId        Int?
 }
@@ -47,6 +49,8 @@ model Comments {
   updatedAt     DateTime    @updatedAt
   user          Users?      @relation(fields: [userId], references: [id])
   userId        Int?
+  ong           Ongs?       @relation(fields: [ongId], references: [id])
+  ongId         Int?
   post          Posts?      @relation(fields: [postId], references: [id])
   postId        Int?
 }
@@ -75,6 +79,8 @@ model Activities {
   createdAt     DateTime    @default(now())
   user          Users?      @relation(fields: [userId], references: [id])
   userId        Int?
+  ong           Ongs?       @relation(fields: [ongId], references: [id])
+  ongId         Int?
   post          Posts?      @relation(fields: [postId], references: [id])
   postId        Int?
   project       Projects?   @relation(fields: [projectId], references: [id])
@@ -153,6 +159,9 @@ model Ongs {
   tags                    Tags[]
   contributions           Contribution[]
   posts                   Posts[]
+  likes                   Likes[]
+  activities              Activities[]
+  comments                Comments[]
 }
 
 model Projects {

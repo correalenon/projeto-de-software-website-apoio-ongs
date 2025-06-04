@@ -6,6 +6,7 @@ import { useEffect, useState, useRef } from "react"
 import { useUser } from "@/context/userContext"
 import { useOng } from "@/context/ongContext"
 import type { Comment, Post } from "@/interfaces/index"
+import { noProfileImageONG, noProfileImageUser } from "app/images"
 
 export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
     const { user } = useUser()
@@ -43,7 +44,7 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
         if (post.userLiked) {
             try {
                 const like = post.likes.find((like: any) => like.user.id === loggedInEntity.id)
-                const res = await fetch('/api/posts/' + postId + '/likes/' + like.id, {
+                const res = await fetch('/api/posts/' + postId + '/likes/' + like?.id, {
                     method: "DELETE",
                 })
 
@@ -308,7 +309,12 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                         .sort((a: Post, b: Post) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                         .map((post: any) => ({
                             ...post,
-                            userLiked: post.likes.some((like: any) => like.user.id === loggedInEntity?.id),
+                            userLiked: post.likes.some((like: any) => {
+                                // Pega o ID do "liker" (usuário ou ONG)
+                                const likerId = like.user?.id ?? like.ong?.id;
+                                // Compara com o ID da entidade logada
+                                return likerId === loggedInEntity?.id;
+                            }),
                         }))
 
                     setPosts(sortedPosts)
@@ -356,58 +362,101 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
         )
     }
 
-    return (
-        <div className="space-y-4">
-        {posts.map((post) => (
-            <div key={post.id} className="bg-white rounded-lg shadow">
+  return (
+    <div className="space-y-4">
+      {posts.map((post) => {
+        // 1. Identificar o autor do post e padronizar os dados
+        let postAuthor: {
+          id: Number;
+          name: string;
+          profileImage?: string | null;
+          city?: string;
+        } | null = null;
+
+        if (post.user) {
+          postAuthor = {
+            id: post.user.id,
+            name: post.user.name,
+            profileImage: post.user.profileImage,
+            city: post.user.location,
+          };
+        } else if (post.ong) {
+          postAuthor = {
+            id: post.ong.id,
+            name: post.ong.nameONG,
+            profileImage: post.ong.profileImage,
+            city: post.ong.city,
+          };
+        }
+
+        if (!postAuthor) {
+          // Tratar posts sem autor válido, ou pular.
+          // Para este exemplo, vamos pular ou renderizar um placeholder
+          console.warn(`Post ${post.id} não possui um autor (user ou ong) válido.`);
+          return (
+            <div key={post.id} className="bg-white rounded-lg shadow p-4 text-center text-gray-500">
+              Post sem autor válido.
+            </div>
+          );
+        }
+
+        const authorProfileImage = postAuthor.profileImage || (post.user ? noProfileImageUser : noProfileImageONG);
+        const authorInitial = postAuthor.name.charAt(0);
+
+        return (
+          <div key={post.id} className="bg-white rounded-lg shadow">
             {/* Cabeçalho do post */}
             <div className="p-2 pb-0">
-                <div className="flex justify-between">
+              <div className="flex justify-between">
                 <div className="flex gap-3">
-                    <div className="h-10 w-10 rounded-full overflow-hidden">
-                    {post.user.profileImage ? (
-                        <img
-                        src={post.user.profileImage || "/placeholder.svg"}
-                        alt={post.user.name}
+                  <div className="h-10 w-10 rounded-full overflow-hidden">
+                    {/* Imagem de Perfil do Autor do Post */}
+                    {authorProfileImage ? (
+                      <img
+                        src={authorProfileImage}
+                        alt={postAuthor.name}
                         className="h-full w-full object-cover"
-                        />
+                      />
                     ) : (
-                        <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-gray-600 font-semibold">{post.user.name.charAt(0)}</span>
-                        </div>
+                      <div className="h-full w-full bg-gray-300 flex items-center justify-center">
+                        <span className="text-gray-600 font-semibold">{authorInitial}</span>
+                      </div>
                     )}
-                    </div>
-                    <div>
-                    <h3 className="text-base font-medium">{post.user.name}</h3>
-                    <p className="text-sm text-gray-500">{post.user.location || post.user.role}</p>
+                  </div>
+                  <div>
+                    {/* Nome do Autor do Post */}
+                    <h3 className="text-base font-medium">{postAuthor.name}</h3>
+                    {/* Detalhes do Autor (location/role) */}
+                    {postAuthor.city && <p className="text-sm text-gray-500">{postAuthor.city}</p>}
                     <p className="text-sm text-gray-500">{getDaysAgo(post.createdAt)} • 🌎</p>
-                    </div>
+                  </div>
                 </div>
-                {loggedInEntity?.id === post.user.id && (
-                    <button
+                {/* Botão de exclusão: Verifica se a entidade logada é o autor do post */}
+                {loggedInEntity && loggedInEntity.id === postAuthor.id && (
+                  <button
                     className="rounded-full p-2 hover:bg-gray-100"
                     onClick={() => handleDelete(post.id)}
                     aria-label="Excluir post"
-                    >
+                  >
                     <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-5 w-5"
                     >
-                        <path d="M3 6h18" />
-                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                     </svg>
-                    </button>
+                  </button>
                 )}
-                </div>
+              </div>
             </div>
 
             {/* Conteúdo do post */}
@@ -504,8 +553,8 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                     <div className="h-8 w-8 rounded-full overflow-hidden flex-shrink-0">
                     {loggedInEntity?.profileImage ? (
                         <img
-                        src={post.user.profileImage || "/placeholder.svg"}
-                        alt={loggedInEntity.name || ""}
+                        src={loggedInEntity.profileImage || "/placeholder.svg"}
+                        // alt={loggedInEntity.nameONG || ""}
                         className="h-full w-full object-cover"
                         />
                     ) : (
@@ -516,7 +565,7 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                     </div>
                     <div className="flex-grow relative">
                     <input
-                        ref={(el) => (commentInputRefs.current[post.id] = el)}
+                        ref={(el) => { commentInputRefs.current[post.id] = el; }}
                         type="text"
                         value={commentDrafts[post.id] || ""}
                         onChange={(e) => setCommentDrafts((prev) => ({ ...prev, [post.id]: e.target.value }))}
@@ -721,7 +770,8 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                 )}
             </div>
             </div>
-        ))}
+        )
+      })}
 
         {posts.length === 0 && !isLoading && (
             <div className="bg-white rounded-lg shadow p-8 text-center">

@@ -28,11 +28,12 @@ export interface Post {
   id: number
   description: string
   createdAt: string
-  user: User
+  user?: User
   likes: Like[]
   comments: Comment[]
   images: Image[]
   userLiked: boolean
+  ong?: Ong
 }
 
 export interface Ong {
