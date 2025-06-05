@@ -33,55 +33,98 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
         return `${diffDays}d`
     }
 
-    async function handleLike(postId: number) {
-        if (!loggedInEntity) return
+async function handleLike(postId: number) {
+    if (!loggedInEntity || !loggedInEntity.id) {
+        console.warn("Nenhuma entidade logada ou ID da entidade logada ausente.");
+        return;
+    }
+    console.log("handleLike chamado para Post ID:", postId);
+    console.log("Entidade logada ID:", loggedInEntity.id);
 
-        const postIndex = posts.findIndex((p) => p.id === postId)
-        if (postIndex === -1) return
+    const postIndex = posts.findIndex((p) => p.id === postId);
+    if (postIndex === -1) {
+        console.warn("Post não encontrado com o ID:", postId);
+        return;
+    }
+    const post = posts[postIndex];
+    console.log("Post antes da operação:", post);
 
-        const post = posts[postIndex]
+    const getLikerId = (like: any): number | undefined => {
+        return like.user?.id ?? like.ong?.id;
+    };
 
-        if (post.userLiked) {
-            try {
-                const like = post.likes.find((like: any) => like.user.id === loggedInEntity.id)
-                const res = await fetch('/api/posts/' + postId + '/likes/' + like?.id, {
-                    method: "DELETE",
-                })
+    if (post.userLiked) { // Se o usuário/ONG logado já curtiu este post (descurtir)
+        console.log("Descurtir: Post está marcado como userLiked.");
+        try {
+            const likeToRemove = post.likes.find((like: any) =>
+                getLikerId(like) === loggedInEntity.id
+            );
+            console.log("Like a ser removido encontrado:", likeToRemove);
 
-                if (res.ok) {
-                    const updatedPosts = [...posts]
-                    updatedPosts[postIndex] = {
-                        ...post,
-                        likes: post.likes.filter((like: any) => like.user.id !== loggedInEntity.id),
-                        userLiked: false,
-                    }
-                    setPosts(updatedPosts)
-                }
-            } catch (err) {
-                console.error("Erro ao descurtir:", err)
+            if (!likeToRemove) {
+                console.warn("Não foi possível encontrar o like para remover.");
+                return;
             }
-        } else {
-            try {
-                const res = await fetch('/api/posts/' + postId + '/likes', {
-                    method: "POST",
-                })
 
-                if (res.ok) {
-                    const newLike = await res.json()
-                    const updatedPosts = [...posts]
-                    updatedPosts[postIndex] = {
-                        ...post,
-                        likes: [...post.likes, newLike],
-                        userLiked: true,
-                    }
-                    setPosts(updatedPosts)
-                }
-            } catch (err) {
-                console.error("Erro ao curtir:", err)
+            console.log(`Chamando DELETE para /api/posts/${postId}/likes/${likeToRemove.id}`);
+            const res = await fetch(`/api/posts/${postId}/likes/${likeToRemove.id}`, {
+                method: "DELETE",
+            });
+
+            if (res.ok) {
+                console.log("DELETE API response OK.");
+                const updatedPosts = [...posts];
+                const newLikesArray = post.likes.filter((like: any) =>
+                    getLikerId(like) !== loggedInEntity.id
+                );
+                console.log("Likes antes do filtro:", post.likes.map(getLikerId));
+                console.log("Likes depois do filtro:", newLikesArray.map(getLikerId));
+                console.log("Contador de likes antes:", post.likes.length);
+                console.log("Contador de likes depois:", newLikesArray.length);
+
+                updatedPosts[postIndex] = {
+                    ...post,
+                    likes: newLikesArray,
+                    userLiked: false,
+                };
+                setPosts(updatedPosts);
+                console.log("Estado de posts atualizado após descurtir.");
+            } else {
+                const errorData = await res.json();
+                console.error("Erro ao descurtir (API):", res.status, errorData);
             }
+        } catch (err) {
+            console.error("Erro ao descurtir (frontend catch):", err);
+        }
+    } else { // Se o usuário/ONG logado ainda não curtiu este post (curtir)
+        console.log("Curtir: Post não está marcado como userLiked.");
+        try {
+            const res = await fetch(`/api/posts/${postId}/likes`, {
+                method: "POST",
+            });
+
+            if (res.ok) {
+                console.log("POST API response OK.");
+                const newLike = await res.json();
+                console.log("Novo like recebido:", newLike);
+
+                const updatedPosts = [...posts];
+                updatedPosts[postIndex] = {
+                    ...post,
+                    likes: [...post.likes, newLike],
+                    userLiked: true,
+                };
+                setPosts(updatedPosts);
+                console.log("Estado de posts atualizado após curtir.");
+            } else {
+                const errorData = await res.json();
+                console.error("Erro ao curtir (API):", res.status, errorData);
+            }
+        } catch (err) {
+            console.error("Erro ao curtir (frontend catch):", err);
         }
     }
-
+}
     async function handleDelete(postId: number) {
         if (!confirm("Tem certeza que deseja excluir este post?")) return
 

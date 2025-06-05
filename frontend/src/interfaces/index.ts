@@ -15,7 +15,8 @@ export interface Comment {
 
 export interface Like {
   id: number
-  user: User
+  user?: User
+  ong? : Ong
 }
 
 export interface Image {

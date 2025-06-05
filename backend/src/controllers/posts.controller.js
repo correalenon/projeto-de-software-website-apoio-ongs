@@ -385,7 +385,7 @@ export const postLike = async (req, res) => {
 };
 
 export const postComment =  async (req, res) => {
-    const { id } = req.user;
+    const { id, tipo } = req.user;
     const { postId } = req.params;
     const { description } = req.body;
 
@@ -394,12 +394,16 @@ export const postComment =  async (req, res) => {
     }
 
     try {
-
         const data = {
             description: description,
-            userId: parseInt(id),
             postId: parseInt(postId)
         };
+
+        if (tipo !== "ONG") {
+            data.userId = parseInt(id);
+        } else {
+            data.ongId = parseInt(id);
+        }
 
         const createComment = await prisma.comments.create({ data });
         const comment = await prisma.comments.findUnique({
@@ -412,6 +416,13 @@ export const postComment =  async (req, res) => {
                         profileImage: true
                     }
                 },
+                ong: {
+                    select: {
+                        id: true,
+                        nameONG: true,
+                        profileImage: true,
+                    }
+                },
                 post: {
                     select: {
                         id: true,
@@ -422,23 +433,55 @@ export const postComment =  async (req, res) => {
                                 name: true,
                                 profileImage: true
                             }
+                        },
+                        ong: {
+                            select: {
+                                id: true,
+                                nameONG: true,
+                                profileImage: true
+                            }
                         }
                     }
                 }
             }
         });
-        
+
+        // --- ACTIVITIES ---
+
+        // 4. Determino o nome de quem deu o like
+        const commentName = like.user?.name || like.ong?.nameONG;
+        if (!commentName) {
+            console.error("Erro: Nome do comentador não encontrado.");
+            return res.status(500).json({ error: "Erro interno: Comentador não identificado." });
+        }
+
+        // 5. Determino o nome do autor do post
+        const postAuthorName = like.post.user?.name || like.post.ong?.nameONG;
+        if (!postAuthorName) {
+            console.error("Erro: Nome do autor do post não encontrado.");
+            return res.status(500).json({ error: "Erro interno: Autor do post não identificado." });
+        }
+
+        // 6. Construo a descrição da activity dinamicamente
+        const activityDescription = `${likerName} comentou no post de ${postAuthorName}.`;
+
+        // 7. Crio a Activity
         const createActivity = await prisma.activities.create({
             data: {
-                description: comment.user.name + ' comentou no post de ' + comment.post.user.name,
-                userId: parseInt(id),
-                postId: parseInt(postId)
+                description: activityDescription,
+                // O userId ou ongId da activity deve ser de QUEM DEU O LIKE, não do autor do post.
+                userId: tipo !== "ONG" ? id : null, // Se for usuário, preenche userId, senão null
+                ongId: tipo === "ONG" ? id : null, // Se for ONG, preenche ongId, senão null
+                postId: parseInt(postId) // O ID do post curtido
             }
         });
+
+        // --- FIM ACTIVITIES ---
 
         res.status(201).json(comment);
     } catch (error) {
         res.status(500).json({ error: "Erro ao cadastrar comentário no post" });
+        console.error(error)
     }
 };
 
