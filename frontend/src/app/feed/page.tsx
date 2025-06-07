@@ -8,6 +8,7 @@ import Footer from "@/components/footer"
 import CreatePostModal, { type PostData } from "@/components/createPostModal"
 import { useUser } from "@/context/userContext"
 import { useOng } from "@/context/ongContext"
+import { noProfileImageONG, noProfileImageUser } from "app/images"
 
 export default function HomePage() {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
@@ -23,9 +24,17 @@ export default function HomePage() {
       ADMIN: "ADMINISTRADOR"
   };
 
-  const profileImage = user?.profileImage || ong?.profileImage || "/placeholder.svg";
-  const name = user?.name || ong?.nameONG || "Usuário";
   const role = user?.role || "ONG";
+  const loggedInEntity = user || ong;
+
+  const profileImage = (loggedInEntity: any) => {
+    if (loggedInEntity?.role !== "ONG") {
+      return loggedInEntity?.profileImage !== null ? loggedInEntity?.profileImage : noProfileImageUser
+    }
+    else {
+      return loggedInEntity?.profileImage !== null ? loggedInEntity?.profileImage : noProfileImageONG
+    }
+  }
 
 
   const handlePost = async (postData: PostData) => {
@@ -71,22 +80,22 @@ export default function HomePage() {
               <div className="h-16 bg-blue-600 rounded-t-lg"></div>
               <div className="flex justify-center -mt-8">
                 <div className="h-16 w-16 rounded-full border-4 border-white overflow-hidden">
-                  {profileImage ? (
+                  {profileImage(loggedInEntity) ? (
                       <img
-                          src={profileImage}
-                          alt={name}
+                          src={profileImage(loggedInEntity)}
+                          alt={loggedInEntity?.name || loggedInEntity?.nameONG}
                           className="h-full w-full object-cover"
                       />
                     ) : (
                       <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-gray-600 font-semibold">{name.charAt(0)}</span>
+                        <span className="text-gray-600 font-semibold">{loggedInEntity?.name?.charAt(0) || loggedInEntity?.nameONG?.charAt(0)}</span>
                       </div>
                   )}
                 </div>
               </div>
             </div>
             <div className="text-center pt-2 p-4">
-              <h3 className="font-semibold text-lg">{name}</h3>
+              <h3 className="font-semibold text-lg">{loggedInEntity?.name || loggedInEntity?.nameONG}</h3>
               <p className="text-sm text-gray-500">{typeLabels[role]}</p>
               {role !== 'ONG' && (
               <div className="border-t border-b my-3 py-3">
@@ -105,7 +114,7 @@ export default function HomePage() {
                 <div className="flex justify-between text-sm mt-2">
                   <span className="text-gray-500">Atividades</span>
                     <span className="font-semibold text-blue-600">
-                      {user?.activity ? user.activity.length : "Carregando..."}
+                      {loggedInEntity?.activity ? loggedInEntity.activity.length : "Carregando..."}
                     </span>
                 </div>
                 </div>
@@ -121,15 +130,15 @@ export default function HomePage() {
             <div className="bg-white p-4 rounded-lg shadow">
               <div className="flex gap-3">
                 <div className="h-10 w-10 rounded-full overflow-hidden">
-                  {profileImage ? (
+                  {profileImage(loggedInEntity) ? (
                     <img
-                      src={profileImage}
-                      alt={name}
+                      src={profileImage(loggedInEntity)}
+                      alt={loggedInEntity.name || loggedInEntity.nameONG}
                       className="h-full w-full object-cover"
                     />
                   ) : (
                     <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                      <span className="text-gray-600 font-semibold">{name.charAt(0)}</span>
+                      <span className="text-gray-600 font-semibold">{loggedInEntity?.name?.charAt(0) || loggedInEntity?.nameONG?.charAt(0)}</span>
                     </div>
                   )}
                 </div>
@@ -156,8 +165,8 @@ export default function HomePage() {
       <CreatePostModal
         isOpen={isPostModalOpen}
         onClose={() => setIsPostModalOpen(false)}
-        userImage={profileImage}
-        userName={name}
+        userImage={profileImage(loggedInEntity)}
+        userName={loggedInEntity?.name || loggedInEntity?.nameONG}
         userTitle={typeLabels[role]}
         onPost={handlePost}
       />

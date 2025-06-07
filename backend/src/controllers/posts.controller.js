@@ -14,7 +14,8 @@ export const getPosts = async (req, res) => {
                         name: true,
                         email: true,
                         location: true,
-                        profileImage: true
+                        profileImage: true,
+                        role: true,
                     }
                 },
                 ong: {
@@ -23,7 +24,8 @@ export const getPosts = async (req, res) => {
                         nameONG: true,
                         emailONG: true,
                         city: true,
-                        profileImage: true
+                        profileImage: true,
+                        role: true
                     }
                 },
                 project: {
@@ -67,6 +69,7 @@ export const getPosts = async (req, res) => {
                                 id: true,
                                 name: true,
                                 profileImage: true,
+                                role: true,
                             }
                         },
                         ong: {
@@ -74,6 +77,7 @@ export const getPosts = async (req, res) => {
                                 id: true,
                                 nameONG: true,
                                 profileImage: true,
+                                role: true,
                             }
                         }
                     }
@@ -88,6 +92,7 @@ export const getPosts = async (req, res) => {
         res.status(200).json(posts);
     } catch (error) {
         res.status(500).json({ error: "Erro ao buscar posts" });
+        console.error(error)
     }
 };
 
@@ -107,7 +112,8 @@ export const getPostByID = async (req, res) => {
                         name: true,
                         email: true,
                         location: true,
-                        profileImage: true
+                        profileImage: true,
+                        role: true,
                     }
                 },
                 ong: {
@@ -116,7 +122,8 @@ export const getPostByID = async (req, res) => {
                         nameONG: true,
                         emailONG: true,
                         city: true,
-                        profileImage: true
+                        profileImage: true,
+                        role: true,
                     }
                 },
                 project: {
@@ -159,7 +166,8 @@ export const getPostByID = async (req, res) => {
                             select: {
                                 id: true,
                                 name: true,
-                                profileImage: true
+                                profileImage: true,
+                                role: true,
                             }
                         },
                         ong: {
@@ -167,6 +175,7 @@ export const getPostByID = async (req, res) => {
                                 id: true,
                                 nameONG: true,
                                 profileImage: true,
+                                role: true,
                             }
                         }
                     }
@@ -448,22 +457,22 @@ export const postComment =  async (req, res) => {
 
         // --- ACTIVITIES ---
 
-        // 4. Determino o nome de quem deu o like
-        const commentName = like.user?.name || like.ong?.nameONG;
+        // 4. Determino o nome de quem fez o comentário
+        const commentName = comment.user?.name || comment.ong?.nameONG;
         if (!commentName) {
             console.error("Erro: Nome do comentador não encontrado.");
             return res.status(500).json({ error: "Erro interno: Comentador não identificado." });
         }
 
         // 5. Determino o nome do autor do post
-        const postAuthorName = like.post.user?.name || like.post.ong?.nameONG;
+        const postAuthorName = comment.post.user?.name || comment.post.ong?.nameONG;
         if (!postAuthorName) {
             console.error("Erro: Nome do autor do post não encontrado.");
             return res.status(500).json({ error: "Erro interno: Autor do post não identificado." });
         }
 
         // 6. Construo a descrição da activity dinamicamente
-        const activityDescription = `${likerName} comentou no post de ${postAuthorName}.`;
+        const activityDescription = `${commentName} comentou no post de ${postAuthorName}.`;
 
         // 7. Crio a Activity
         const createActivity = await prisma.activities.create({

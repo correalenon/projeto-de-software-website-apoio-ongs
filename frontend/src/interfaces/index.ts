@@ -10,7 +10,8 @@ export interface Comment {
   id: number
   description: string
   createdAt: string
-  user: User
+  user?: User
+  ong?: Ong
 }
 
 export interface Like {
@@ -62,6 +63,7 @@ export interface Ong {
     profileImage: string
     coverImage: string
     cellphone: string
+    role?: string
 }
 
 export interface Project {

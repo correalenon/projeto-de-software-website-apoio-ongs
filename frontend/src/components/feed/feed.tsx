@@ -414,6 +414,7 @@ async function handleLike(postId: number) {
           name: string;
           profileImage?: string | null;
           city?: string;
+          role?: string;
         } | null = null;
 
         if (post.user) {
@@ -422,6 +423,7 @@ async function handleLike(postId: number) {
             name: post.user.name,
             profileImage: post.user.profileImage,
             city: post.user.location,
+            role: post.user.role
           };
         } else if (post.ong) {
           postAuthor = {
@@ -429,6 +431,7 @@ async function handleLike(postId: number) {
             name: post.ong.nameONG,
             profileImage: post.ong.profileImage,
             city: post.ong.city,
+            role: post.ong.role
           };
         }
 
@@ -475,7 +478,9 @@ async function handleLike(postId: number) {
                   </div>
                 </div>
                 {/* Botão de exclusão: Verifica se a entidade logada é o autor do post */}
-                {loggedInEntity && loggedInEntity.id === postAuthor.id && (
+                { loggedInEntity && postAuthor &&
+                    loggedInEntity?.id === postAuthor.id &&
+                    loggedInEntity.role === postAuthor.role && (
                   <button
                     className="rounded-full p-2 hover:bg-gray-100"
                     onClick={() => handleDelete(post.id)}
@@ -597,12 +602,11 @@ async function handleLike(postId: number) {
                     {loggedInEntity?.profileImage ? (
                         <img
                         src={loggedInEntity.profileImage || "/placeholder.svg"}
-                        // alt={loggedInEntity.nameONG || ""}
                         className="h-full w-full object-cover"
                         />
-                    ) : (
+                    ) : ( 
                         <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-gray-600 font-semibold">{user?.name?.charAt(0) || "U"}</span>
+                        <span className="text-gray-600 font-semibold">{loggedInEntity?.name?.charAt(0) || loggedInEntity?.nameONG?.charAt(0)}</span>
                         </div>
                     )}
                     </div>
@@ -642,57 +646,96 @@ async function handleLike(postId: number) {
                 {/* Lista de comentários */}
                 {expandedComments[post.id] && comments[post.id]?.length > 0 && (
                 <div className="space-y-3 mt-2">
-                    {comments[post.id].slice(0, visibleComments[post.id] || 2).map((comment) => (
-                    <div key={comment.id} className="flex gap-2">
+                    {comments[post.id].slice(0, visibleComments[post.id] || 2).map((comment) => {
+                    // 1. Determinar o autor do comentário e padronizar os dados
+                    let commentAuthor: {
+                        id: number;
+                        name: string;
+                        profileImage?: string | null;
+                        role: string
+                    } | null = null;
+
+                    if (comment.user) {
+                        commentAuthor = {
+                        id: comment.user.id,
+                        name: comment.user.name,
+                        profileImage: comment.user.profileImage,
+                        role: comment.user.role!
+                        };
+                    } else if (comment.ong) {
+                        commentAuthor = {
+                        id: comment.ong.id,
+                        name: comment.ong.nameONG,
+                        profileImage: comment.ong.profileImage,
+                        role: comment.ong.role!
+                        };
+                    }
+
+                    // Se por algum motivo o autor não for encontrado (comentário órfão), você pode pular ou exibir um placeholder
+                    if (!commentAuthor) {
+                        console.warn(`Comentário ${comment.id} não possui um autor (user ou ong) válido.`);
+                        return null;
+                    }
+
+                    const authorProfileImage = commentAuthor.profileImage || (comment.user ? noProfileImageUser : noProfileImageONG);
+                    const authorInitial = commentAuthor.name.charAt(0);
+
+                    return (
+                        <div key={comment.id} className="flex gap-2">
                         <div className="h-8 w-8 rounded-full overflow-hidden flex-shrink-0">
-                        {comment.user.profileImage ? (
+                            {/* Imagem de Perfil do Autor do Comentário */}
+                            {authorProfileImage ? (
                             <img
-                            src={comment.user.profileImage || "/placeholder.svg"}
-                            alt={comment.user.name}
-                            className="h-full w-full object-cover"
+                                src={authorProfileImage}
+                                alt={commentAuthor.name}
+                                className="h-full w-full object-cover"
                             />
-                        ) : (
+                            ) : (
                             <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                            <span className="text-gray-600 font-semibold">{comment.user.name.charAt(0)}</span>
+                                <span className="text-gray-600 font-semibold">{authorInitial}</span>
                             </div>
-                        )}
+                            )}
                         </div>
 
                         <div className="flex-grow">
-                        {editingCommentId === comment.id ? (
+                            {editingCommentId === comment.id ? (
                             <div className="bg-gray-100 rounded-lg p-3">
-                            <input
+                                <input
                                 type="text"
                                 value={editCommentText}
                                 onChange={(e) => setEditCommentText(e.target.value)}
                                 className="w-full border border-gray-300 rounded py-1 px-2 mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                            <div className="flex justify-end gap-2">
+                                />
+                                <div className="flex justify-end gap-2">
                                 <button
-                                onClick={() => setEditingCommentId(null)}
-                                className="text-gray-500 text-sm hover:text-gray-700"
+                                    onClick={() => setEditingCommentId(null)}
+                                    className="text-gray-500 text-sm hover:text-gray-700"
                                 >
-                                Cancelar
+                                    Cancelar
                                 </button>
                                 <button
-                                onClick={() => handleEditComment(post.id, comment.id)}
-                                className="text-blue-600 text-sm font-medium hover:text-blue-700"
+                                    onClick={() => handleEditComment(post.id, comment.id)}
+                                    className="text-blue-600 text-sm font-medium hover:text-blue-700"
                                 >
-                                Atualizar
+                                    Atualizar
                                 </button>
+                                </div>
                             </div>
-                            </div>
-                        ) : (
+                            ) : (
                             <div className="bg-gray-100 rounded-lg p-3 relative group">
-                            <div className="flex justify-between">
-                                <h4 className="font-medium text-sm">{comment.user.name}</h4>
-                                {loggedInEntity?.id === comment.user.id && (
-                                <div className="hidden group-hover:flex gap-1">
+                                <div className="flex justify-between">
+                                {/* Nome do Autor do Comentário */}
+                                <h4 className="font-medium text-sm">{commentAuthor.name}</h4>
+                                {/* Botões de Editar/Deletar: Verifica se a entidade logada é o autor do comentário */}
+                                { loggedInEntity && commentAuthor &&
+                                  loggedInEntity?.id === commentAuthor.id &&
+                                  loggedInEntity.role === commentAuthor.role && (
+                                    <div className="hidden group-hover:flex gap-1">
                                     <button
-                                    onClick={() => startEditComment(comment)}
-                                    className="text-gray-500 hover:text-gray-700"
+                                        onClick={() => startEditComment(comment)}
+                                        className="text-gray-500 hover:text-gray-700"
                                     >
-                                    <svg
+                                        <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="16"
                                         height="16"
@@ -702,15 +745,15 @@ async function handleLike(postId: number) {
                                         strokeWidth="2"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                    >
+                                        >
                                         <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                                    </svg>
+                                        </svg>
                                     </button>
                                     <button
-                                    onClick={() => handleDeleteComment(post.id, comment.id)}
-                                    className="text-gray-500 hover:text-red-500"
+                                        onClick={() => handleDeleteComment(post.id, comment.id)}
+                                        className="text-gray-500 hover:text-red-500"
                                     >
-                                    <svg
+                                        <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="16"
                                         height="16"
@@ -720,21 +763,22 @@ async function handleLike(postId: number) {
                                         strokeWidth="2"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                    >
+                                        >
                                         <path d="M3 6h18" />
                                         <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
                                         <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                    </svg>
+                                        </svg>
                                     </button>
-                                </div>
+                                    </div>
                                 )}
+                                </div>
+                                <p className="text-sm mt-1">{comment.description}</p>
                             </div>
-                            <p className="text-sm mt-1">{comment.description}</p>
-                            </div>
-                        )}
+                            )}
                         </div>
-                    </div>
-                    ))}
+                        </div>
+                    );
+                    })}
 
                     {/* Botão "Exibir mais" */}
                     {hasMoreComments[post.id] && (
