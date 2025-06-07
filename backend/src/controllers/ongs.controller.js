@@ -44,7 +44,8 @@ export const getMe = async (req, res) => {
                     },
                 },
                 profileImage: true,
-                coverImage: true
+                coverImage: true,
+                role: true
             },
         });
 
@@ -85,6 +86,7 @@ export const getOngs = async (req, res) => {
                 description: true,
                 profileImage: true,
                 coverImage: true,
+                role: true
             }
         });
 

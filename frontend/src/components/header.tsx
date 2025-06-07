@@ -4,11 +4,26 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import LogoutButton from "@/components/logout-button";
 import { useOng } from "@/context/ongContext";
+import { noProfileImageUser } from "app/images";
+import { useUser } from "@/context/userContext";
 
 export default function Header() {
   const [isHovered, setIsHovered] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { ong } = useOng();
+  const { user } = useUser();
+
+  const loggedInEntity = user || ong;
+
+  const profileImage = (loggedInEntity: any) => {
+    if (loggedInEntity?.role !== "ONG") {
+      return loggedInEntity?.profileImage !== null ? loggedInEntity?.profileImage : noProfileImageUser
+    }
+    else {
+      return loggedInEntity?.profileImage !== null ? loggedInEntity?.profileImage : noProfileImageONG
+    }
+  }
+ 
 
   const profileLink = ong ? "/profile/ong" : "/profile/user";
 
@@ -119,7 +134,7 @@ export default function Header() {
           >
             <Link href={profileLink} className="flex flex-col items-center">
               <div className="h-7 w-7 rounded-full overflow-hidden">
-                <img src="/placeholder.svg?height=32&width=32" alt="User" className="h-full w-full object-cover" />
+                <img src={profileImage(loggedInEntity)} alt="User" className="h-full w-full object-cover" />
               </div>
               <span className="text-xs mt-0.5">Perfil ▼</span>
             </Link>
@@ -127,7 +142,8 @@ export default function Header() {
             <div
               className={`absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-50 transition-opacity duration-200 ${
                 isHovered ? "opacity-100 visible" : "opacity-0 invisible"
-              }`}
+              }`
+            }
             >
               <Link href={profileLink} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 Meu Perfil

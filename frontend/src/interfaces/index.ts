@@ -10,12 +10,14 @@ export interface Comment {
   id: number
   description: string
   createdAt: string
-  user: User
+  user?: User
+  ong?: Ong
 }
 
 export interface Like {
   id: number
-  user: User
+  user?: User
+  ong? : Ong
 }
 
 export interface Image {
@@ -28,11 +30,12 @@ export interface Post {
   id: number
   description: string
   createdAt: string
-  user: User
+  user?: User
   likes: Like[]
   comments: Comment[]
   images: Image[]
   userLiked: boolean
+  ong?: Ong
 }
 
 export interface Ong {
@@ -60,6 +63,7 @@ export interface Ong {
     profileImage: string
     coverImage: string
     cellphone: string
+    role?: string
 }
 
 export interface Project {

@@ -6,6 +6,7 @@ import { useEffect, useState, useRef } from "react"
 import { useUser } from "@/context/userContext"
 import { useOng } from "@/context/ongContext"
 import type { Comment, Post } from "@/interfaces/index"
+import { noProfileImageONG, noProfileImageUser } from "app/images"
 
 export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
     const { user } = useUser()
@@ -32,55 +33,98 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
         return `${diffDays}d`
     }
 
-    async function handleLike(postId: number) {
-        if (!loggedInEntity) return
+async function handleLike(postId: number) {
+    if (!loggedInEntity || !loggedInEntity.id) {
+        console.warn("Nenhuma entidade logada ou ID da entidade logada ausente.");
+        return;
+    }
+    console.log("handleLike chamado para Post ID:", postId);
+    console.log("Entidade logada ID:", loggedInEntity.id);
 
-        const postIndex = posts.findIndex((p) => p.id === postId)
-        if (postIndex === -1) return
+    const postIndex = posts.findIndex((p) => p.id === postId);
+    if (postIndex === -1) {
+        console.warn("Post não encontrado com o ID:", postId);
+        return;
+    }
+    const post = posts[postIndex];
+    console.log("Post antes da operação:", post);
 
-        const post = posts[postIndex]
+    const getLikerId = (like: any): number | undefined => {
+        return like.user?.id ?? like.ong?.id;
+    };
 
-        if (post.userLiked) {
-            try {
-                const like = post.likes.find((like: any) => like.user.id === loggedInEntity.id)
-                const res = await fetch('/api/posts/' + postId + '/likes/' + like.id, {
-                    method: "DELETE",
-                })
+    if (post.userLiked) { // Se o usuário/ONG logado já curtiu este post (descurtir)
+        console.log("Descurtir: Post está marcado como userLiked.");
+        try {
+            const likeToRemove = post.likes.find((like: any) =>
+                getLikerId(like) === loggedInEntity.id
+            );
+            console.log("Like a ser removido encontrado:", likeToRemove);
 
-                if (res.ok) {
-                    const updatedPosts = [...posts]
-                    updatedPosts[postIndex] = {
-                        ...post,
-                        likes: post.likes.filter((like: any) => like.user.id !== loggedInEntity.id),
-                        userLiked: false,
-                    }
-                    setPosts(updatedPosts)
-                }
-            } catch (err) {
-                console.error("Erro ao descurtir:", err)
+            if (!likeToRemove) {
+                console.warn("Não foi possível encontrar o like para remover.");
+                return;
             }
-        } else {
-            try {
-                const res = await fetch('/api/posts/' + postId + '/likes', {
-                    method: "POST",
-                })
 
-                if (res.ok) {
-                    const newLike = await res.json()
-                    const updatedPosts = [...posts]
-                    updatedPosts[postIndex] = {
-                        ...post,
-                        likes: [...post.likes, newLike],
-                        userLiked: true,
-                    }
-                    setPosts(updatedPosts)
-                }
-            } catch (err) {
-                console.error("Erro ao curtir:", err)
+            console.log(`Chamando DELETE para /api/posts/${postId}/likes/${likeToRemove.id}`);
+            const res = await fetch(`/api/posts/${postId}/likes/${likeToRemove.id}`, {
+                method: "DELETE",
+            });
+
+            if (res.ok) {
+                console.log("DELETE API response OK.");
+                const updatedPosts = [...posts];
+                const newLikesArray = post.likes.filter((like: any) =>
+                    getLikerId(like) !== loggedInEntity.id
+                );
+                console.log("Likes antes do filtro:", post.likes.map(getLikerId));
+                console.log("Likes depois do filtro:", newLikesArray.map(getLikerId));
+                console.log("Contador de likes antes:", post.likes.length);
+                console.log("Contador de likes depois:", newLikesArray.length);
+
+                updatedPosts[postIndex] = {
+                    ...post,
+                    likes: newLikesArray,
+                    userLiked: false,
+                };
+                setPosts(updatedPosts);
+                console.log("Estado de posts atualizado após descurtir.");
+            } else {
+                const errorData = await res.json();
+                console.error("Erro ao descurtir (API):", res.status, errorData);
             }
+        } catch (err) {
+            console.error("Erro ao descurtir (frontend catch):", err);
+        }
+    } else { // Se o usuário/ONG logado ainda não curtiu este post (curtir)
+        console.log("Curtir: Post não está marcado como userLiked.");
+        try {
+            const res = await fetch(`/api/posts/${postId}/likes`, {
+                method: "POST",
+            });
+
+            if (res.ok) {
+                console.log("POST API response OK.");
+                const newLike = await res.json();
+                console.log("Novo like recebido:", newLike);
+
+                const updatedPosts = [...posts];
+                updatedPosts[postIndex] = {
+                    ...post,
+                    likes: [...post.likes, newLike],
+                    userLiked: true,
+                };
+                setPosts(updatedPosts);
+                console.log("Estado de posts atualizado após curtir.");
+            } else {
+                const errorData = await res.json();
+                console.error("Erro ao curtir (API):", res.status, errorData);
+            }
+        } catch (err) {
+            console.error("Erro ao curtir (frontend catch):", err);
         }
     }
-
+}
     async function handleDelete(postId: number) {
         if (!confirm("Tem certeza que deseja excluir este post?")) return
 
@@ -308,7 +352,12 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                         .sort((a: Post, b: Post) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                         .map((post: any) => ({
                             ...post,
-                            userLiked: post.likes.some((like: any) => like.user.id === loggedInEntity?.id),
+                            userLiked: post.likes.some((like: any) => {
+                                // Pega o ID do "liker" (usuário ou ONG)
+                                const likerId = like.user?.id ?? like.ong?.id;
+                                // Compara com o ID da entidade logada
+                                return likerId === loggedInEntity?.id;
+                            }),
                         }))
 
                     setPosts(sortedPosts)
@@ -356,58 +405,106 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
         )
     }
 
-    return (
-        <div className="space-y-4">
-        {posts.map((post) => (
-            <div key={post.id} className="bg-white rounded-lg shadow">
+  return (
+    <div className="space-y-4">
+      {posts.map((post) => {
+        // 1. Identificar o autor do post e padronizar os dados
+        let postAuthor: {
+          id: Number;
+          name: string;
+          profileImage?: string | null;
+          city?: string;
+          role?: string;
+        } | null = null;
+
+        if (post.user) {
+          postAuthor = {
+            id: post.user.id,
+            name: post.user.name,
+            profileImage: post.user.profileImage,
+            city: post.user.location,
+            role: post.user.role
+          };
+        } else if (post.ong) {
+          postAuthor = {
+            id: post.ong.id,
+            name: post.ong.nameONG,
+            profileImage: post.ong.profileImage,
+            city: post.ong.city,
+            role: post.ong.role
+          };
+        }
+
+        if (!postAuthor) {
+          // Tratar posts sem autor válido, ou pular.
+          // Para este exemplo, vamos pular ou renderizar um placeholder
+          console.warn(`Post ${post.id} não possui um autor (user ou ong) válido.`);
+          return (
+            <div key={post.id} className="bg-white rounded-lg shadow p-4 text-center text-gray-500">
+              Post sem autor válido.
+            </div>
+          );
+        }
+
+        const authorProfileImage = postAuthor.profileImage || (post.user ? noProfileImageUser : noProfileImageONG);
+        const authorInitial = postAuthor.name.charAt(0);
+
+        return (
+          <div key={post.id} className="bg-white rounded-lg shadow">
             {/* Cabeçalho do post */}
             <div className="p-2 pb-0">
-                <div className="flex justify-between">
+              <div className="flex justify-between">
                 <div className="flex gap-3">
-                    <div className="h-10 w-10 rounded-full overflow-hidden">
-                    {post.user.profileImage ? (
-                        <img
-                        src={post.user.profileImage || "/placeholder.svg"}
-                        alt={post.user.name}
+                  <div className="h-10 w-10 rounded-full overflow-hidden">
+                    {/* Imagem de Perfil do Autor do Post */}
+                    {authorProfileImage ? (
+                      <img
+                        src={authorProfileImage}
+                        alt={postAuthor.name}
                         className="h-full w-full object-cover"
-                        />
+                      />
                     ) : (
-                        <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-gray-600 font-semibold">{post.user.name.charAt(0)}</span>
-                        </div>
+                      <div className="h-full w-full bg-gray-300 flex items-center justify-center">
+                        <span className="text-gray-600 font-semibold">{authorInitial}</span>
+                      </div>
                     )}
-                    </div>
-                    <div>
-                    <h3 className="text-base font-medium">{post.user.name}</h3>
-                    <p className="text-sm text-gray-500">{post.user.location || post.user.role}</p>
+                  </div>
+                  <div>
+                    {/* Nome do Autor do Post */}
+                    <h3 className="text-base font-medium">{postAuthor.name}</h3>
+                    {/* Detalhes do Autor (location/role) */}
+                    {postAuthor.city && <p className="text-sm text-gray-500">{postAuthor.city}</p>}
                     <p className="text-sm text-gray-500">{getDaysAgo(post.createdAt)} • 🌎</p>
-                    </div>
+                  </div>
                 </div>
-                {loggedInEntity?.id === post.user.id && (
-                    <button
+                {/* Botão de exclusão: Verifica se a entidade logada é o autor do post */}
+                { loggedInEntity && postAuthor &&
+                    loggedInEntity?.id === postAuthor.id &&
+                    loggedInEntity.role === postAuthor.role && (
+                  <button
                     className="rounded-full p-2 hover:bg-gray-100"
                     onClick={() => handleDelete(post.id)}
                     aria-label="Excluir post"
-                    >
+                  >
                     <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-5 w-5"
                     >
-                        <path d="M3 6h18" />
-                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                      <path d="M3 6h18" />
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                     </svg>
-                    </button>
+                  </button>
                 )}
-                </div>
+              </div>
             </div>
 
             {/* Conteúdo do post */}
@@ -504,19 +601,18 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                     <div className="h-8 w-8 rounded-full overflow-hidden flex-shrink-0">
                     {loggedInEntity?.profileImage ? (
                         <img
-                        src={post.user.profileImage || "/placeholder.svg"}
-                        alt={loggedInEntity.name || ""}
+                        src={loggedInEntity.profileImage || "/placeholder.svg"}
                         className="h-full w-full object-cover"
                         />
-                    ) : (
+                    ) : ( 
                         <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-gray-600 font-semibold">{user?.name?.charAt(0) || "U"}</span>
+                        <span className="text-gray-600 font-semibold">{loggedInEntity?.name?.charAt(0) || loggedInEntity?.nameONG?.charAt(0)}</span>
                         </div>
                     )}
                     </div>
                     <div className="flex-grow relative">
                     <input
-                        ref={(el) => (commentInputRefs.current[post.id] = el)}
+                        ref={(el) => { commentInputRefs.current[post.id] = el; }}
                         type="text"
                         value={commentDrafts[post.id] || ""}
                         onChange={(e) => setCommentDrafts((prev) => ({ ...prev, [post.id]: e.target.value }))}
@@ -550,57 +646,96 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                 {/* Lista de comentários */}
                 {expandedComments[post.id] && comments[post.id]?.length > 0 && (
                 <div className="space-y-3 mt-2">
-                    {comments[post.id].slice(0, visibleComments[post.id] || 2).map((comment) => (
-                    <div key={comment.id} className="flex gap-2">
+                    {comments[post.id].slice(0, visibleComments[post.id] || 2).map((comment) => {
+                    // 1. Determinar o autor do comentário e padronizar os dados
+                    let commentAuthor: {
+                        id: number;
+                        name: string;
+                        profileImage?: string | null;
+                        role: string
+                    } | null = null;
+
+                    if (comment.user) {
+                        commentAuthor = {
+                        id: comment.user.id,
+                        name: comment.user.name,
+                        profileImage: comment.user.profileImage,
+                        role: comment.user.role!
+                        };
+                    } else if (comment.ong) {
+                        commentAuthor = {
+                        id: comment.ong.id,
+                        name: comment.ong.nameONG,
+                        profileImage: comment.ong.profileImage,
+                        role: comment.ong.role!
+                        };
+                    }
+
+                    // Se por algum motivo o autor não for encontrado (comentário órfão), você pode pular ou exibir um placeholder
+                    if (!commentAuthor) {
+                        console.warn(`Comentário ${comment.id} não possui um autor (user ou ong) válido.`);
+                        return null;
+                    }
+
+                    const authorProfileImage = commentAuthor.profileImage || (comment.user ? noProfileImageUser : noProfileImageONG);
+                    const authorInitial = commentAuthor.name.charAt(0);
+
+                    return (
+                        <div key={comment.id} className="flex gap-2">
                         <div className="h-8 w-8 rounded-full overflow-hidden flex-shrink-0">
-                        {comment.user.profileImage ? (
+                            {/* Imagem de Perfil do Autor do Comentário */}
+                            {authorProfileImage ? (
                             <img
-                            src={comment.user.profileImage || "/placeholder.svg"}
-                            alt={comment.user.name}
-                            className="h-full w-full object-cover"
+                                src={authorProfileImage}
+                                alt={commentAuthor.name}
+                                className="h-full w-full object-cover"
                             />
-                        ) : (
+                            ) : (
                             <div className="h-full w-full bg-gray-300 flex items-center justify-center">
-                            <span className="text-gray-600 font-semibold">{comment.user.name.charAt(0)}</span>
+                                <span className="text-gray-600 font-semibold">{authorInitial}</span>
                             </div>
-                        )}
+                            )}
                         </div>
 
                         <div className="flex-grow">
-                        {editingCommentId === comment.id ? (
+                            {editingCommentId === comment.id ? (
                             <div className="bg-gray-100 rounded-lg p-3">
-                            <input
+                                <input
                                 type="text"
                                 value={editCommentText}
                                 onChange={(e) => setEditCommentText(e.target.value)}
                                 className="w-full border border-gray-300 rounded py-1 px-2 mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            />
-                            <div className="flex justify-end gap-2">
+                                />
+                                <div className="flex justify-end gap-2">
                                 <button
-                                onClick={() => setEditingCommentId(null)}
-                                className="text-gray-500 text-sm hover:text-gray-700"
+                                    onClick={() => setEditingCommentId(null)}
+                                    className="text-gray-500 text-sm hover:text-gray-700"
                                 >
-                                Cancelar
+                                    Cancelar
                                 </button>
                                 <button
-                                onClick={() => handleEditComment(post.id, comment.id)}
-                                className="text-blue-600 text-sm font-medium hover:text-blue-700"
+                                    onClick={() => handleEditComment(post.id, comment.id)}
+                                    className="text-blue-600 text-sm font-medium hover:text-blue-700"
                                 >
-                                Atualizar
+                                    Atualizar
                                 </button>
+                                </div>
                             </div>
-                            </div>
-                        ) : (
+                            ) : (
                             <div className="bg-gray-100 rounded-lg p-3 relative group">
-                            <div className="flex justify-between">
-                                <h4 className="font-medium text-sm">{comment.user.name}</h4>
-                                {loggedInEntity?.id === comment.user.id && (
-                                <div className="hidden group-hover:flex gap-1">
+                                <div className="flex justify-between">
+                                {/* Nome do Autor do Comentário */}
+                                <h4 className="font-medium text-sm">{commentAuthor.name}</h4>
+                                {/* Botões de Editar/Deletar: Verifica se a entidade logada é o autor do comentário */}
+                                { loggedInEntity && commentAuthor &&
+                                  loggedInEntity?.id === commentAuthor.id &&
+                                  loggedInEntity.role === commentAuthor.role && (
+                                    <div className="hidden group-hover:flex gap-1">
                                     <button
-                                    onClick={() => startEditComment(comment)}
-                                    className="text-gray-500 hover:text-gray-700"
+                                        onClick={() => startEditComment(comment)}
+                                        className="text-gray-500 hover:text-gray-700"
                                     >
-                                    <svg
+                                        <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="16"
                                         height="16"
@@ -610,15 +745,15 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                                         strokeWidth="2"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                    >
+                                        >
                                         <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                                    </svg>
+                                        </svg>
                                     </button>
                                     <button
-                                    onClick={() => handleDeleteComment(post.id, comment.id)}
-                                    className="text-gray-500 hover:text-red-500"
+                                        onClick={() => handleDeleteComment(post.id, comment.id)}
+                                        className="text-gray-500 hover:text-red-500"
                                     >
-                                    <svg
+                                        <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         width="16"
                                         height="16"
@@ -628,21 +763,22 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                                         strokeWidth="2"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                    >
+                                        >
                                         <path d="M3 6h18" />
                                         <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
                                         <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                    </svg>
+                                        </svg>
                                     </button>
-                                </div>
+                                    </div>
                                 )}
+                                </div>
+                                <p className="text-sm mt-1">{comment.description}</p>
                             </div>
-                            <p className="text-sm mt-1">{comment.description}</p>
-                            </div>
-                        )}
+                            )}
                         </div>
-                    </div>
-                    ))}
+                        </div>
+                    );
+                    })}
 
                     {/* Botão "Exibir mais" */}
                     {hasMoreComments[post.id] && (
@@ -721,7 +857,8 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
                 )}
             </div>
             </div>
-        ))}
+        )
+      })}
 
         {posts.length === 0 && !isLoading && (
             <div className="bg-white rounded-lg shadow p-8 text-center">
