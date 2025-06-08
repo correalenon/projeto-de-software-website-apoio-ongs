@@ -134,7 +134,6 @@ model Ongs {
   cnpj                    String      @unique
   password                String
   foundationDate          DateTime
-  role                    Role       @default(ONG)
   area                    String?
   goals                   String?
   cep                     String?
