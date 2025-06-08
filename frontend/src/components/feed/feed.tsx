@@ -22,6 +22,7 @@ export default function Feed({ reloadTrigger }: { reloadTrigger: number }) {
     const [visibleComments, setVisibleComments] = useState<Record<number, number>>({})
     const [hasMoreComments, setHasMoreComments] = useState<Record<number, boolean>>({})
     const commentInputRefs = useRef<Record<number, HTMLInputElement | null>>({})
+    const [highlightedCommentId, setHighlightedCommentId] = useState<string | null>(null);
     const loggedInEntity = user ?? ong;
 
     function getDaysAgo(dateString: string): string {
@@ -146,12 +147,26 @@ async function handleLike(postId: number) {
     function initializeComments(postId: number) {
         const post = posts.find((p) => p.id === postId)
         if (post && post.comments) {
-            setComments((prev) => ({ ...prev, [postId]: post.comments }))
+            // 1. Crio uma cópia da array de comentários para evitar mutar o original
+            const commentsCopy = [...post.comments];
 
+            // 2. Ordeno a cópia da array do mais recente para o mais antigo
+            const sortedComments = commentsCopy.sort((a: Comment, b: Comment) => {
+                // Converto as datas para timestamps para comparação
+                const dateA = new Date(a.createdAt).getTime();
+                const dateB = new Date(b.createdAt).getTime();
+                // Retorno a diferença: b - a para ordem decrescente (mais recente primeiro)
+                return dateB - dateA;
+            });
+
+            // 3. Atualizo o estado com os comentários ordenados
+            setComments((prev) => ({ ...prev, [postId]: sortedComments }));
+
+            // 4. Mantem a lógica de hasMoreComments inalterada, pois ela depende do tamanho total
             setHasMoreComments((prev) => ({
                 ...prev,
-                [postId]: post.comments.length > (visibleComments[postId] || 2),
-            }))
+                [postId]: sortedComments.length > (visibleComments[postId] || 2),
+            }));
         }
     }
 
@@ -221,40 +236,56 @@ async function handleLike(postId: number) {
             if (res.ok) {
                 const newComment = await res.json()
 
+                //1. Coloco o comentário novo no tipo da lista de comentários
                 setComments((prev) => {
-                    const updatedComments = [...(prev[postId] || []), newComment]
-                    return { ...prev, [postId]: updatedComments }
-                })
+                    const updatedComments = [newComment, ...(prev[postId] || [])]; // Novo comentário primeiro
+                    return { ...prev, [postId]: updatedComments };
+                });
 
+                // 2. Atualizo o estado 'posts': Adiciono o novo comentário ao INÍCIO
                 setPosts((prev) => {
                     return prev.map((post) => {
                         if (post.id === postId) {
                             return {
                                 ...post,
-                                comments: [...(post.comments || []), newComment],
-                            }
+                                comments: [newComment, ...(post.comments || [])], // Novo comentário primeiro
+                            };
                         }
-                        return post
-                    })
-                })
+                        return post;
+                    });
+                });
+
+                // 3. Definir o ID do comentário para destaque
+                setHighlightedCommentId(newComment.id);
+
+                // 4. (Opcional) Remover o destaque após alguns segundos
+                setTimeout(() => {
+                    setHighlightedCommentId(null);
+                }, 3000); // Destaque por 3 segundos (ajuste o tempo)
+
 
                 setCommentDrafts((prev) => ({ ...prev, [postId]: "" }))
-
                 setExpandedComments((prev) => ({ ...prev, [postId]: true }))
 
-                const currentVisible = visibleComments[postId] || 2
-                const updatedCommentsLength = (comments[postId]?.length || 0) + 1
-                if (currentVisible < updatedCommentsLength) {
+                const currentVisible = visibleComments[postId] || 2;
+                const updatedCommentsLength = (comments[postId]?.length || 0) + 1; // +1 porque comments[postId] ainda não foi atualizado no estado prev
+                
+                // Garanto que o novo comentário esteja visível, aumentando a contagem se necessário.
+                // Se já for menor que o número total de comentários, não precisa aumentar
+                if (currentVisible < updatedCommentsLength && currentVisible === comments[postId]?.length) {
                     setVisibleComments((prev) => ({
                         ...prev,
                         [postId]: currentVisible + 1,
-                    }))
+                    }));
                 }
+                // Se o comentário adicionado já está no topo, e a visibilidade padrão é 2,
+                // e já haviam 2 comentários visíveis, ele já seria visível.
+                // Se a lista estava vazia, ele será o primeiro visível.
 
                 setHasMoreComments((prev) => ({
                     ...prev,
                     [postId]: updatedCommentsLength > (visibleComments[postId] || 2),
-                }))
+                }));
             }
         } catch (err) {
             console.error("Erro ao comentar:", err)
