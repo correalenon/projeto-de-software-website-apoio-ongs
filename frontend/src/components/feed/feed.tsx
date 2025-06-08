@@ -354,9 +354,15 @@ async function handleLike(postId: number) {
                             ...post,
                             userLiked: post.likes.some((like: any) => {
                                 // Pega o ID do "liker" (usuário ou ONG)
+
                                 const likerId = like.user?.id ?? like.ong?.id;
-                                // Compara com o ID da entidade logada
-                                return likerId === loggedInEntity?.id;
+
+                                // Pega o TIPO do "liker" (crucial para diferenciar IDs iguais)
+                                const likerRole = like.user?.role ? like.user?.role : like.ong?.role
+
+                                // Compara o ID E o TIPO da entidade logada
+                                // loggedInEntity deve ter 'id' e 'type' agora.
+                                return likerId === loggedInEntity?.id && likerRole === loggedInEntity?.role;
                             }),
                         }))
 

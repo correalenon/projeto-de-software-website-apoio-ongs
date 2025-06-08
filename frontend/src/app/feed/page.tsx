@@ -114,7 +114,7 @@ export default function HomePage() {
                 <div className="flex justify-between text-sm mt-2">
                   <span className="text-gray-500">Atividades</span>
                     <span className="font-semibold text-blue-600">
-                      {loggedInEntity?.activity ? loggedInEntity.activity.length : "Carregando..."}
+                      {user?.activity ? user.activity.length : "Carregando..."}
                     </span>
                 </div>
                 </div>

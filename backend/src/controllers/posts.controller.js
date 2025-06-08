@@ -48,12 +48,14 @@ export const getPosts = async (req, res) => {
                             select: {
                                 id: true,
                                 name: true,
+                                role: true,
                             }
                         },
                         ong: {
                             select: {
                                 id: true,
                                 nameONG: true,
+                                role: true,
                             }
                         }
                     }
@@ -146,12 +148,14 @@ export const getPostByID = async (req, res) => {
                             select: {
                                 id: true,
                                 name: true,
+                                role: true,
                             }
                         },
                         ong: {
                             select: {
                                 id: true,
                                 nameONG: true,
+                                role: true,
                             }
                         }
                     }
@@ -422,7 +426,8 @@ export const postComment =  async (req, res) => {
                     select: {
                         id: true,
                         name: true,
-                        profileImage: true
+                        profileImage: true,
+                        role: true,
                     }
                 },
                 ong: {
@@ -430,6 +435,7 @@ export const postComment =  async (req, res) => {
                         id: true,
                         nameONG: true,
                         profileImage: true,
+                        role: true,
                     }
                 },
                 post: {
@@ -440,14 +446,16 @@ export const postComment =  async (req, res) => {
                             select: {
                                 id: true,
                                 name: true,
-                                profileImage: true
+                                profileImage: true,
+                                role: true,
                             }
                         },
                         ong: {
                             select: {
                                 id: true,
                                 nameONG: true,
-                                profileImage: true
+                                profileImage: true,
+                                role: true,
                             }
                         }
                     }
