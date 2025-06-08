@@ -3,7 +3,7 @@
 import type React from "react"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Footer from "../../components/footer"
 import {validaCNPJ} from "../functions.js"
@@ -38,10 +38,23 @@ export default function SignupPage() {
   const [cellphoneLegalGuardian, setCellphoneLegalGuardian] = useState("")
   const [ongId, setOngId] = useState("")
   const [error, setError] = useState("")
+  const [maxDate, setMaxDate] = useState("")
   const router = useRouter()
   const showVoluntaryFields = role === "VOLUNTARY";
   const showAdvertiserFields = role === "ADVERTISER";
   const showCollaboratorFields = role === "COLLABORATOR";
+
+  const getTodayDateString = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  useEffect(() => {
+    setMaxDate(getTodayDateString());
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -134,26 +147,38 @@ export default function SignupPage() {
 
   }
 
-  async function consultaDadosCEP(){
-    let cep = prompt("Digite o CEP da Cidade: ");
+  async function consultaDadosCEP(cep: any){
+    let cepRetorno;
 
-    if (cep) {
+    if (cep && cep.length > 0) {
+      cepRetorno = cep;
+    }
+    else {
+      cepRetorno = prompt("Digite o CEP da Cidade: ");
+    }
+
+
+    if (cepRetorno) {
       // Remove caracteres não numéricos do CEP
-      cep = cep.replace(/\D/g, "");
+      cepRetorno = cepRetorno.replace(/\D/g, "");
       //Verifica se o CEP tekm 8 dígitos
-      if (cep.length !== 8) {
+      if (cepRetorno.length !== 8) {
         alert("CEP inválido. O CEP deve conter 8 dígitos.");
         return;
       }
       try {
         const response = await fetch('/api/location', {
           method: 'POST',
-          body: JSON.stringify({ cep })
+          body: JSON.stringify({ cep: cepRetorno })
         });
         const data = await response.json();
 
         if (!data) {
           alert("Localização não encontrada. Verifique o CEP e tente novamente.");
+          return;
+        }
+        else if (data.erro == 'true') {
+          alert("CEP inválido, tente novamente")
           return;
         }
         else {
@@ -166,8 +191,14 @@ export default function SignupPage() {
     }
   }
 
-async function consultaDadosCNPJ() {
-  let CNPJ = prompt("Digite o CNPJ:");
+async function consultaDadosCNPJ(cnpjParam: any) {
+  let CNPJ;
+  if (cnpjParam && cnpjParam.length > 0) {
+    CNPJ = cnpjParam;
+  }
+  else {
+    CNPJ = prompt("Digite o CNPJ:");
+  }
 
   if (!CNPJ) return;
 
@@ -247,7 +278,7 @@ async function consultaDadosCNPJ() {
                 {/* Nome */}
 
               <hr className="my-4" />
-              <h3 className="text-md font-semibold text-gray-700">Informações de Voluntários</h3>
+              <h3 className="text-md font-semibold text-gray-700">Informações de Voluntários / Colaboradores</h3>
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                   Nome Completo
@@ -288,7 +319,7 @@ async function consultaDadosCNPJ() {
 
               <div>
                 <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-                  Localização
+                  Cidade
                 </label>
                 <div className="mt-1">
                   <input
@@ -302,20 +333,30 @@ async function consultaDadosCNPJ() {
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Ex: São Paulo, SP"
                   />
+                </div>
+
+                <div className="mt-1">
                   <button
                     type="button"
                     className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     onClick={async () => {
-                      const data = await consultaDadosCEP();
+                      const data = await consultaDadosCEP(location);
 
-                      const location = data.localidade +  ", " + data.uf;
+                      if (data) {
+                        const cidade = data.localidade +  ", " + data.uf;
+  
+                        setLocation(cidade);
+                      }
+                      else {
+                        setLocation("")
+                      }
 
-                      setLocation(location);
                     }}
                     >
-                      Buscar Localização pelo CEP
+                      Importar Localização pelo CEP
                     </button>
-                </div>
+                </div>  
+
               </div>
                 </>
               )}
@@ -383,32 +424,35 @@ async function consultaDadosCNPJ() {
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="00.000.000/0000-00"
           />
+          </div>
+
+          <div className="mt-1">
           <button
             type="button"
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             onClick={async () => {
               try {
-               const data = await consultaDadosCNPJ(); 
+               const data = await consultaDadosCNPJ(cnpj); 
 
-               if (data) {
-                  {/* Primeiro limpo os campos */}
-                  setNameONG("");
-                  setSocialName("");
-                  setEmailONG("");
-                  setCnpj("");
-                  setFoundationDate("");
-                  setArea("");
-                  setCep("");
-                  setStreet("");
-                  setComplement("");
-                  setDistrict("");
-                  setCity("");
-                  setState("");
-                  setNumber("");
-                  setCellphone("");
-                  setCpfLegalGuardian("")
-                  setRgLegalGuardian("")
-   
+                {/* limpo os campos */}
+                setNameONG("");
+                setSocialName("");
+                setEmailONG("");
+                setCnpj("");
+                setFoundationDate("");
+                setArea("");
+                setCep("");
+                setStreet("");
+                setComplement("");
+                setDistrict("");
+                setCity("");
+                setState("");
+                setNumber("");
+                setCellphone("");
+                setCpfLegalGuardian("")
+                setRgLegalGuardian("")
+
+                if (data) {
                   {/* seto eles caso existam na requisição */}
                   data.fantasia ? setNameONG(data.fantasia.trim()) : setNameONG("");
                   data.nome ? setSocialName(data.nome.trim()) : setSocialName("");
@@ -452,11 +496,12 @@ async function consultaDadosCNPJ() {
 
             }}
             >
-              Buscar dados do CNPJ
+              Importar dados do CNPJ
             </button>
-        </div>
-      </div>
 
+          </div>  
+
+        </div>
       <div>
         <label htmlFor="FoundationDate" className="block text-sm font-medium text-gray-700">
           Data de Fundação*
@@ -470,6 +515,7 @@ async function consultaDadosCNPJ() {
             required
             value={foundationDate}
             onChange={(e) => setFoundationDate(e.target.value)}
+            max={maxDate}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
@@ -529,13 +575,15 @@ async function consultaDadosCNPJ() {
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="00000-000"
           />
+        </div>
+
+        <div className="mt-1">
             <button
             type="button"
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             onClick={async () => {
-              const data = await consultaDadosCEP();
+              const data = await consultaDadosCEP(cep);
 
-              if (data) {
                 {/* Primeiro limpo os campos */}
                 setCep("");
                 setStreet("");
@@ -544,7 +592,8 @@ async function consultaDadosCNPJ() {
                 setCity("");
                 setState("");
                 setNumber("");
-  
+
+              if (data) {  
                 {/* seto eles caso existam na requisição */}
                 data.cep ? setCep(data.cep.trim()) : setCep("");
                 data.logradouro ? setStreet(data.logradouro.trim()) : setStreet("");
@@ -556,7 +605,7 @@ async function consultaDadosCNPJ() {
 
             }}
             >
-              Buscar Localização pelo CEP
+              Importar dados de localização pelo CEP
             </button>
         </div>
       </div>
@@ -796,7 +845,7 @@ async function consultaDadosCNPJ() {
             value={cellphoneLegalGuardian}
             onChange={(e) => setCellphoneLegalGuardian(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            placeholder="00.000.000-0"
+            placeholder="Ex: (11) 99999-9999"
           />
         </div>
       </div>

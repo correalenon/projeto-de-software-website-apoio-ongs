@@ -2,9 +2,10 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import LogoutButton from "@/components/logout-button";
 import { useOng } from "@/context/ongContext";
-import { noProfileImageUser } from "app/images";
+import { noProfileImageUser, noProfileImageONG } from "app/images";
 import { useUser } from "@/context/userContext";
 
 export default function Header() {
@@ -12,6 +13,7 @@ export default function Header() {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { ong } = useOng();
   const { user } = useUser();
+  const pathName = usePathname();
 
   const loggedInEntity = user || ong;
 
@@ -22,6 +24,10 @@ export default function Header() {
     else {
       return loggedInEntity?.profileImage !== null ? loggedInEntity?.profileImage : noProfileImageONG
     }
+  }
+
+  const isActive = (path: string) => {
+    return pathName === path;
   }
  
 
@@ -65,8 +71,13 @@ export default function Header() {
           </div>
         </div>
         <nav className="flex items-center space-x-1">
+          {/* Início */}
           <Link href="/feed" className="flex flex-col items-center px-1 py-1">
-            <div className="flex items-center justify-center h-9 w-9 rounded-md text-black">
+              <div
+                className={`flex items-center justify-center h-9 w-9 rounded-md ${
+                  isActive("/feed") ? "text-blue-600 bg-blue-100" : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -82,11 +93,22 @@ export default function Header() {
                 <polyline points="9 22 9 12 15 12 15 22" />
               </svg>
             </div>
-            <span className="text-xs mt-0.5 text-black">Inicio</span>
+            <span
+              className={`text-xs mt-0.5 ${
+                isActive("/feed") ? "text-blue-600 font-semibold" : "text-gray-500"
+              }`}
+            >
+              Início
+            </span>
           </Link>
 
-          <Link href="/ongs" className="flex flex-col items-center px-1 py-1">
-            <div className="flex items-center justify-center h-9 w-9 rounded-md text-gray-500">
+           {/* ONG's */}     
+            <Link href="/ongs" className="flex flex-col items-center px-1 py-1">
+              <div
+                className={`flex items-center justify-center h-9 w-9 rounded-md ${
+                  isActive("/ongs") ? "text-blue-600 bg-blue-100" : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -104,11 +126,22 @@ export default function Header() {
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
             </div>
-            <span className="text-xs mt-0.5 text-gray-500">ONG's</span>
+            <span
+              className={`text-xs mt-0.5 ${
+                isActive("/ongs") ? "text-blue-600 font-semibold" : "text-gray-500"
+              }`}
+            >
+              ONG's
+            </span>
           </Link>
 
-          <Link href="/projects" className="flex flex-col items-center px-1 py-1">
-            <div className="flex items-center justify-center h-9 w-9 rounded-md text-gray-500">
+          {/* Projetos */}      
+            <Link href="/projects" className="flex flex-col items-center px-1 py-1">
+              <div
+                className={`flex items-center justify-center h-9 w-9 rounded-md ${
+                  isActive("/projects") ? "text-blue-600 bg-blue-100" : "text-gray-500 hover:text-gray-700"
+                }`}
+              >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -124,7 +157,13 @@ export default function Header() {
                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
               </svg>
             </div>
-            <span className="text-xs mt-0.5 text-gray-500">Projetos</span>
+            <span
+              className={`text-xs mt-0.5 ${
+                isActive("/projects") ? "text-blue-600 font-semibold" : "text-gray-500"
+              }`}
+            >
+              Projetos
+            </span>
           </Link>
 
           <div
@@ -132,11 +171,19 @@ export default function Header() {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
+            {/* Meu Perfil */}
             <Link href={profileLink} className="flex flex-col items-center">
-              <div className="h-7 w-7 rounded-full overflow-hidden">
+              <div className={`h-7 w-7 rounded-full overflow-hidden ${
+                    isActive(profileLink) ? "text-blue-600 bg-blue-100" : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
                 <img src={profileImage(loggedInEntity)} alt="User" className="h-full w-full object-cover" />
               </div>
-              <span className="text-xs mt-0.5">Perfil ▼</span>
+                <span
+                  className={`text-xs mt-0.5 ${
+                    isActive(profileLink) ? "text-blue-600 font-semibold" : "text-gray-500"
+                  }`}
+                >Perfil ▼</span>
             </Link>
 
             <div

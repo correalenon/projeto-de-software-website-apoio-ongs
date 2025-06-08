@@ -161,7 +161,7 @@ export default function ProfileOngProjects() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {projects.map((project: any) => (
               <div key={project.id} className="border rounded-lg hover:shadow-md transition">
-                {project.projectImage.length > 0 && (
+                { project.projectImage && project.projectImage.length > 0 && (
                   <Link legacyBehavior href={`/projects/${project.id}`} passHref>
                     <a className="block h-48 w-full overflow-hidden rounded-t-lg cursor-pointer">
                       <img
