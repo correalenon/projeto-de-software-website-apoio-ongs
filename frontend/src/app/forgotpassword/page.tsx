@@ -35,7 +35,11 @@ export default function ForgotPasswordPage() {
     setError("")
 
     try {
-      envioEmail(email, geraCodigoEmail())
+      const codigo = geraCodigoEmail();
+      const mensagem = `Olá, seu código de verificação é: ${codigo}.
+            Clique no link para redefinir sua senha: http://200.132.38.218:3001/editpassword?email=${encodeURIComponent(email)}&codigo=${encodeURIComponent(codigo)}`;
+      
+      envioEmail(email, mensagem);
       setIsButtonDisabled(true);
       setCountdown(30);
     }

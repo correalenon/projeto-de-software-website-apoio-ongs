@@ -2,17 +2,29 @@
 
 import { useEffect, useState, useRef } from "react";
 import type { Ong } from "@/interfaces/index"; 
-import { noCoverImage, noProfileImageONG } from "app/images"; 
+import { noCoverImage, noProfileImageONG } from "app/images";
+import { useUser } from "@/context/userContext"; 
+import { envioEmail } from "@/api/email";
 
 export default function OngHeader({ id }: { id: number }) {
   const [ong, setOng] = useState<Ong | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const {user} = useUser();
 
   // --- Novos estados para o modal de imagem (REUTILIZADOS) ---
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isZoomed, setIsZoomed] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+
+  const isCollaborator = (user: any) => {
+    if (user && user.role === 'COLLABORATOR') {
+      return true
+    }
+    else {
+      return false
+    }
+  }
   // --- Fim dos novos estados ---
 
   useEffect(() => {
@@ -50,7 +62,7 @@ export default function OngHeader({ id }: { id: number }) {
       document.body.style.overflow = "auto";
     };
   }, [selectedImage]);
-  // --- Fim do efeito ---
+  // --- Fim do efeito ---]
 
   // --- Funções para o modal de imagem (REUTILIZADAS) ---
   const handleImageClick = (imgUrl: string) => {
@@ -80,6 +92,58 @@ export default function OngHeader({ id }: { id: number }) {
       return `${baseName.replace(/\s+/g, '_').toLowerCase()}_${new Date().getTime()}.jpg`;
     }
   };
+
+  async function associateONG(id: number) {
+    try {
+      const response = await fetch(`/api/users/associate/ong`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ongId: id})
+      });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          const errorMessage = errorData.error || `Erro desconhecido (${response.status})`;
+
+          if (response.status === 400) { // Bad Request (e.g., campos faltando)
+              alert(`Falha na solicitação: ${errorMessage}`);
+          } else if (response.status === 403) { // Forbidden (e.g., já associado a outra ONG ou ONG que tenta associar)
+              alert(`Não permitido: ${errorMessage}`);
+          } else if (response.status === 409) { // Conflict (e.g., solicitação já pendente)
+              alert(`Aviso: ${errorMessage}`);
+          } else { // Outros erros 5xx
+              alert(`Ocorreu um erro ao processar sua solicitação: ${errorMessage}`);
+          }
+          return; // Impede que o código continue após um erro da API
+        }
+
+
+        // Se a requisição foi bem-sucedida
+        alert("Solicitação de associação enviada com sucesso!");
+
+        // --- LÓGICA DE ENVIO DE E-MAIL (AGORA MAIS PROTEGIDA) ---
+
+        const ongEmailToNotify = ong!.emailONG; // Pega o email da ONG do estado ou prop
+
+        if (ongEmailToNotify) {
+          const notificationMessage = `O usuário ${user!.name} (Email: ${user!.email}) solicitou associação junto à ONG ${ong!.nameONG}. Para responder à solicitação, acesse o painel da ONG em: http://200.132.38.218:3001/painel-da-ong`;
+          
+          await envioEmail(ongEmailToNotify, notificationMessage);
+          alert("E-mail de notificação enviado para a ONG.");
+        } 
+        else {
+            alert("Solicitação enviada, mas não foi possível notificar a ONG por e-mail (e-mail da ONG não encontrado).");
+        }
+        // --- FIM DA LÓGICA DE ENVIO DE E-MAIL ---
+
+        } catch (error: any) {
+            console.error("Erro inesperado na função associateONG:", error);
+            alert(`Ocorreu um erro inesperado: ${error.message || "Tente novamente."}`);
+        }
+    }
+
   // --- Fim das funções ---
 
 
@@ -135,6 +199,18 @@ export default function OngHeader({ id }: { id: number }) {
           <div className="mt-6 md:mt-0 text-right">
             <p className="text-sm text-gray-500">Fundada em: {new Date(ong.foundationDate).toLocaleDateString()}</p>
             <p className="text-sm text-gray-500">{ong.city} - {ong.state}</p>
+
+            <br>
+            </br>
+
+            {isCollaborator(user) &&  (
+            <button
+              onClick={() => associateONG(ong.id)}
+              className="border border-gray-300 px-4 py-1 rounded hover:bg-gray-50"
+            >
+              Se associar a ONG
+            </button>
+            )}
           </div>
         </div>
       </div>

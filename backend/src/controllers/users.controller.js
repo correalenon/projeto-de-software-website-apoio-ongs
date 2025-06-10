@@ -269,3 +269,87 @@ export const PutPasswordUser = async (req, res) => {
         res.status(500).json({ error: "Erro ao atualizar senha"});
     }
 }
+
+export const PutUserONG = async (req, res) => {
+    try {
+        const { id, tipo } = req.user;
+        const { ongId } = req.body; // ID da ONG para a qual o usuário quer solicitar associação
+
+        // 1. Validações Iniciais
+        if (!id || !ongId) {
+            return res.status(400).json({ error: "ID do usuário ou da ONG não informados." });
+        }
+
+        // 2. Valida se o usuário logado é um "Colaborador" (ou User) e não uma ONG
+        if (tipo === "ONG") {
+            return res.status(403).json({ error: "Acesso não permitido a ONGs." });
+        }
+        else 
+        if (tipo !== 'COLLABORATOR') {
+            return res.status(403).json({ error: "Acesso não permitido a Voluntários." });
+        }
+
+        // 3. Valida se o usuário já pertence a ALGUMA ONG (se a regra é 1 ONG por usuário)
+        const currentUser = await prisma.user.findUnique({
+            where: { id: id }, // Use id diretamente, não parsedid se for String
+            select: { ongId: true }
+        });
+
+        if (currentUser && currentUser.ongId) {
+            return res.status(403).json({ error: "Você já está associado a uma ONG. Um colaborador pode pertencer a no máximo 1 ONG." });
+        }
+
+        // 4. Valida se já existe uma solicitação PENDENTE para ESTA ONG
+        const existingRequest = await prisma.associateUserONG.findFirst({
+            where: {
+                id,
+                parsedOngId,
+                status: 1 // Status de "Solicitado"
+            }
+        });
+
+        if (existingRequest) {
+            return res.status(409).json({ error: "Você já tem uma solicitação pendente para esta ONG." });
+        }
+
+        // 5. Valida se o usuário já foi ACEITO por ESTA ONG (ou rejeitado e quer tentar de novo)
+        const existingAcceptedOrRejected = await prisma.associateUserONG.findFirst({
+            where: {
+                id,
+                ongId,
+                status: {
+                    in: [2, 3] // Status de "Aceito" ou "Negado"
+                }
+            }
+        });
+
+        if (existingAcceptedOrRejected && existingAcceptedOrRejected.status === 2) {
+            return res.status(409).json({ error: "Você já é associado a esta ONG." });
+        }
+        if (existingAcceptedOrRejected && existingAcceptedOrRejected.status === 3) {
+            // Pode permitir uma nova solicitação ou dar uma mensagem específica
+            // Para este exemplo, vamos permitir uma nova solicitação atualizando o status
+            const updatedRequest = await prisma.associateUserONG.update({
+                where: { id: existingAcceptedOrRejected.id },
+                data: { status: 1 } // Muda para Solicitado novamente
+            });
+            return res.status(200).json({ message: "Sua solicitação anterior foi reativada.", request: updatedRequest });
+        }
+
+
+        // 6. Cria a nova solicitação de associação
+        const newRequest = await prisma.associateUserONG.create({
+            data: {
+                id,
+                ongId,
+                status: 1 // Status: Solicitado
+            }
+        });
+
+        res.status(200).json({ message: "Solicitação de associação enviada com sucesso!", request: newRequest });
+
+    } catch (error) {
+        console.error("Erro ao solicitar associação de usuário com ONG:", error);
+        res.status(500).json({ error: "Erro ao solicitar associação de usuário com ONG" });
+    }
+};

@@ -125,6 +125,8 @@ model Users {
   ongId         Int?
   tags          Tags[]
   contributions Contribution[]
+  associatedOngs AssociateUserONG[]
+  associatedProjects UserAssociateProject[]
 }
 
 model Ongs {
@@ -180,9 +182,7 @@ model Projects {
   additionalInfo String?
   projectImage   String?
   contributionProject String[]
-
 }
-
 model Contribution {
   id             Int       @id @default(autoincrement())
   user           Users     @relation(fields: [userId], references: [id])
@@ -199,4 +199,30 @@ model Contribution {
   rating         Int?      // nota da ONG (1 a 5)
   feedback       String?   // comentário da ONG
   createdAt      DateTime  @default(now())
+}
+
+model AssociateUserONG {
+  id     Int    @id @default(autoincrement())
+  userId String // Ou Int, dependendo do tipo de ID do seu model User
+  ongId  String // Ou Int, dependendo do tipo de ID do seu model Ongs
+  status Int // 1 - Solicitado, 2 - Aceito, 3 - Negado
+
+  user User @relation(fields: [userId], references: [id])
+  ong  Ongs @relation(fields: [ongId], references: [id])
+
+  @@index([userId])
+  @@index([ongId])
+}
+
+model UserAssociateProject {
+  id        Int    @id @default(autoincrement())
+  userId    String // Ou Int
+  projectId String // Ou Int
+  status    Int // 1 - Solicitado, 2 - Aceito, 3 - Negado
+
+  user    User    @relation(fields: [userId], references: [id])
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@index([userId])
+  @@index([projectId])
 }
