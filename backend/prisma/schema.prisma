@@ -22,6 +22,14 @@ enum ContributionType {
   OUTRO
 }
 
+enum AssociateStatus {
+  INVITE_PENDING_ONG_TO_USER // 1. Convite enviado da ONG, aguardando resposta do usuário
+  REQUEST_PENDING_USER_TO_ONG // 2. Solicitação enviada do usuário, aguardando resposta da ONG (para Projetos)
+  ACCEPTED // 3. Aceito (final)
+  REJECTED_BY_USER // 4. Rejeitado pelo usuário convidado
+  REJECTED_BY_ONG // 5. Rejeitado pela ONG (para solicitações de projeto)
+}
+
 model Images {
   id            Int         @id @default(autoincrement())
   content       String?
@@ -166,6 +174,7 @@ model Ongs {
   activities              Activities[]
   likes                   Likes[]
   comments                Comments[]
+  associatedOngs AssociateUserONG[]
 }
 
 model Projects {
@@ -182,6 +191,7 @@ model Projects {
   additionalInfo String?
   projectImage   String?
   contributionProject String[]
+  associatedProjects UserAssociateProject[]
 }
 model Contribution {
   id             Int       @id @default(autoincrement())
@@ -202,26 +212,27 @@ model Contribution {
 }
 
 model AssociateUserONG {
-  id     Int    @id @default(autoincrement())
-  userId String // Ou Int, dependendo do tipo de ID do seu model User
-  ongId  String // Ou Int, dependendo do tipo de ID do seu model Ongs
-  status Int // 1 - Solicitado, 2 - Aceito, 3 - Negado
+  id        Int    @id @default(autoincrement())
+  userId    Int
+  ongId     Int
+  status    AssociateStatus
 
-  user User @relation(fields: [userId], references: [id])
-  ong  Ongs @relation(fields: [ongId], references: [id])
+  user      Users @relation(fields: [userId], references: [id])
+  ong       Ongs @relation(fields: [ongId], references: [id])
 
+  @@unique([userId, ongId]) // Um usuário só pode ter uma solicitação/convite/associação com uma ONG
   @@index([userId])
   @@index([ongId])
 }
 
 model UserAssociateProject {
   id        Int    @id @default(autoincrement())
-  userId    String // Ou Int
-  projectId String // Ou Int
-  status    Int // 1 - Solicitado, 2 - Aceito, 3 - Negado
+  userId    Int
+  projectId Int
+  status    AssociateStatus // Status da solicitação (request_pending_user_to_ong, accepted, rejected_by_ong)
 
-  user    User    @relation(fields: [userId], references: [id])
-  project Project @relation(fields: [projectId], references: [id])
+  user    Users     @relation(fields: [userId], references: [id])
+  project Projects  @relation(fields: [projectId], references: [id])
 
   @@index([userId])
   @@index([projectId])

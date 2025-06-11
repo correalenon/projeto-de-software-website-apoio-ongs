@@ -4,9 +4,10 @@ emailjs.init({
     publicKey: 'hhW_LhDgy1nw2Uhol'
 });
 
-export async function envioEmail(email, mensagem) {
+export async function envioEmail(email, assunto, mensagem) {
     try {
         const response = await emailjs.send('service_e0vv17c', 'template_7jfrirb', {
+            assunto: assunto,
             mensagem: mensagem,
             email: email,
         });

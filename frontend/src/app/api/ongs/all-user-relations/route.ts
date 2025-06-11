@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { API_URL } from "@/api/config";
 
-export async function PUT(request: NextRequest) {
+export async function GET(request: NextRequest) {
     try {
-        const { id } = await request.json();
         const TOKEN = request.cookies.get('token')?.value;
-        const response = await fetch(API_URL + "/associate/ong/", {
-            method: "PUT",
+        const response = await fetch(`${API_URL}/ongs/all-user-relations`, {
+            method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + TOKEN
             },
-            body: JSON.stringify({ongId: id})
         });
-
+        
         if (!response.ok) {
           return NextResponse.json({ error: await response.json() }, { status: response.status });
         }
