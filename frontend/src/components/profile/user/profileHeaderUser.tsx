@@ -21,7 +21,7 @@ export default function ProfileHeaderUser() {
         coverImage: "",
         createdAt: new Date(),
         updatedAt: new Date(),
-        skills: []
+        skills: [],
     });
     
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -193,6 +193,18 @@ export default function ProfileHeaderUser() {
                         <div>
                             <h1 className="text-2xl font-bold">{profileData?.name || "Carregando..."}</h1>
                             <p className="text-lg">{profileData?.location || "Carregando..."}</p>
+                            {/* Se a role do user for colaborador, verificar se tem uma ONG vinculada, se não estiver. Mostra mensagem que nao tem ONG associada */}
+                            {user.role === 'COLLABORATOR' && (
+                            <div>
+                                {user.ongId ? (
+                                // Se o usuário é COLABORADOR e tem um ongId, exibe o nome da ONG
+                                <p className="text-lg">ONG Associada: <span className="font-semibold">{user.ong?.nameONG || "Nome da ONG não disponível"}</span></p>
+                                ) : (
+                                // Se o usuário é COLABORADOR e NÃO tem um ongId, mostra a mensagem
+                                <p className="text-lg text-gray-500">Você não está associado a nenhuma ONG.</p>
+                                )}
+                            </div>
+                            )}
                             <p className="text-sm text-gray-500 mt-1">
                                 {profileData?.createdAt ? new Date(profileData.createdAt).toLocaleDateString("pt-BR", { year: "numeric", month: "long" }).replace(/^\w/, c => c.toUpperCase()) : "Carregando..."}
                             </p>

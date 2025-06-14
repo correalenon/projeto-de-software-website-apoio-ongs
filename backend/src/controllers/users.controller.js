@@ -43,7 +43,8 @@ export const getMe = async (req, res) => {
                 },
                 contributions: true,
                 profileImage: true,
-                coverImage: true
+                coverImage: true,
+                ongId: true,
             },
         });
 
@@ -132,6 +133,7 @@ export const getUserByID = async (req, res) => {
                         cnpj: true,
                     }
                 },
+                ongId: true,
             }
         });
         if (!user) {

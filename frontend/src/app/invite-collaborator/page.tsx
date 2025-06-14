@@ -3,9 +3,10 @@
 import type React from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react" // Importe useEffect
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import Footer from "../../components/footer" // Ajuste o caminho se necessário
+import Footer from "../../components/footer"
+import LogoutButton from "@/components/logout-button";
 
 // --- Interface para o objeto Invite ---
 interface Invite {
@@ -67,7 +68,7 @@ export default function InviteResponsePage() {
         const response = await fetch(`/api/invites/${inviteId}`);
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || "Erro ao carregar detalhes do convite.");
+          throw (errorData.error.message || "Erro ao carregar detalhes do convite.");
         }
         const data: Invite = await response.json();
 
@@ -82,8 +83,7 @@ export default function InviteResponsePage() {
 
         setInviteDetails(data);
       } catch (err: any) {
-        console.error("Erro ao buscar detalhes do convite:", err);
-        setError(err.message || "Não foi possível carregar os detalhes do convite.");
+        setError(err || "Não foi possível carregar os detalhes do convite.");
       } finally {
         setIsLoading(false);
       }
@@ -114,7 +114,7 @@ export default function InviteResponsePage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Falha ao responder ao convite (Status: ${response.status})`);
+        throw (errorData.error.message || `Falha ao responder ao convite (Status: ${response.status})`);
       }
 
       const apiResponse = await response.json();
@@ -125,7 +125,6 @@ export default function InviteResponsePage() {
       // setTimeout(() => router.push('/dashboard-colaborador'), 3000);
 
     } catch (err: any) {
-      console.error("Erro ao responder convite:", err);
       setError(err.message || "Ocorreu um erro ao registrar sua resposta. Tente novamente.");
     } finally {
       setIsSubmitting(false);
@@ -247,7 +246,12 @@ export default function InviteResponsePage() {
                         </p>
                     )}
                     {responseMessage && <p className="text-gray-700">{responseMessage}</p>}
-                    <Link href="/" className="text-blue-600 hover:underline">Voltar para o Início</Link>
+                    <div className="text-center mt-4 p-4 bg-yellow-50 rounded-md shadow-sm"> {/* Adiciona um fundo e padding para destaque */}
+                      <p className="text-sm text-yellow-800 mb-2"> {/* Mensagem de alerta */}
+                        É necessário realizar o **logout** para atualizar os dados do usuário.
+                      </p>
+                      <LogoutButton />
+                    </div>
                 </div>
             )}
           </div>

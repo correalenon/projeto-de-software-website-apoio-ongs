@@ -216,6 +216,7 @@ model AssociateUserONG {
   userId    Int
   ongId     Int
   status    AssociateStatus
+  rejectionReason String?
 
   user      Users @relation(fields: [userId], references: [id])
   ong       Ongs @relation(fields: [ongId], references: [id])

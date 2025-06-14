@@ -422,7 +422,7 @@ export const getAllOngUserRelations = async (req, res) => {
     try {
         const relations = await prisma.associateUserONG.findMany({
             where: {
-                id
+                ongId: id
             },
             include: {
                 user: {

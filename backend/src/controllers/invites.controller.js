@@ -4,7 +4,7 @@ export const getInviteDetails = async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-        return res.status(400).json({ error: "ID do convite não fornecido." });
+        return res.status(400).json({ message: "ID do convite não fornecido." });
     }
 
     try {
@@ -31,11 +31,11 @@ export const getInviteDetails = async (req, res) => {
         });
 
         if (!invite) {
-            return res.status(404).json({ error: "Convite não encontrado." });
+            return res.status(404).json({ message: "Convite não encontrado." });
         }
 
         if (invite.status !== 'INVITE_PENDING_ONG_TO_USER') {
-            return res.status(409).json({ error: "Este convite já foi respondido." });
+            return res.status(409).json({ message: "Este convite já foi respondido." });
         }
 
         res.status(200).json(invite);
@@ -51,12 +51,12 @@ export const putRespondToInvite = async (req, res) => {
     const { id: userIdLogado } = req.user;
 
     if (!id || !status) {
-        return res.status(400).json({ error: "ID do convite ou status da resposta não fornecidos." });
+        return res.status(400).json({ message: "ID do convite ou status da resposta não fornecidos." });
     }
     // Valide se o status é um valor válido do seu enum AssociateStatus
     const validStatuses = ['ACCEPTED', 'REJECTED_BY_USER'];
     if (!validStatuses.includes(status)) {
-        return res.status(400).json({ error: "Status de resposta inválido." });
+        return res.status(400).json({ message: "Status de resposta inválido." });
     }
 
     try {
@@ -71,15 +71,15 @@ export const putRespondToInvite = async (req, res) => {
         });
 
         if (!invite) {
-            return res.status(404).json({ error: "Convite não encontrado." });
+            return res.status(404).json({ message: "Convite não encontrado." });
         }
         // Validação de segurança: Garante que o usuário logado é o destinatário do convite
         if (invite.userId !== userIdLogado) {
-             return res.status(403).json({ error: "Você não tem permissão para responder a este convite." });
+             return res.status(403).json({ message: "Você não tem permissão para responder a este convite." });
         }
 
         if (invite.status !== 'INVITE_PENDING_ONG_TO_USER') {
-            return res.status(409).json({ error: "Este convite já foi respondido." });
+            return res.status(409).json({ message: "Este convite já foi respondido." });
         }
 
         // Atualiza o status do convite
@@ -97,7 +97,7 @@ export const putRespondToInvite = async (req, res) => {
             if (invite.user.ongId) {
                 // Se sim, pode ser um erro ou uma regra de negócio de "reconvite"
                 // Para este fluxo, vamos eu retorno um erro, pois ele deveria ser null
-                return res.status(409).json({ error: "Usuário já está associado a outra ONG. Não é possível aceitar este convite." });
+                return res.status(409).json({ message: "Usuário já está associado a outra ONG. Não é possível aceitar este convite." });
             }
 
             // Atualiza o campo ongId no model User
@@ -114,6 +114,6 @@ export const putRespondToInvite = async (req, res) => {
 
     } catch (error) {
         console.error("Erro ao responder ao convite:", error);
-        res.status(500).json({ error: "Erro interno ao responder ao convite." });
+        res.status(500).json({ message: "Erro interno ao responder ao convite." });
     }
 };
