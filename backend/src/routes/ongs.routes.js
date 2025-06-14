@@ -15,6 +15,5 @@ router.get("/:id", authenticateUserOrOng, getOngByID);
 router.post("/", postOng);
 router.put("/", authenticateUserOrOng, putOng);
 router.delete("/:id", authenticateUserOrOng, deleteOngByID);
-// router.get("/invites", authenticateUserOrOng, getOngInvitesBySt atus);
 
 export default router;

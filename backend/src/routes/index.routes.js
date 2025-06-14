@@ -6,7 +6,8 @@ import projectsRoutes from "./projects.routes.js";
 import activitiesRoutes from "./activities.routes.js";
 import postsRoutes from "./posts.routes.js";
 import filtersRoutes from "./filters.routes.js";
-import contributionsRoutes from "./contributions.routes.js"
+import contributionsRoutes from "./contributions.routes.js";
+import invitesRoutes from "./invites.routes.js";
 
 
 const router = Router();
@@ -19,5 +20,6 @@ router.use("/api/v1/activities", activitiesRoutes);
 router.use("/api/v1/posts", postsRoutes);
 router.use("/api/v1/filters", filtersRoutes);
 router.use("/api/v1/contributions", contributionsRoutes);
+router.use("/api/v1/invites", invitesRoutes);
 
 export default router;

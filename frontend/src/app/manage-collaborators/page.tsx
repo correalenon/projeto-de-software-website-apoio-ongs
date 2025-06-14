@@ -7,7 +7,7 @@ import { envioEmail } from "@/api/email";
 import Header from "@/components/header";
 import Footer from "../../components/footer"
 
-// --- Interfaces (ajustadas para este contexto) ---
+// --- Interfaces ---
 interface UserCollaborator {
   id: number;
   name: string;
@@ -18,7 +18,7 @@ interface UserInvite {
   id: number;
   userId: number;
   ongId: number; 
-  status: 'INVITE_PENDING_ONG_TO_USER' | 'ACCEPTED' | 'REJECTED_BY_USER'; // Use os valores exatos do seu enum Prisma
+  status: 'INVITE_PENDING_ONG_TO_USER' | 'ACCEPTED' | 'REJECTED_BY_USER';
   user: UserCollaborator;
 }
 
@@ -128,22 +128,15 @@ export default function ManageCollaboratorsPage() {
       alert(apiResponse.message || "Convite registrado com sucesso!");
 
       const emailSubject = `Convite para ${ong.nameONG} - Colaborador!`;
-      const inviteLink = `${window.location.origin}/invite-collaborator?inviteId=${apiResponse.inviteId}`; // Removido 'code' para simplificar o exemplo, adicione-o se precisar.
+      const inviteLink = `${window.location.origin}/invite-collaborator?inviteId=${apiResponse.inviteId}`;
       const emailMessage = `Olá ${userToInvite.name},\n\nA ONG ${ong.nameONG} (${ong.emailONG}) gostaria de convidá-lo para ser um colaborador.\n\nPara aceitar ou rejeitar o convite, clique no link abaixo:\n${inviteLink}\n\nObrigado,\nEquipe ${ong.nameONG}`;
 
-      await envioEmail(userToInvite.email, emailSubject, emailMessage); // Assumindo envioEmail agora pega subject
+      await envioEmail(userToInvite.email, emailSubject, emailMessage);
 
       alert("Convite enviado por e-mail com sucesso!");
 
-      // Atualiza as listas APÓS o envio (otimista ou recarrega tudo)
-      // Melhoria: Atualizar os estados específicos em vez de recarregar tudo
       setUsersNotAssociated(prevUsers => prevUsers.filter(u => u.id !== userToInvite.id)); // Remove da lista de não associados
       
-      // Adiciona na lista de pendentes (precisa do objeto UserInvite completo)
-      // Para isso, a API de invite-user deveria retornar o objeto UserInvite completo,
-      // incluindo o objeto 'user' aninhado. Se não retornar, precisaria de outro fetch.
-      // Assumindo que apiResponse.inviteId é o ID do AssociateUserONG
-      // E que o backend retornou o UserInvite completo na resposta da API de invite-user:
       const newInviteRecord: UserInvite = {
           id: apiResponse.inviteId!, // Assumindo que inviteId sempre vem
           userId: userToInvite.id,
@@ -156,7 +149,6 @@ export default function ManageCollaboratorsPage() {
     } catch (err: any) {
         alert (err.message)
 
-      // alert(err || "Ocorreu um erro ao enviar o convite. Tente novamente.");
     } finally {
       setInvitingUserId(null);
     }
