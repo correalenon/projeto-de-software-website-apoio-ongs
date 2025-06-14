@@ -4,11 +4,11 @@ emailjs.init({
     publicKey: 'hhW_LhDgy1nw2Uhol'
 });
 
-export async function envioEmail(email, codigo) {
+export async function envioEmail(email, assunto, mensagem) {
     try {
         const response = await emailjs.send('service_e0vv17c', 'template_7jfrirb', {
-            mensagem: `Olá, seu código de verificação é: ${codigo}.
-            Clique no link para redefinir sua senha: http://200.132.38.218:3001/editpassword?email=${encodeURIComponent(email)}&codigo=${encodeURIComponent(codigo)}`,
+            assunto: assunto,
+            mensagem: mensagem,
             email: email,
         });
         return response;

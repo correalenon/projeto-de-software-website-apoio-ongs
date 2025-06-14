@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import type { Ong } from "@/interfaces/index"; 
 import { noCoverImage, noProfileImageONG } from "app/images"; 
+import { envioEmail } from "@/api/email";
 
 export default function OngHeader({ id }: { id: number }) {
   const [ong, setOng] = useState<Ong | null>(null);
@@ -50,7 +51,7 @@ export default function OngHeader({ id }: { id: number }) {
       document.body.style.overflow = "auto";
     };
   }, [selectedImage]);
-  // --- Fim do efeito ---
+  // --- Fim do efeito ---]
 
   // --- Funções para o modal de imagem (REUTILIZADAS) ---
   const handleImageClick = (imgUrl: string) => {
