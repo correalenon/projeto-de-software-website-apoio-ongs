@@ -177,3 +177,90 @@ export const deleteProjectByID = async (req, res) => {
     }
 };
 
+export const postRequestVolunteer = async (req, res) => {
+    const { id: userId, tipo: userType } = req.user;
+    const { projectId } = req.params;
+    const { userId: requesterUserId } = req.body;
+
+    // 1. Validações de Segurança
+    if (!userId || !projectId || !requesterUserId) {
+        return res.status(400).json({ error: "Dados incompletos para a solicitação de voluntariado." });
+    }
+    // Garanta que o usuário logado é quem está fazendo a solicitação
+    if (userId !== requesterUserId) {
+        return res.status(403).json({ error: "Requisição não autorizada." });
+    }
+    // Verifique se é um usuário (não uma ONG)
+    if (userType !== 'VOLUNTRY') {
+        return res.status(403).json({ error: "ONGs e Colaboradores não podem se voluntariar para projetos." });
+    }
+
+    try {
+        const parsedProjectId = parseInt(projectId); 
+
+        // 2. Buscar o Projeto e a ONG Vinculada
+        const project = await prisma.project.findUnique({
+            where: { id: parsedProjectId },
+            select: {
+                id: true,
+                name: true,
+                ongId: true,
+                ong: {
+                    select: { id: true, nameONG: true, emailONG: true }
+                }
+            }
+        });
+
+        if (!project) {
+            return res.status(404).json({ error: "Projeto não encontrado." });
+        }
+        if (!project.ongId || !project.ong) {
+            return res.status(500).json({ error: "Projeto não vinculado a uma ONG válida." });
+        }
+
+        // 3. Validar se o usuário já tem uma solicitação (pendente/aceita/rejeitada) para este projeto
+        const existingRequest = await prisma.userAssociateProject.findFirst({
+            where: {
+                userId: userId,
+                projectId: parsedProjectId,
+                status: {
+                    in: [AssociateStatus.REQUEST_PENDING_USER_TO_ONG, AssociateStatus.ACCEPTED, AssociateStatus.REJECTED_BY_ONG]
+                }
+            }
+        });
+
+        if (existingRequest && existingRequest.status === AssociateStatus.ACCEPTED) {
+            return res.status(409).json({ error: "Você já é um voluntário aceito para este projeto." });
+        }
+        if (existingRequest && existingRequest.status === AssociateStatus.REQUEST_PENDING_USER_TO_ONG) {
+            return res.status(409).json({ error: "Sua solicitação de voluntariado para este projeto já está pendente." });
+        }
+        // Se existir e for REJECTED_BY_ONG, você pode permitir uma nova solicitação ou não
+        if (existingRequest && existingRequest.status === AssociateStatus.REJECTED_BY_ONG) {
+            // Opção 1: Reativar a solicitação (se o frontend permitir)
+            const updatedRequest = await prisma.userAssociateProject.update({
+                where: { id: existingRequest.id },
+                data: { status: AssociateStatus.REQUEST_PENDING_USER_TO_ONG }
+            });
+             return res.status(200).json({ message: "Sua solicitação anterior foi reativada!", requestId: updatedRequest.id });
+            // Opção 2: Não permitir nova solicitação após rejeição
+            // return res.status(409).json({ error: "Sua solicitação para este projeto foi rejeitada anteriormente." });
+        }
+
+        // 4. Criar a nova solicitação
+        const newRequest = await prisma.userAssociateProject.create({
+            data: {
+                userId: userId,
+                projectId: parsedProjectId,
+                status: AssociateStatus.REQUEST_PENDING_USER_TO_ONG, // Status: Solicitado
+            }
+        });
+
+        res.status(201).json({ message: "Solicitação de voluntariado enviada com sucesso!", requestId: newRequest.id });
+
+    } catch (error) {
+        console.error("Erro ao registrar solicitação de voluntariado:", error);
+        res.status(500).json({ error: "Erro interno ao registrar solicitação de voluntariado." });
+    }
+};
+
