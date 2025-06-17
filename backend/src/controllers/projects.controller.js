@@ -184,22 +184,22 @@ export const postRequestVolunteer = async (req, res) => {
 
     // 1. Validações de Segurança
     if (!userId || !projectId || !requesterUserId) {
-        return res.status(400).json({ error: "Dados incompletos para a solicitação de voluntariado." });
+        return res.status(400).json({ message: "Dados incompletos para a solicitação de voluntariado." });
     }
     // Garanta que o usuário logado é quem está fazendo a solicitação
     if (userId !== requesterUserId) {
-        return res.status(403).json({ error: "Requisição não autorizada." });
+        return res.status(403).json({ message: "Requisição não autorizada." });
     }
     // Verifique se é um usuário (não uma ONG)
     if (userType !== 'VOLUNTRY') {
-        return res.status(403).json({ error: "ONGs e Colaboradores não podem se voluntariar para projetos." });
+        return res.status(403).json({ message: "ONGs e Colaboradores não podem se voluntariar para projetos." });
     }
 
     try {
         const parsedProjectId = parseInt(projectId); 
 
         // 2. Buscar o Projeto e a ONG Vinculada
-        const project = await prisma.project.findUnique({
+        const project = await prisma.projects.findUnique({
             where: { id: parsedProjectId },
             select: {
                 id: true,
@@ -212,10 +212,10 @@ export const postRequestVolunteer = async (req, res) => {
         });
 
         if (!project) {
-            return res.status(404).json({ error: "Projeto não encontrado." });
+            return res.status(404).json({ message: "Projeto não encontrado." });
         }
         if (!project.ongId || !project.ong) {
-            return res.status(500).json({ error: "Projeto não vinculado a uma ONG válida." });
+            return res.status(500).json({ message: "Projeto não vinculado a uma ONG válida." });
         }
 
         // 3. Validar se o usuário já tem uma solicitação (pendente/aceita/rejeitada) para este projeto
@@ -230,10 +230,10 @@ export const postRequestVolunteer = async (req, res) => {
         });
 
         if (existingRequest && existingRequest.status === AssociateStatus.ACCEPTED) {
-            return res.status(409).json({ error: "Você já é um voluntário aceito para este projeto." });
+            return res.status(409).json({ message: "Você já é um voluntário aceito para este projeto." });
         }
         if (existingRequest && existingRequest.status === AssociateStatus.REQUEST_PENDING_USER_TO_ONG) {
-            return res.status(409).json({ error: "Sua solicitação de voluntariado para este projeto já está pendente." });
+            return res.status(409).json({ message: "Sua solicitação de voluntariado para este projeto já está pendente." });
         }
         // Se existir e for REJECTED_BY_ONG, você pode permitir uma nova solicitação ou não
         if (existingRequest && existingRequest.status === AssociateStatus.REJECTED_BY_ONG) {
@@ -260,7 +260,7 @@ export const postRequestVolunteer = async (req, res) => {
 
     } catch (error) {
         console.error("Erro ao registrar solicitação de voluntariado:", error);
-        res.status(500).json({ error: "Erro interno ao registrar solicitação de voluntariado." });
+        res.status(500).json({ message: "Erro interno ao registrar solicitação de voluntariado." });
     }
 };
 
