@@ -437,30 +437,44 @@ export const getAllOngUserRelations = async (req, res) => {
     }
 };
 
+export const getProjectVolunteerRequestsForOng = async (req, res) => {
+    const { ongId } = req.params;
 
-// export const getOngInvitesByStatus = async (req, res) => {
-//     const { id, tipo: ongLogadaTipo } = req.user;
-//     const { status } = req.query; // Status que o frontend quer buscar (ex: INVITE_PENDING_ONG_TO_USER)
+    try {
+        // 1. Encontro todos os projetos que pertencem a esta ONG logada
+        const projectsOfOng = await prisma.projects.findMany({
+            where: { ongId },
+            select: { id: true } // Seleciona apenas o ID do projeto
+        });
 
-//     if (ongLogadaTipo !== "ONG") {
-//         return res.status(403).json({ error: "Acesso negado." });
-//     }
+        // Extraio os IDs dos projetos para usar na próxima consulta
+        const projectIds = projectsOfOng.map(p => p.id);
 
-//     try {
-//         const invites = await prisma.associateUserONG.findMany({
-//             where: {
-//                 ongId: id,
-//                 status: status,
-//             },
-//             include: {
-//                 user: {
-//                     select: { id: true, name: true, email: true }
-//                 }
-//             }
-//         });
-//         res.status(200).json(invites);
-//     } catch (error) {
-//         console.error("Erro ao buscar convites por status:", error);
-//         res.status(500).json({ error: "Erro interno ao buscar convites." });
-//     }
-// };
+        // Se a ONG não tem projetos cadastrados, não haverá solicitações para listar
+        if (projectIds.length === 0) {
+            return res.status(200).json([]); // Retorno um array vazio
+        }
+
+        // 2. Encontro todas as solicitações de voluntariado para ESTES projetos
+        const requests = await prisma.userAssociateProject.findMany({
+            where: {
+                projectId: {
+                    in: projectIds // Filtro as solicitações pelos IDs dos projetos da ONG
+                }
+            },
+            include: { // Incluo os dados do Usuário (Voluntário) e do Projeto para o frontend
+                user: {
+                    select: { id: true, name: true, email: true } // Campos do voluntário
+                },
+                project: {
+                    select: { id: true, name: true } // Campos do projeto
+                }
+            }
+        });
+
+        res.status(200).json(requests);
+    } catch (error) {
+        console.error("Erro ao buscar solicitações de voluntariado para ONG:", error);
+        res.status(500).json({ error: "Erro interno ao buscar solicitações de voluntariado." });
+    }
+};

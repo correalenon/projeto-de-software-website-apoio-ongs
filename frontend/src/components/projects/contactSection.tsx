@@ -16,6 +16,7 @@ export default function ContactSection({ id }: { id: number }) {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasAlreadyVolunteered, setHasAlreadyVolunteered] = useState(false);
+  const [volunteerStatus, setVolunteerStatus] = useState<'ACCEPTED' | 'REQUEST_PENDING_USER_TO_ONG' | 'REJECTED_BY_ONG' | null>(null);
   const {user} = useUser();
 
   useEffect(() => {
@@ -46,14 +47,13 @@ export default function ContactSection({ id }: { id: number }) {
             return;
           }
           const errorData = await response.json();
-          throw new Error(errorData.error || "Erro ao verificar status de voluntariado.");
+          throw new Error(errorData.message || "Erro ao verificar status de voluntariado.");
         }
         const data = await response.json();
-        // Assume que se retornar algum dado, o usuário já tem uma solicitação (pendente, aceita, rejeitada)
         setHasAlreadyVolunteered(!!data); // true se data não for null/undefined
-      } catch (err) {
-        console.error("Erro ao verificar status de voluntariado:", err);
-        // Não define erro na UI para não bloquear a experiência
+        setVolunteerStatus(data.status)
+      } catch (err: any) {
+        console.log("Erro ao verificar status de voluntariado:", err);
       }
     }
     if (user?.id && project?.id) {
@@ -69,40 +69,31 @@ export default function ContactSection({ id }: { id: number }) {
       alert("Erro: Detalhes do projeto não carregados.");
       return;
     }
-    // Opcional: Valide a role do usuário se apenas certas roles podem ser voluntárias
-    // if (user.role !== 'VOLUNTARIO_ROLE') { alert("Apenas usuários com role de Voluntário podem se candidatar."); return; }
-    // Opcional: Impedir que a própria ONG do projeto se voluntarie para o próprio projeto
-    // if (loggedInOng && loggedInOng.id === project.ongId) {
-    //   alert("A ONG vinculada ao projeto não pode se voluntariar para o próprio projeto.");
-    //   return;
-    // }
 
     setIsSubmitting(true);
     setError(null);
 
     try {
-      // 2. Chamar o backend para registrar a solicitação em UserAssociateProject
+      // 2. Chamo o backend para registrar a solicitação em UserAssociateProject
       const response = await fetch(`/api/projects/${project.id}/volunteer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id }), // Envia o ID do usuário logado
+        body: JSON.stringify({ userId: user.id }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Falha ao registrar voluntariado (Status: ${response.status})`);
+        console.log(errorData)
+        throw (errorData.error.message || `Falha ao registrar voluntariado (Status: ${response.status})`);
       }
 
       const apiResponse: VolunteerRequestResponse = await response.json();
       alert(apiResponse.message || "Sua solicitação de voluntariado foi enviada!");
-      setHasAlreadyVolunteered(true); // Atualiza o estado para que o botão mude
-
-      // Opcional: Enviar e-mail de notificação para a ONG do projeto (feito no backend)
-      // O backend deve lidar com o envio de e-mail para os colaboradores da ONG do projeto.
+      setHasAlreadyVolunteered(true);
 
     } catch (err: any) {
       console.error("Erro ao voluntariar:", err);
-      setError(err.message || "Ocorreu um erro ao enviar sua solicitação. Tente novamente.");
+      alert(err || "Ocorreu um erro ao enviar sua solicitação. Tente novamente.");
     } finally {
       setIsSubmitting(false);
     }
@@ -146,10 +137,20 @@ export default function ContactSection({ id }: { id: number }) {
             </button>
           )}
 
-          {user?.id && hasAlreadyVolunteered && (
-            <p className="text-green-600 font-semibold">
-              Você já enviou uma solicitação de voluntariado para este projeto.
-            </p>
+          {user?.id && volunteerStatus && ( // Mostra este bloco SE o usuário está logado E há um status de voluntariado
+            volunteerStatus === "ACCEPTED" ? (
+              <p className="text-green-600 font-semibold">
+                Você já está voluntariado para este projeto.
+              </p>
+            ) : volunteerStatus === "REQUEST_PENDING_USER_TO_ONG" ? (
+              <p className="text-orange-600 font-semibold"> {/* Usar cor laranja para pendente */}
+                Você já enviou uma solicitação de voluntariado para este projeto.
+              </p>
+            ) : ( // Implica status === "REJECTED_BY_ONG"
+              <p className="text-red-600 font-semibold">
+                Sua solicitação de voluntariado foi negada.
+              </p>
+            )
           )}
         </div>
 
