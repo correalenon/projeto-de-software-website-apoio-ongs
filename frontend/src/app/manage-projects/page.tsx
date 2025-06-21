@@ -105,8 +105,8 @@ export default function ManageProjectVolunteersPage() {
 
   // Função para aceitar ou rejeitar uma solicitação de voluntariado
   const handleProcessRequest = async (requestId: number, accepted: boolean) => {
-    if (!user || !user.ong?.id || processingRequestId) return; // ONG logada é necessária
-    if (!user.ong.emailONG || !user.ong.nameONG) { // Garantir que tem dados da ONG para e-mail
+    if (!user || !user.ong?.id || processingRequestId) return;
+    if (!user.ong.emailONG || !user.ong.nameONG) {
         alert("Erro: Dados da ONG logada incompletos para notificação.");
         return;
     }
@@ -118,7 +118,7 @@ export default function ManageProjectVolunteersPage() {
       const newStatus = accepted ? 'ACCEPTED' : 'REJECTED_BY_ONG';
       const reason = accepted ? null : rejectionReasonInput.trim() || null; // Pega o motivo do input
       const response = await fetch(`/api/projects/${requestId}/respond`, {
-        method: 'PATCH', // Usamos PATCH para atualizar o status
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
         },
@@ -133,31 +133,29 @@ export default function ManageProjectVolunteersPage() {
       const apiResponse: ProcessRequestResponse = await response.json();
       alert(apiResponse.message); // Exibe mensagem de sucesso
 
+      console.log(apiResponse)
+
       // Recarrega todas as listas para garantir a consistência
       await fetchAllProjectVolunteerRequests();
 
-      // --- Lógica de E-mail (Se você mantiver no frontend - ATENÇÃO À SEGURANÇA) ---
-      // A API de `respond` no backend DEVE retornar dados suficientes para o frontend enviar o email,
-      // como o email e nome do voluntário, e o nome do projeto/ONG.
-      // Ou, melhor ainda, o backend faz o envio do email.
-      // Exemplo de como você enviaria o email (se a API retornasse apiResponse.updatedRequest com user e project):
-      // if (apiResponse.updatedRequest && apiResponse.updatedRequest.user && apiResponse.updatedRequest.project) {
-      //   const volunteerEmail = apiResponse.updatedRequest.user.email;
-      //   const volunteerName = apiResponse.updatedRequest.user.name;
-      //   const projectName = apiResponse.updatedRequest.project.name;
-      //   const ongName = ong.nameONG; // Da ONG logada
+      // --- Lógica de E-mail ---
+      if (apiResponse.updatedRequest && apiResponse.updatedRequest.user && apiResponse.updatedRequest.project) {
+        const volunteerEmail = apiResponse.updatedRequest.user.email;
+        const volunteerName = apiResponse.updatedRequest.user.name;
+        const projectName = apiResponse.updatedRequest.project.name;
+        const ongName = user.ong.nameONG;
 
-      //   let emailSubject, emailMessage;
-      //   if (accepted) {
-      //     emailSubject = `Boas-vindas ao Projeto ${projectName} da ONG ${ongName}!`;
-      //     emailMessage = `Olá ${volunteerName},\n\nSua solicitação para ser voluntário no projeto "${projectName}" foi aceita pela ONG ${ongName}!\n\nBoas-vindas!\n\nAtenciosamente,\nEquipe ${ongName}`;
-      //   } else {
-      //     emailSubject = `Sua solicitação para "${projectName}" foi rejeitada.`;
-      //     emailMessage = `Olá ${volunteerName},\n\nSua solicitação para ser voluntário no projeto "${projectName}" da ONG ${ongName} foi rejeitada.\n${reason ? `Motivo: ${reason}\n\n` : ''}Atenciosamente,\nEquipe ${ongName}`;
-      //   }
-      //   await envioEmail(volunteerEmail, emailSubject, emailMessage);
-      //   alert(`E-mail de notificação enviado ao voluntário.`);
-      // }
+        let emailSubject, emailMessage;
+        if (accepted) {
+          emailSubject = `Boas-vindas ao Projeto ${projectName} da ONG ${ongName}!`;
+          emailMessage = `Olá ${volunteerName},\n\nSua solicitação para ser voluntário no projeto "${projectName}" foi aceita pela ONG ${ongName}!\n\nBoas-vindas!\n\nAtenciosamente,\nEquipe ${ongName}`;
+        } else {
+          emailSubject = `Sua solicitação de voluntariado para "${projectName}" foi rejeitada.`;
+          emailMessage = `Olá ${volunteerName},\n\nSua solicitação para ser voluntário no projeto "${projectName}" da ONG ${ongName} foi rejeitada.\n${reason ? `Motivo: ${reason}\n\n` : ''}Atenciosamente,\nEquipe ${ongName}`;
+        }
+        await envioEmail(volunteerEmail, emailSubject, emailMessage);
+        alert(`E-mail de notificação enviado ao voluntário.`);
+      }
       // --- Fim da Lógica de E-mail ---
 
     } catch (err: any) {
@@ -165,8 +163,8 @@ export default function ManageProjectVolunteersPage() {
       setError(err.message || `Ocorreu um erro ao ${accepted ? 'aceitar' : 'rejeitar'} a solicitação. Tente novamente.`);
     } finally {
       setProcessingRequestId(null);
-      setShowRejectModal(false); // Fecha modal de rejeição
-      setRejectionReasonInput(""); // Limpa o input do motivo
+      setShowRejectModal(false);
+      setRejectionReasonInput("");
     }
   };
 

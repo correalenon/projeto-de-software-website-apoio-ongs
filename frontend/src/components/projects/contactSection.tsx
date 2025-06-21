@@ -8,6 +8,7 @@ import { useUser } from "@/context/userContext";
 interface VolunteerRequestResponse {
   message: string;
   requestId?: number;
+  status?: 'ACCEPTED' | 'REQUEST_PENDING_USER_TO_ONG' | 'REJECTED_BY_ONG';
 }
 
 export default function ContactSection({ id }: { id: number }) {
@@ -87,9 +88,11 @@ export default function ContactSection({ id }: { id: number }) {
         throw (errorData.error.message || `Falha ao registrar voluntariado (Status: ${response.status})`);
       }
 
+
       const apiResponse: VolunteerRequestResponse = await response.json();
       alert(apiResponse.message || "Sua solicitação de voluntariado foi enviada!");
       setHasAlreadyVolunteered(true);
+      setVolunteerStatus(apiResponse.status || 'REQUEST_PENDING_USER_TO_ONG');
 
     } catch (err: any) {
       console.error("Erro ao voluntariar:", err);
@@ -144,7 +147,7 @@ export default function ContactSection({ id }: { id: number }) {
               </p>
             ) : volunteerStatus === "REQUEST_PENDING_USER_TO_ONG" ? (
               <p className="text-orange-600 font-semibold"> {/* Usar cor laranja para pendente */}
-                Você já enviou uma solicitação de voluntariado para este projeto.
+                Solicitação de voluntariado pendente para este projeto.
               </p>
             ) : ( // Implica status === "REJECTED_BY_ONG"
               <p className="text-red-600 font-semibold">

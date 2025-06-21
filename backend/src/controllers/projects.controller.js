@@ -366,6 +366,19 @@ export const respondToVolunteerRequest = async (req, res) => {
                 status: status,
                 // O motivo da rejeição é armazenado apenas se o status for REJEITADO
                 rejectionReason: status === "REJECTED_BY_ONG" ? rejectionReason : null,
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true
+                    }
+                },
+                project: {
+                    select: {
+                        name: true,
+                    }
+                },
             }
         });
 
