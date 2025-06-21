@@ -93,6 +93,7 @@ export default function EditPasswordModal({ isOpen, onClose, onSave }: EditPassw
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             disabled={isSubmitting}
+            maxLength={20}
           />
         </div>
 
@@ -107,6 +108,7 @@ export default function EditPasswordModal({ isOpen, onClose, onSave }: EditPassw
             value={confirmNewPassword}
             onChange={(e) => setConfirmNewPassword(e.target.value)}
             disabled={isSubmitting}
+            maxLength={20}
           />
         </div>
 

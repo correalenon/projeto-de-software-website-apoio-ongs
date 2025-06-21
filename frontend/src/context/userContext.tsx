@@ -9,6 +9,13 @@ type User = {
   profileImage?: string
   coverImage?: string
   role?: string
+  ong?: ONGUser
+}
+
+type ONGUser = {
+  id: number
+  nameONG: string
+  emailONG: string
 }
 
 type UserContextType = {

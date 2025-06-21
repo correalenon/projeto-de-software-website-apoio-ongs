@@ -80,6 +80,7 @@ export default function ProfileAboutUser() {
                             value={user.description || ""}
                             onChange={handleInputChange}
                             rows={6}
+                            maxLength={500}
                             placeholder="Nos conte sobre você"
                             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />

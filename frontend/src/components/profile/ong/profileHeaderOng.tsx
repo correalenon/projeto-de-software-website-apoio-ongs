@@ -5,6 +5,7 @@ import EditProfileModalOng, { type ProfileDataOng } from "@/components/profile/o
 import EditPasswordModal from "../editPasswordModal";
 import { useOng } from "@/context/ongContext";
 import { noCoverImage, noProfileImageONG } from "../../../app/images";
+import Link from "next/link"
 
 export default function ProfileHeaderOng() {
   const { ong, setOng } = useOng();

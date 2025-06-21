@@ -35,7 +35,11 @@ export default function ForgotPasswordPage() {
     setError("")
 
     try {
-      envioEmail(email, geraCodigoEmail())
+      const codigo = geraCodigoEmail();
+      const mensagem = `Olá, seu código de verificação é: ${codigo}.
+            Clique no link para redefinir sua senha: http://200.132.38.218:3001/editpassword?email=${encodeURIComponent(email)}&codigo=${encodeURIComponent(codigo)}`;
+      
+      envioEmail(email, 'Redefinição de Senha', mensagem);
       setIsButtonDisabled(true);
       setCountdown(30);
     }
@@ -88,6 +92,7 @@ return (
                     onChange={(e) => setEmail(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Informe seu email"
+                    maxLength={256}
                   />
                 </div>
               </div>

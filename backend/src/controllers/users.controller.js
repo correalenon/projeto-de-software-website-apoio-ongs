@@ -3,7 +3,7 @@ import prisma from "../db/client.js";
 
 export const getMe = async (req, res) => {
     try {
-        if (req.user.tipo !== "USER") {
+        if (req.user.tipo === "ONG") {
             return res.status(403).json({ error: "Você não tem permissão para acessar essa rota"});
         }
 
@@ -43,7 +43,8 @@ export const getMe = async (req, res) => {
                 },
                 contributions: true,
                 profileImage: true,
-                coverImage: true
+                coverImage: true,
+                ongId: true,
             },
         });
 
@@ -132,6 +133,7 @@ export const getUserByID = async (req, res) => {
                         cnpj: true,
                     }
                 },
+                ongId: true,
             }
         });
         if (!user) {
@@ -267,5 +269,28 @@ export const PutPasswordUser = async (req, res) => {
     }
     catch (error) {
         res.status(500).json({ error: "Erro ao atualizar senha"});
+    }
+}
+
+export const GetUsersWithoutONGs = async (req, res) => {
+    try {
+        const user = await prisma.users.findMany({
+            where: { role: 'COLLABORATOR', ongId: { equals: null } },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+            }
+        });
+
+        if (!user) {
+            return res.status(404).json( { error: "Nenhum colaborador encontrado" });
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ error});
+
     }
 }

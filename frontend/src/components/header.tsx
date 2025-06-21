@@ -26,6 +26,10 @@ export default function Header() {
     }
   }
 
+  const manageCollaboratorsONG = () => {
+
+  }
+
   const isActive = (path: string) => {
     return pathName === path;
   }
@@ -195,6 +199,18 @@ export default function Header() {
               <Link href={profileLink} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 Meu Perfil
               </Link>
+              {/* Renderiza o link 'Painel de Colaboradores' APENAS SE loggedInEntity for uma ONG */}
+              {loggedInEntity?.role === 'ONG' && (
+                <Link href='/manage-collaborators' className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  Painel de Colaboradores
+                </Link>
+              )}
+              {/* Renderiza o link 'Painel de Projetos' APENAS SE loggedInEntity for um COLABORADOR */}
+              {loggedInEntity?.role === 'COLLABORATOR' && loggedInEntity.ong?.id && (
+                <Link href='/manage-projects' className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  Painel de Projetos
+                </Link>
+              )}
               <div className="border-t border-gray-100 my-1"></div>
               <div className="px-4 py-2">
                 <LogoutButton />
