@@ -294,6 +294,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
                     onChange={(e) => setName(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Nome Completo"
+                    maxLength={60}
                   />
                 </div>
               </div>
@@ -313,6 +314,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
                     onChange={(e) => setEmail(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Informe o email"
+                    maxLength={256}
                   />
                 </div>
               </div>
@@ -332,6 +334,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
                     onChange={(e) => setLocation(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Ex: São Paulo, SP"
+                    maxLength={50}
                   />
                 </div>
 
@@ -385,6 +388,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setNameONG(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Nome usado publicamente"
+            maxLength={60}
           />
         </div>
       </div>
@@ -404,6 +408,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setSocialName(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Nome jurídico no CNPJ"
+            maxLength={60}
           />
         </div>
       </div>
@@ -423,6 +428,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setCnpj(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="00.000.000/0000-00"
+            maxLength={18}
           />
           </div>
 
@@ -536,6 +542,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setArea(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Educação, Saúde, etc."
+            maxLength={50}
           />
         </div>
       </div>
@@ -555,6 +562,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setGoals(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Finalidade da ONG"
+            maxLength={50}
           />
         </div>
       </div>
@@ -574,6 +582,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setCep(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="00000-000"
+            maxLength={9}
           />
         </div>
 
@@ -625,6 +634,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setStreet(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ex: Rua das Flores"
+            maxLength={60}
           />
         </div>
       </div>
@@ -643,6 +653,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setNumber(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ex: 210"
+            maxLength={30}
           />
         </div>
       </div>
@@ -661,6 +672,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setComplement(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ex: Bloco, sala, etc."
+            maxLength={50}
           />
         </div>
       </div>
@@ -679,6 +691,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setDistrict(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ex: Centro"
+            maxLength={50}
           />
         </div>
       </div>
@@ -697,6 +710,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setCity(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ex: São Paulo"
+            maxLength={50}
           />
         </div>
       </div>
@@ -715,6 +729,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setState(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ex: SP"
+            maxLength={2}
           />
         </div>
       </div>
@@ -733,6 +748,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setCellphone(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ex: (11) 99999-9999"
+            maxLength={16}
           />
         </div>
       </div>
@@ -752,6 +768,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setEmailONG(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ex: contato@ong.org.br"
+            maxLength={256}
           />
         </div>
       </div>
@@ -770,6 +787,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setSocialMedia(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Facebook, Instagram, LinkedIn..."
+            maxLength={100}
           />
         </div>
       </div>
@@ -792,6 +810,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setNameLegalGuardian(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Nome do responsável legal"
+            maxLength={60}
           />
         </div>
       </div>
@@ -810,6 +829,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setCpfLegalGuardian(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="000.000.000-00"
+            maxLength={14}
           />
         </div>
       </div>
@@ -828,6 +848,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setRgLegalGuardian(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="00.000.000-0"
+            maxLength={12}
           />
         </div>
       </div>
@@ -846,6 +867,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
             onChange={(e) => setCellphoneLegalGuardian(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             placeholder="Ex: (11) 99999-9999"
+            maxLength={16}
           />
         </div>
       </div>
@@ -869,6 +891,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Breve descrição do usuário/ONG"
                     rows={4}
+                    maxLength={500}
                   />
                 </div>
               </div>
@@ -889,6 +912,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
                     onChange={(e) => setPassword(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Informe a senha"
+                    maxLength={20}
                   />
                 </div>
               </div>
@@ -909,6 +933,7 @@ async function consultaDadosCNPJ(cnpjParam: any) {
                     onChange={(e) => setPasswordConfirm(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Confirme a senha"
+                    maxLength={20}
                   />
                 </div>
               </div>

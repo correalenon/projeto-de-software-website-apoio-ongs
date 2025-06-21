@@ -182,6 +182,7 @@ export default function EditProfileModalOng({ isOpen, onClose, onSave, initialDa
                   onChange={handleInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   required
+                  maxLength={60}
                 />
               </div>
               <div>
@@ -193,6 +194,7 @@ export default function EditProfileModalOng({ isOpen, onClose, onSave, initialDa
                   value={profileDataOng.socialName}
                   onChange={handleInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  maxLength={60}
                 />
               </div>
             </div>

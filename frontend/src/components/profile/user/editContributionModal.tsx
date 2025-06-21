@@ -234,6 +234,7 @@ export default function EditContributionModal({
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
               required
+              maxLength={100}
             />
           </div>
 
@@ -257,6 +258,7 @@ export default function EditContributionModal({
                 }}
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 required
+                maxLength={60}
             />
             {/* Lista de sugestões */}
             {suggestions.length > 0 && (
@@ -326,46 +328,62 @@ export default function EditContributionModal({
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
               required
+              maxLength={60}
             />
-            <button
-              type="button"
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              onClick={async () => {
-                let cep = prompt("Digite o CEP da Cidade: ");
+            <div>
+              <button
+                type="button"
+                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                onClick={async () => {
+                  let cepRetorno;
 
-                if (cep) {
-                  // Remove caracteres não numéricos do CEP
-                  cep = cep.replace(/\D/g, "");
-                  //Verifica se o CEP tekm 8 dígitos
-                  if (cep.length !== 8) {
-                    alert("CEP inválido. O CEP deve conter 8 dígitos.");
-                    return;
+                  if (contributionData.location && contributionData.location.length > 0) {
+                    cepRetorno = contributionData.location;
                   }
-                  try {
-                    const response = await fetch('/api/location', {
-                      method: 'POST',
-                      body: JSON.stringify({ cep })
-                    });
-                    const data = await response.json();
-                    const location = data.localidade + ", " + data.uf;
-                    if (!location) {
-                      alert("Localização não encontrada. Verifique o CEP e tenten novamente.");
+                  else {
+                    cepRetorno = prompt("Digite o CEP da Cidade: ");
+                  }
+
+                  console.log(cepRetorno)
+
+                  if (cepRetorno) {
+                    // Remove caracteres não numéricos do CEP
+                    cepRetorno = cepRetorno.replace(/\D/g, "");
+                    //Verifica se o CEP tekm 8 dígitos
+                    if (cepRetorno.length !== 8) {
+                      alert("CEP inválido. O CEP deve conter 8 dígitos.");
+                      contributionData.location = "";
                       return;
                     }
-                    // Atualiza o campo de localização com a cidade e o estado retornados
-                    setContributionData((prev) => ({
-                      ...prev,
-                      location 
-                    })); 
+                    try {
+                      const response = await fetch('/api/location', {
+                        method: 'POST',
+                        body: JSON.stringify({ cep: cepRetorno })
+                      });
+                      const data = await response.json();
+                      const location = data.localidade + ", " + data.uf;
+                      if (!location) {
+                        alert("Localização não encontrada. Verifique o CEP e tenten novamente.");
+                        contributionData.location = "";
+                        return;
+                      }
+                      // Atualiza o campo de localização com a cidade e o estado retornados
+                      setContributionData((prev) => ({
+                        ...prev,
+                        location 
+                      })); 
+                    }
+                    catch (error) {
+                      alert("Erro ao buscar localização. Verifique o CEP e tente novamente.");
+                      contributionData.location = "";
+                    }
                   }
-                  catch (error) {
-                    alert("Erro ao buscar localização. Verifique o CEP e tente novamente.");
-                  }
-                }
-              }}
-              >
-                Buscar Localização pelo CEP
-              </button>
+                }}
+                >
+                  Importar Localização pelo CEP
+                </button>
+
+            </div>
           </div>
 
           <div>
@@ -403,6 +421,7 @@ export default function EditContributionModal({
               rows={4}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
               required
+              maxLength={500}
             />
           </div>
 
