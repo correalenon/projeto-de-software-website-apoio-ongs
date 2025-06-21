@@ -231,6 +231,7 @@ model UserAssociateProject {
   userId    Int
   projectId Int
   status    AssociateStatus // Status da solicitação (request_pending_user_to_ong, accepted, rejected_by_ong)
+  rejectionReason String?
 
   user    Users     @relation(fields: [userId], references: [id])
   project Projects  @relation(fields: [projectId], references: [id])

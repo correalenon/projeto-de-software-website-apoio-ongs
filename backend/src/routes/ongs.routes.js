@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import {getOngs, getOngByID, deleteOngByID, putOng, postOng, getCNPJ, getMe, getOngProjects, PutPasswordOng, PostInviteUserToONG, getAllOngUserRelations } from '../controllers/ongs.controller.js';
+import {getOngs, getOngByID, deleteOngByID, putOng, postOng, getCNPJ, getMe, getOngProjects, PutPasswordOng, PostInviteUserToONG, getAllOngUserRelations, getProjectVolunteerRequestsForOng } from '../controllers/ongs.controller.js';
 import { authenticateUserOrOng } from '../services/authentication.js';
 
 const router = Router();
 
 router.get("/me", authenticateUserOrOng, getMe);
+router.get("/:id/project-volunteer-requests", authenticateUserOrOng, getProjectVolunteerRequestsForOng);
 router.get("/all-user-relations", authenticateUserOrOng, getAllOngUserRelations);
 router.post("/invite-user", authenticateUserOrOng, PostInviteUserToONG);
 router.get("/cnpj/:cnpj", getCNPJ);

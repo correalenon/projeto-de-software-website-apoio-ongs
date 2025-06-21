@@ -205,6 +205,12 @@ export default function Header() {
                   Painel de Colaboradores
                 </Link>
               )}
+              {/* Renderiza o link 'Painel de Projetos' APENAS SE loggedInEntity for um COLABORADOR */}
+              {loggedInEntity?.role === 'COLLABORATOR' && loggedInEntity.ong?.id && (
+                <Link href='/manage-projects' className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  Painel de Projetos
+                </Link>
+              )}
               <div className="border-t border-gray-100 my-1"></div>
               <div className="px-4 py-2">
                 <LogoutButton />

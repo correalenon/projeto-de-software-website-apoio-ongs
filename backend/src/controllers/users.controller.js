@@ -3,7 +3,7 @@ import prisma from "../db/client.js";
 
 export const getMe = async (req, res) => {
     try {
-        if (req.user.tipo !== "USER") {
+        if (req.user.tipo === "ONG") {
             return res.status(403).json({ error: "Você não tem permissão para acessar essa rota"});
         }
 

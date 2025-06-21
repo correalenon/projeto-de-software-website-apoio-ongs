@@ -19,11 +19,20 @@ const authenticateUserOrOng = async (req, res, next) => {
         }
 
         //Defino qual entidade foi encontrada (usuário ou ONG)
-        const entidade = user || ong; 
-        const tipo = user ? "USER" : "ONG";
+        const entidade = user || ong;
+        const tipo = (user) =>  {
+            if (user) {
+                return user.role
+            }
+            else {
+                return "ONG"
+            }
+        }
+
+        // const tipo = user ? "USER" : "ONG";
         
         req.user = entidade;
-        req.user.tipo = tipo;
+        req.user.tipo = tipo(user);
 
         next();
     } catch (error) {
