@@ -357,6 +357,7 @@ export default function CreatePostModal({
               className={`w-full min-h-[120px] text-base resize-none border rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
                 textError ? "border-red-500 bg-red-50" : "border-gray-300"
               }`}
+              maxLength={500}
             />
             {textError && <p className="text-red-500 text-xs mt-1">A descrição é obrigatória</p>}
           </div>

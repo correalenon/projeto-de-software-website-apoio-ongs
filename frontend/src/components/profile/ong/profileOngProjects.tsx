@@ -130,26 +130,15 @@ export default function ProfileOngProjects() {
   return (
     <div className="bg-white rounded-lg shadow mb-6">
       <div className="px-6 py-4 border-b">
-        <h2 className="text-xl font-semibold text-gray-800 text-center">
-          Projetos da ONG
+        <h2 className="text-xl font-semibold text-gray-800 flex items-center justify-center gap-4">
+          <span>Projetos da ONG</span> {/* Envolva o texto em um span para melhor controle */}
           <button
-            className="p-2 rounded-full hover:bg-gray-100"
+            type="button"
+            className={`px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700`}
             aria-label="Adicionar Novo Projeto"
             onClick={handleAddClick}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 5v14M5 12h14" />
-            </svg>
+            Novo Projeto
           </button>
         </h2>
       </div>
@@ -159,7 +148,7 @@ export default function ProfileOngProjects() {
           <p className="text-center text-gray-500">Nenhum projeto cadastrado ainda.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {projects.map((project: any) => (
+            {projects.map((project: Project) => ( // Altere `any` para `Project` se definiu a interface
               <div key={project.id} className="border rounded-lg hover:shadow-md transition">
                 { project.projectImage && project.projectImage.length > 0 && (
                   <Link legacyBehavior href={`/projects/${project.id}`} passHref>

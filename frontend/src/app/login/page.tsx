@@ -58,18 +58,6 @@ export default function LoginPage() {
           }
           const ongData = await response.json();
           setOng(ongData);
-          
-          
-          
-          //Como estava antes
-          // setInfo('Login de ONG em desenvolvimento...');
-              // const response = await fetch('/api/logout', {
-              // method: 'POST',
-              // });
-              // if (!response.ok) {
-              //   return
-              // }
-              // router.push("/login")
         }
       }
 
@@ -156,6 +144,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500"
+                  maxLength={256}
                 />
               </div>
 
@@ -172,6 +161,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-blue-500 focus:border-blue-500"
+                  maxLength={20}
                 />
               </div>
 

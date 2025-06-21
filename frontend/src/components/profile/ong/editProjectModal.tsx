@@ -156,6 +156,7 @@ export default function EditProjectModal({
               onChange={handleInputChange}
               required
               className="w-full border border-gray-300 rounded-md px-3 py-2"
+              maxLength={100}
             />
           </div>
 
@@ -169,6 +170,7 @@ export default function EditProjectModal({
               onChange={handleInputChange}
               required
               className="w-full border border-gray-300 rounded-md px-3 py-2"
+              maxLength={500}
             />
           </div>
 
@@ -182,6 +184,7 @@ export default function EditProjectModal({
               onKeyDown={handleAddContribution}
               placeholder="Digite uma forma de como contribuir e pressione Enter. Ex: voluntários, doações de comida, financeiras..."
               className="w-full border border-gray-300 rounded-md px-3 py-2"
+              maxLength={30}
             />
             <div className="mt-2 text-sm text-gray-500">
               {projectData.contributionProject && projectData.contributionProject.length > 0 ? (
@@ -247,6 +250,7 @@ export default function EditProjectModal({
               placeholder="Informações de contato, orientações para voluntários interessados..."
               required
               className="w-full border border-gray-300 rounded-md px-3 py-2"
+              maxLength={500}
             />
           </div>
 

@@ -655,6 +655,7 @@ async function handleLike(postId: number) {
                         onChange={(e) => setCommentDrafts((prev) => ({ ...prev, [post.id]: e.target.value }))}
                         placeholder="Adicione um comentário..."
                         className="w-full border border-gray-300 rounded-full py-2 px-4 pr-12 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        maxLength={500}
                     />
                     <button
                         type="submit"
@@ -759,7 +760,7 @@ async function handleLike(postId: number) {
                                 </div>
                             </div>
                             ) : (
-                            <div className="bg-gray-100 rounded-lg p-3 relative group">
+                            <div className="bg-gray-100 rounded-lg p-3 relative group max-w-lg">
                                 <div className="flex justify-between">
                                 {/* Nome do Autor do Comentário */}
                                 <h4 className="font-medium text-sm">{commentAuthor.name}</h4>
@@ -809,7 +810,9 @@ async function handleLike(postId: number) {
                                     </div>
                                 )}
                                 </div>
-                                <p className="text-sm mt-1">{comment.description}</p>
+                                <p className="text-sm mt-1 break-words">
+                                    {comment.description}
+                                </p>
                             </div>
                             )}
                         </div>

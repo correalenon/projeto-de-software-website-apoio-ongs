@@ -216,6 +216,7 @@ export default function EditProfileModalUser({ isOpen, onClose, onSave, initialD
                   onChange={handleInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   required
+                  maxLength={60}
                 />
               </div>
 
@@ -232,6 +233,7 @@ export default function EditProfileModalUser({ isOpen, onClose, onSave, initialD
                     onChange={handleInputChange}
                     placeholder="Ex: São Paulo, SP"
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    maxLength={100}
                   />
                 </div>
 
@@ -247,6 +249,7 @@ export default function EditProfileModalUser({ isOpen, onClose, onSave, initialD
                     onChange={handleInputChange}
                     placeholder="Ex: Tecnologia da Informação"
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    maxLength={60}
                   />
                 </div>
               </div>
@@ -287,6 +290,7 @@ export default function EditProfileModalUser({ isOpen, onClose, onSave, initialD
             onKeyDown={handleSkillKeyDown}
             placeholder="Digite uma habilidade e pressione Enter"
             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            maxLength={40}
           />
         </div>
       </div>
