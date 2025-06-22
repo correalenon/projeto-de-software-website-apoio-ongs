@@ -2,8 +2,10 @@ import Header from "@/components/header"
 import ProfileHeaderUser from "@/components/profile/user/profileHeaderUser"
 import ProfileAboutUser from "@/components/profile/user/profileAboutUser"
 import ProfileContributionUser from "@/components/profile/user/profileContributionUser"
-import ProfileUserSugestionOng from "@/components/profile/user/profileUserSugestionOng" 
+import ProfileUserSugestionOng from "@/components/profile/user/profileUserSugestionOng"
+import ProfileVolunteerProjects from "@/components/profile/user/profileVolunteerProjects" 
 import Footer from "@/components/footer"
+
 
 export default function ProfilePage() {
   return (
@@ -18,6 +20,9 @@ export default function ProfilePage() {
           <div className="md:col-span-2 space-y-6">
             {/* About Section */}
             < ProfileAboutUser />
+
+            {/* Projects Volunteer Section */}
+            < ProfileVolunteerProjects />
 
             {/* Contribution Section */}
             < ProfileContributionUser />

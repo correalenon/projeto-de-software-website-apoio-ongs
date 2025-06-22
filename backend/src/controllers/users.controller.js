@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import prisma from "../db/client.js";
+import { AssociateStatus } from '@prisma/client';
 
 export const getMe = async (req, res) => {
     try {
@@ -294,3 +295,43 @@ export const GetUsersWithoutONGs = async (req, res) => {
 
     }
 }
+
+export const getUserAcceptedProjects = async (req, res) => {
+    const { id, tipo: userType } = req.user;
+
+    // 1 - Validaçao: Apenas 'VOLUNTARY's podem ter projetos aceitos
+    if (userType !== 'VOLUNTARY') {
+        return res.status(403).json({ error: "Sua role não possui projetos participados." });
+    }
+
+    try {
+        // Busca todos os registros UserAssociateProject para este usuário com status 'ACCEPTED'
+        const acceptedProjects = await prisma.userAssociateProject.findMany({
+            where: {
+                userId: id,
+                status: AssociateStatus.ACCEPTED,
+            },
+            include: {
+                project: {
+                    select: {
+                        id: true,
+                        name: true,
+                        description: true,
+                        ongId: true,
+                        ong: {
+                            select: {
+                                nameONG: true,
+                            }
+                        }
+                    }
+                },
+                user: false,
+            }
+        });
+
+        res.status(200).json(acceptedProjects);
+    } catch (error) {
+        console.error("Erro ao buscar projetos aceitos do usuário:", error);
+        res.status(500).json({ error: "Erro interno ao buscar projetos participados." });
+    }
+};
