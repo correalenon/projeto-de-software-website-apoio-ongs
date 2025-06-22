@@ -83,9 +83,9 @@ export default function OngsInteresting() {
                     )
                     )}
                 </div>
-                <button className="w-full border border-gray-300 rounded py-2 px-3 mt-4 hover:bg-gray-50">
+                {/* <button className="w-full border border-gray-300 rounded py-2 px-3 mt-4 hover:bg-gray-50">
                     Show more
-                </button>
+                </button> */}
             </div>
         </div>
     )

@@ -95,7 +95,6 @@ export default function ContactSection({ id }: { id: number }) {
       setVolunteerStatus(apiResponse.status || 'REQUEST_PENDING_USER_TO_ONG');
 
     } catch (err: any) {
-      console.error("Erro ao voluntariar:", err);
       alert(err || "Ocorreu um erro ao enviar sua solicitação. Tente novamente.");
     } finally {
       setIsSubmitting(false);
