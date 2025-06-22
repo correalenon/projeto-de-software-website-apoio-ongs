@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import LogoutButton from "@/components/logout-button";
 import { useOng } from "@/context/ongContext";
 import { noProfileImageUser, noProfileImageONG } from "app/images";
@@ -14,6 +14,8 @@ export default function Header() {
   const { ong } = useOng();
   const { user } = useUser();
   const pathName = usePathname();
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const loggedInEntity = user || ong;
 
@@ -24,10 +26,6 @@ export default function Header() {
     else {
       return loggedInEntity?.profileImage !== null ? loggedInEntity?.profileImage : noProfileImageONG
     }
-  }
-
-  const manageCollaboratorsONG = () => {
-
   }
 
   const isActive = (path: string) => {
@@ -46,7 +44,21 @@ export default function Header() {
     timeoutRef.current = setTimeout(() => {
       setIsHovered(false);
     }, 200);
+
   };
+
+  // --- Função para lidar com a busca ao pressionar Enter ---
+  const handleSearch = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      const trimmedSearchTerm = searchTerm.trim();
+      if (trimmedSearchTerm) {
+        // Redireciona para a página de resultados de busca
+        router.push(`/search?q=${encodeURIComponent(trimmedSearchTerm)}`);
+        setSearchTerm(""); // Limpa o campo de busca após a pesquisa
+      }
+    }
+  };
+  // -----------
 
   return (
     <header className="sticky top-0 z-10 bg-white border-b">
@@ -71,7 +83,14 @@ export default function Header() {
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.3-4.3" />
             </svg>
-            <input placeholder="Buscar ONG's e Projetos" className="w-64 pl-8 bg-gray-100 border-none rounded-md h-9 px-3" />
+            {/* Input de Busca */}
+            <input 
+              placeholder="Buscar ONG's e Projetos" 
+              className="w-64 pl-8 bg-gray-100 border-none rounded-md h-9 px-3" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleSearch}
+              />
           </div>
         </div>
         <nav className="flex items-center space-x-1">
