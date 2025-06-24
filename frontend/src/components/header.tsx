@@ -224,6 +224,12 @@ export default function Header() {
                   Painel de Colaboradores
                 </Link>
               )}
+              {/* Renderiza o link 'Painel de Projetos da ONG' APENAS SE loggedInEntity for uma ONG */}
+              {loggedInEntity?.role === 'ONG' && (
+                <Link href='/manage-projects/ong' className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  Painel de Projetos da ONG
+                </Link>
+              )}
               {/* Renderiza o link 'Painel de Projetos' APENAS SE loggedInEntity for um COLABORADOR */}
               {loggedInEntity?.role === 'COLLABORATOR' && loggedInEntity.ong?.id && (
                 <Link href='/manage-projects' className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
