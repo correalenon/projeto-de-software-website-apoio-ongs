@@ -438,12 +438,14 @@ export const getAllOngUserRelations = async (req, res) => {
 };
 
 export const getProjectVolunteerRequestsForOng = async (req, res) => {
-    const { ongId } = req.params;
+    const { id: ongId } = req.params;
 
+    const parsedOngId = parseInt(ongId)
+ 
     try {
         // 1. Encontro todos os projetos que pertencem a esta ONG logada
         const projectsOfOng = await prisma.projects.findMany({
-            where: { ongId },
+            where: {  ongId: parsedOngId },
             select: { id: true } // Seleciona apenas o ID do projeto
         });
 
